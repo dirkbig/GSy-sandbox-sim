@@ -1,6 +1,4 @@
-import plotly
-import plotly.plotly as py
-import plotly.graph_objs as go
+
 import logging
 import matplotlib.pyplot as plt
 import os
@@ -8,8 +6,8 @@ import csv
 import numpy as np
 import networkx as nx
 
-plotly.tools.set_credentials_file(username='dirkGSy', api_key='rJJU93ceA9z7ZtDVEU0Y')
-plotly.tools.set_config_file(world_readable=True, sharing='public')
+# plotly.tools.set_credentials_file(username='dirkGSy', api_key='rJJU93ceA9z7ZtDVEU0Y')
+# plotly.tools.set_config_file(world_readable=True, sharing='public')
 
 network_graph_log = logging.getLogger('network_visual')
 
