@@ -1,5 +1,5 @@
 from mesa import Agent
-from devices import ESS
+from devices import *
 from wallet import Wallet
 from data import Data
 import scipy.optimize as optimize
@@ -22,9 +22,15 @@ class HouseholdAgent(Agent):
 
         self.bid = None
         self.offer = None
-        """house attributes"""
-        self.ess = ESS(self)
+        """standard house attributes"""
         self.wallet = Wallet(_unique_id)
+        """set-up dependant house attributes"""
+        self.ess = ESS(self)
+        # TODO: make a house setup configurable, goal is to have a diverse grid configuration
+        # For example:
+        # self.load = GeneralLoad(self)
+        # self.electrolyzer = Electrolyzer(self)
+        # self.PV = PVPanel(self)
 
     def utility_function(self, params):
         """agent-individual utility function generates 1 quantity for 1 price"""
@@ -68,6 +74,11 @@ class HouseholdAgent(Agent):
         """solver using SLSQP quadratic solver"""
         print(self.trading_state)
         price_quantity_point = optimize.minimize(self.utility_function, x0, constraints=cons, method='SLSQP')
+
+        # TODO: check for coin balance in Wallet object
+        if price_quantity_point.x[0]*price_quantity_point[1] > self.wallet.coin_balance:
+            house_log.warning('cannot afford such a bid')
+
         return price_quantity_point.x
 
     def demand_curve(self):

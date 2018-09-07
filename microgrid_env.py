@@ -1,5 +1,5 @@
 from mesa import Model
-from auctioneer_agent import PayAsClearAuctioneer
+from auctioneer_agent import Auctioneer
 from household_agent import HouseholdAgent
 from data import Data
 import random
@@ -19,7 +19,7 @@ class MicroGrid(Model):
 
         """ create the auction platform"""
         if self.auction_type == 'pay_as_clear':
-            self.auction = PayAsClearAuctioneer(self.auction_type, self)
+            self.auction = Auctioneer(self.auction_type, self)
 
         """ create N agents """
         for i in range(self.num_households):

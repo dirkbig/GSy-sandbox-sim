@@ -32,8 +32,22 @@ class ESS(object):
 
     def update_ess_state(self):
         self.soc_actual = self.soc_actual + self.balance
+        assert self.soc_actual <= self.max_capacity and self.soc_actual > 0
 
 
 class PVPanel(object):
     def __init__(self):
         """PVPanel device"""
+
+
+class Electrolyzer(object):
+    def __init__(self):
+        """ Electrolyzer device"""
+
+
+class GeneralLoad(object):
+    def __init__(self):
+        """ General load device """
+
+
+

@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b51419d8-2e94-4ec6-883c-8137bba46e54" name="Default" comment="" />
+    <list default="true" id="b51419d8-2e94-4ec6-883c-8137bba46e54" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctioneer_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/auctioneer_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/const.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/devices.py" beforeDir="false" afterPath="$PROJECT_DIR$/devices.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_trades.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/grid_trades.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_trades_big.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/grid_trades_big.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/household_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/household_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/microgrid_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/microgrid_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/networkx_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/networkx_tester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_microgrid.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_microgrid.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -10,21 +22,81 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="run_microgrid.py" pinned="false" current-in-tab="true">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="run_microgrid.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/run_microgrid.py">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="13" column="24" lean-forward="true" selection-start-line="13" selection-start-column="24" selection-end-line="13" selection-end-column="24" />
+            </state>
+          </provider>
         </entry>
       </file>
-      <file leaf-file-name="networkx_tester.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/networkx_tester.py">
+      <file leaf-file-name="microgrid_env.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/microgrid_env.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1124">
-              <caret line="8" selection-start-line="8" selection-end-line="10" />
+            <state relative-caret-position="105">
+              <caret line="7" column="7" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="7" />
               <folding>
-                <element signature="e#1#15#0" expanded="true" />
-                <marker date="1536250996000" expanded="true" signature="113:268" ph="..." />
+                <element signature="e#0#22#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="household_agent.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/household_agent.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="448">
+              <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
+              <folding>
+                <element signature="e#0#22#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="345">
+              <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="devices.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/devices.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="594">
+              <caret line="42" column="18" selection-start-line="42" selection-start-column="6" selection-end-line="42" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="const.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/const.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="30">
+              <caret line="2" column="29" selection-start-line="2" selection-start-column="29" selection-end-line="2" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="wallet.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wallet.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="105">
+              <caret line="7" column="25" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="auctioneer_agent.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/auctioneer_agent.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-2113">
+              <caret line="11" column="16" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="16" />
             </state>
           </provider>
         </entry>
@@ -45,17 +117,25 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="remote-master" />
+      </map>
+    </option>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/run_microgrid.py" />
-        <option value="$PROJECT_DIR$/const.py" />
-        <option value="$PROJECT_DIR$/data.py" />
-        <option value="$PROJECT_DIR$/auctioneer_agent.py" />
         <option value="$PROJECT_DIR$/wallet.py" />
         <option value="$PROJECT_DIR$/../pay_as_clear_test/__pycache__/auctioneer_agent.cpython-36.pyc" />
         <option value="$PROJECT_DIR$/networkx_tester.py" />
+        <option value="$PROJECT_DIR$/run_microgrid.py" />
+        <option value="$PROJECT_DIR$/auctioneer_agent.py" />
+        <option value="$PROJECT_DIR$/microgrid_env.py" />
+        <option value="$PROJECT_DIR$/data.py" />
+        <option value="$PROJECT_DIR$/const.py" />
+        <option value="$PROJECT_DIR$/devices.py" />
+        <option value="$PROJECT_DIR$/household_agent.py" />
       </list>
     </option>
   </component>
@@ -88,6 +168,11 @@
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -182,15 +267,24 @@
       <option name="presentableId" value="Default" />
       <updated>1533884462610</updated>
     </task>
+    <task id="LOCAL-00001" summary="test commit">
+      <created>1536252032209</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1536252032210</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-199" y="-1080" width="1920" height="1080" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21327014" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info active="true" anchor="bottom" id="Event Log" order="7" sideWeight="0.5013165" side_tool="true" visible="true" weight="0.3839104" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.3839104" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5013165" side_tool="true" visible="true" weight="0.3839104" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.3839104" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -208,6 +302,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="test commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="test commit" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -262,9 +360,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/matplotlib/axes/_axes.py" />
-    <entry file="file://$PROJECT_DIR$/wallet.py" />
-    <entry file="file://$PROJECT_DIR$/microgrid_env.py" />
-    <entry file="file://$PROJECT_DIR$/devices.py" />
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/plotly/api/v1/clientresp.py" />
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/plotly/plotly/plotly.py" />
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/importlib/_bootstrap.py">
@@ -278,32 +373,87 @@
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/_plotly_utils/basevalidators.py" />
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/plotly/graph_objs/_scatter.py" />
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/pip-10.0.1-py3.6.egg/pip/_vendor/distlib/database.py" />
-    <entry file="file://$PROJECT_DIR$/const.py" />
-    <entry file="file://$PROJECT_DIR$/grid_trades.csv" />
+    <entry file="file://$PROJECT_DIR$/data/grid_trades.csv" />
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/networkx/classes/graph.py" />
-    <entry file="file://$PROJECT_DIR$/grid_trades_big.csv" />
+    <entry file="file://$PROJECT_DIR$/data/grid_trades_big.csv" />
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/matplotlib/patches.py" />
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/matplotlib/colors.py" />
-    <entry file="file://$PROJECT_DIR$/data.py" />
-    <entry file="file://$PROJECT_DIR$/household_agent.py" />
     <entry file="file://$PROJECT_DIR$/pac_int/lib/python3.6/site-packages/networkx/drawing/nx_pylab.py" />
-    <entry file="file://$PROJECT_DIR$/auctioneer_agent.py" />
     <entry file="file://$PROJECT_DIR$/../pay_as_clear_test/__pycache__/auctioneer_agent.cpython-36.pyc">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/networkx_tester.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1124">
-          <caret line="8" selection-start-line="8" selection-end-line="10" />
+        <state relative-caret-position="190">
+          <caret line="28" column="23" lean-forward="true" selection-start-line="28" selection-start-column="23" selection-end-line="28" selection-end-column="23" />
           <folding>
             <element signature="e#1#15#0" expanded="true" />
-            <marker date="1536250996000" expanded="true" signature="113:268" ph="..." />
+            <marker date="1536252175000" expanded="true" signature="113:268" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/const.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="29" selection-start-line="2" selection-start-column="29" selection-end-line="2" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/auctioneer_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2113">
+          <caret line="11" column="16" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/devices.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="594">
+          <caret line="42" column="18" selection-start-line="42" selection-start-column="6" selection-end-line="42" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wallet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="25" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/microgrid_env.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="7" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/run_microgrid.py">
-      <provider selected="true" editor-type-id="text-editor" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="13" column="24" lean-forward="true" selection-start-line="13" selection-start-column="24" selection-end-line="13" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/household_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="448">
+          <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
     </entry>
   </component>
 </project>

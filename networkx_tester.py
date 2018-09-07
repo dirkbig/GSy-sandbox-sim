@@ -24,7 +24,7 @@ class NetworkPlot(object):
     def csv_read_file():
 
         data_array = []
-        with open('grid_trades_big.csv') as csvfile:
+        with open('data/grid_trades_big.csv') as csvfile:
             data_file = csv.reader(csvfile, delimiter=',')
             for row in data_file:
                 data_array.append(row)

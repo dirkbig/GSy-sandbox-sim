@@ -9,7 +9,7 @@ sns.set()
 auction_log = logging.getLogger('auctioneer')
 
 
-class PayAsClearAuctioneer(Agent):
+class Auctioneer(Agent):
     """ Pay as Clear auction market is created here"""
     def __init__(self, _unique_id, _microgrid):
         auction_log.info('auction of type %s created', _unique_id)
