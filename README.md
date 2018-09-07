@@ -4,7 +4,7 @@ agent-based model using MESA package modeling a two-sided market, pay-as-clear p
 
 ## Getting started
 
-This is a project in Python. We advice to use a virtual environment.
+This is a project in Python 3.6.3. We advice to use a virtual environment.
 
 Install dependencies (MESA, matlibplot, seaborn, and some standard ones), by directing pip-installer towards the requirements.txt
 
