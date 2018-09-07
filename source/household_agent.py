@@ -38,7 +38,7 @@ class HouseholdAgent(Agent):
             buy_allocation, price = params
             demand = - self.ess.surplus
             # TODO: what is the bidding risk? expectation of allocation increases when raising price
-            utility = (demand - buy_allocation * price) ** 2 + buy_allocation * price + price * 0.008
+            utility = (demand - buy_allocation * price) ** 2 + buy_allocation * price + price * 0.005
 
         elif self.trading_state == 'supplying':
             sell_allocation, price = params
@@ -70,11 +70,8 @@ class HouseholdAgent(Agent):
         x0 = [0.1, 0.1]
 
         """solver using SLSQP quadratic solver"""
-        print(self.trading_state)
         price_quantity_point = optimize.minimize(self.utility_function, x0, constraints=cons, method='SLSQP')
-
         price, quantity = price_quantity_point.x
-        print(price, quantity)
 
         # TODO: check for coin balance in Wallet object
         if price*quantity > self.wallet.coin_balance:
@@ -100,14 +97,14 @@ class HouseholdAgent(Agent):
         self.ess.ess_demand_calc(self)
         if self.ess.surplus > 0:
             self.trading_state = 'supplying'
-            self.offer = self.price_point_optimization()
+            price, quantity = self.price_point_optimization()
+            self.offer = [price, quantity, self.id]
             self.bid = None
-            print(self.offer)
         elif self.ess.surplus < 0:
             self.trading_state = 'buying'
-            self.bid = self.price_point_optimization()
+            price, quantity = self.price_point_optimization()
+            self.bid = [price, quantity, self.id]
             self.offer = None
-            print(self.bid)
         else:
             self.trading_state = 'passive'
         house_log.info('house%d is %s', self.id, self.trading_state)
