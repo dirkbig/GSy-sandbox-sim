@@ -164,7 +164,7 @@ class Auctioneer(Agent):
 
         self.clearing_of_market(sorted_x_y_y_pairs_list)
 
-    def clearing_of_market(self, sorted_x_y_y_pairs_list, clearing_quantity):
+    def clearing_of_market(self, sorted_x_y_y_pairs_list):
         """clears market """
 
         """ listing of all offers/bids selected for trade """
