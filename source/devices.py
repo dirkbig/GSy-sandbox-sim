@@ -1,4 +1,4 @@
-import const
+from source import const
 import logging
 device_log = logging.getLogger('device')
 

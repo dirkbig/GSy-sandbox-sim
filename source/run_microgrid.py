@@ -1,4 +1,4 @@
-import microgrid_env
+from source import microgrid_env
 import logging
 logging.basicConfig(level=logging.WARNING)
 grid_log = logging.getLogger('run_microgrid')

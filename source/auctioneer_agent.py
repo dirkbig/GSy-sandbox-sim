@@ -1,10 +1,8 @@
 from mesa import Agent
-import matplotlib
-import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import logging
-
+from plots import clearing_snapshot
 sns.set()
 auction_log = logging.getLogger('auctioneer')
 
@@ -14,8 +12,10 @@ class Auctioneer(Agent):
     def __init__(self, _unique_id, _microgrid):
         auction_log.info('auction of type %s created', _unique_id)
         super().__init__(_unique_id, _microgrid)
+        self.snapshot_plot = True
         self.id = _unique_id
         self.microgrid = _microgrid
+        self.pricing_rule = 'pac'
         self.aggregate_demand_curve = []
         self.aggregate_supply_curve = []
 
@@ -124,10 +124,10 @@ class Auctioneer(Agent):
         y_bid_prices = []
         y_offer_prices = []
 
-        print("")
-        for i in sorted_x_y_y_pairs_list:
-            print(i)
-        print("")
+        # print("")
+        # for i in sorted_x_y_y_pairs_list:
+        #     print(i)
+        # print("")
 
         """filter out None values and save as quantity/price series for plotting"""
         for i in range(len(sorted_x_y_y_pairs_list)):
@@ -139,39 +139,48 @@ class Auctioneer(Agent):
             y_bid_prices.append(sorted_x_y_y_pairs_list[i][1])
             y_offer_prices.append(sorted_x_y_y_pairs_list[i][2])
 
-        """pricing rule: highest losing bid defines clearing price"""
+        return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list, x_quantities, y_bid_prices, y_offer_prices
+
+    def pay_as_clear_pricing(self, sorted_x_y_y_pairs_list):
+        """ pay-as-clear pricing rule """
         # TODO: make sure the steps are set from previous q (or 0) until announced quantity. It should be backwards.
         # now I make range(len(sorted_x_y_y_pairs_list)-1), -1 because of the forwards-step bug (see TODO_above)
-        for i in range(len(sorted_x_y_y_pairs_list)-1):
+        for i in range(len(sorted_x_y_y_pairs_list) - 1):
             """ if bid is still higher than offer, then save it as potential clearing quantity and next "losing?" bid
                 as clearing price"""
             # TODO: this is very ugly... alas, everything around here is ugly
             if sorted_x_y_y_pairs_list[i][1] < sorted_x_y_y_pairs_list[i][2]:
-                self.clearing_quantity = sorted_x_y_y_pairs_list[i-1][0]
-                self.clearing_price = sorted_x_y_y_pairs_list[i][1]
+                clearing_quantity = sorted_x_y_y_pairs_list[i - 1][0]
+                clearing_price = sorted_x_y_y_pairs_list[i][1]
                 print(i)
                 break
-        auction_log.info(self.clearing_quantity, self.clearing_price)
+        auction_log.info(clearing_quantity, clearing_price)
 
-        # TODO: export these demand/supply curves
-        fig, ax = plt.subplots()
-        ax = fig.add_subplot(111)
-        ax.step(x_quantities, y_bid_prices, label='bids')
-        ax.step(x_quantities, y_offer_prices, label='offers')
-        if self.clearing_quantity is not []:
-            ax.axvline(x=self.clearing_quantity, color='black', linestyle='--')
-            ax.axhline(y=self.clearing_price, color='black', linestyle='--')
-        ax.legend()
-        ax.set(xlabel='quantity', ylabel='price',
-               title='clearing markets aggregate demand and supply blocks')
-        plt.show()
+        return clearing_quantity, clearing_price,
 
-        return sorted_bid_list, sorted_offer_list
+    @staticmethod
+    def pay_as_bid_pricing(self):
+        """ pay-as-bid pricing rule """
 
     def auction_setup(self):
-        """ picks a pricing rule """
+        """ auctioneer sets up the market and clears it according pricing rule """
 
-        sorted_bid_list, sorted_offer_list = self.sorting()  # sorted_"kind"_list[agent][quantity/price]
+        """ sorts collected bids and offers """
+        # sorted_"kind"_list[agent][quantity/price]
+        sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list, quantities, bid_prices, offer_prices = \
+            self.sorting()
+
+        """ picks pricing rule """
+        if self.pricing_rule == 'pab':
+            self.clearing_quantity = None
+            self.clearing_price = None
+            pass
+
+        elif self.pricing_rule == 'pac':
+            self.clearing_quantity, self.clearing_price = self.pay_as_clear_pricing(sorted_x_y_y_pairs_list)
+            """ intermediate plot of cleared market? """
+            if self.snapshot_plot:
+                clearing_snapshot(self.clearing_quantity, self.clearing_price, quantities, bid_prices, offer_prices)
 
         """make a similar aggregated bid/offer list"""
         if self.id == 'pay_as_clear':
@@ -209,4 +218,8 @@ class Auctioneer(Agent):
         self.list_of_offers = _offer_list
         self.list_of_bids = _bid_list
         self.auction_setup()
+
+
+
+
 

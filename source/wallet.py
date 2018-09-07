@@ -1,4 +1,4 @@
-import const
+from source import const
 
 
 class Wallet(object):

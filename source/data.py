@@ -1,5 +1,5 @@
 import numpy as np
-import const
+from source import const
 
 
 class Data(object):
@@ -19,6 +19,6 @@ class Data(object):
         self.capacity = np.random.rand(_num_households)
 
         assert len(self.load_profile) == len(self.storage_profile) == len(self.production_profile) == len(self.capacity)
-        self.N = min(const.max_households+1, len(self.load_profile))
+        self.N = min(const.max_households + 1, len(self.load_profile))
 
         # TODO: add time series data from Stanford SMART* data-set

@@ -1,7 +1,7 @@
 from mesa import Model
-from auctioneer_agent import Auctioneer
-from household_agent import HouseholdAgent
-from data import Data
+from source.auctioneer_agent import Auctioneer
+from source.household_agent import HouseholdAgent
+from source.data import Data
 import random
 
 import logging

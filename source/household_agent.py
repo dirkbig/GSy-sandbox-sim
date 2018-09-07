@@ -1,9 +1,7 @@
 from mesa import Agent
-from devices import *
-from wallet import Wallet
-from data import Data
+from source.devices import *
+from source.wallet import Wallet
 import scipy.optimize as optimize
-import numpy as np
 import logging
 house_log = logging.getLogger('house')
 
@@ -75,11 +73,14 @@ class HouseholdAgent(Agent):
         print(self.trading_state)
         price_quantity_point = optimize.minimize(self.utility_function, x0, constraints=cons, method='SLSQP')
 
+        price, quantity = price_quantity_point.x
+        print(price, quantity)
+
         # TODO: check for coin balance in Wallet object
-        if price_quantity_point.x[0]*price_quantity_point[1] > self.wallet.coin_balance:
+        if price*quantity > self.wallet.coin_balance:
             house_log.warning('cannot afford such a bid')
 
-        return price_quantity_point.x
+        return price, quantity
 
     def demand_curve(self):
         """convert utility function to a demand curve"""
