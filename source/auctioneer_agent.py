@@ -12,7 +12,7 @@ class Auctioneer(Agent):
     def __init__(self, _unique_id, _microgrid):
         auction_log.info('auction of type %s created', _unique_id)
         super().__init__(_unique_id, _microgrid)
-        self.snapshot_plot = False
+        self.snapshot_plot = True
         self.id = _unique_id
         self.microgrid = _microgrid
         self.pricing_rule = 'pac'
