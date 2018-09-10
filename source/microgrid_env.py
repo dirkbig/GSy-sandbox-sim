@@ -2,8 +2,9 @@ from mesa import Model
 from source.auctioneer_agent import Auctioneer
 from source.household_agent import HouseholdAgent
 from source.data import Data
+from source.const import market_interval
 import random
-
+from source.const import num_households
 import logging
 env_log = logging.getLogger('microgrid_env')
 
@@ -11,11 +12,11 @@ env_log = logging.getLogger('microgrid_env')
 class MicroGrid(Model):
     """ Agents are created in this environment that runs the simulation"""
     def __init__(self, _auction_type):
-        # TODO: make data instance for each agent
         self.data = Data()
         self.agents = []
-        self.num_households = self.data.N
+        self.num_households = num_households
         self.auction_type = _auction_type
+        self.step = 0
 
         """ create the auction platform"""
         if self.auction_type == 'pay_as_clear':
@@ -45,6 +46,7 @@ class MicroGrid(Model):
 
         self.auction.auction_round(bid_list, offer_list)
 
+        self.step += 1
 
 
 

@@ -36,7 +36,6 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
 
     filled = False
 
-
     num_suppliers = len(sorted_offer_list)
     supplier = 0
     available_supply_of_selected_seller = sorted_offer_list[supplier][0]
@@ -86,14 +85,14 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
                     break
 
     total_turnover_trade_pairs = np.sum(trade_pairs_pac_, axis=0)[3]
-    print(total_turnover_trade_pairs)
-    print(total_turnover_)
+    # print(total_turnover_trade_pairs)
+    # print(total_turnover_)
     assert matched_quantity == clearing_quantity
     assert total_turnover_trade_pairs - 0.01 <= total_turnover_ <= total_turnover_trade_pairs + 0.01
-    print(clearing_price)
-    print(clearing_quantity)
+    # print(clearing_price)
+    # print(clearing_quantity)
 
-    method_logger.info('finished market matching')
+    method_logger.info('finished matching winning bids and offers')
 
     return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pac_
 

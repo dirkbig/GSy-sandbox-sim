@@ -32,9 +32,10 @@ class ESS(object):
 
     def update_ess_state(self):
         self.soc_actual = self.soc_actual + self.balance
-        assert self.soc_actual <= self.max_capacity and self.soc_actual > 0
+        assert 0 > self.soc_actual <= self.max_capacity and self.soc_actual
 
 
+# TODO: devices we need according to RLI / EWF use-case
 class PVPanel(object):
     def __init__(self):
         """PVPanel device"""
@@ -43,11 +44,16 @@ class PVPanel(object):
 class Electrolyzer(object):
     def __init__(self):
         """ Electrolyzer device"""
+        # TODO: RLI code goes here.
 
 
 class GeneralLoad(object):
     def __init__(self):
         """ General load device """
+
+
+class HydrogenCar(object):
+        """ HydrogenCar device """
 
 
 

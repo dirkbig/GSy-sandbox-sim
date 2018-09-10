@@ -13,16 +13,20 @@ class HouseholdAgent(Agent):
         super().__init__(_unique_id, _data)
         self.data = _data
         self.id = _unique_id
-        self.load = self.data.load_profile[self.id]
-        self.production = self.data.production_profile[self.id]
-        self.capacity = self.data.capacity
-        self.trading_state = 'passive'
 
-        self.bid = None
-        self.offer = None
+        """ Devices """
+        self.load = self.data.load_profile[self.id]
+        # TODO: add custom (simple) load profile
+        # TODO: add SMART* data-set load profile
+
+        self.production = self.data.production_profile[self.id]
+        # TODO: link this directly to a PV model / SMART* data-set
+
+
         """standard house attributes"""
         self.wallet = Wallet(_unique_id)
         """set-up dependant house attributes"""
+        self.capacity = self.data.capacity
         self.ess = ESS(self)
         # TODO: make a house setup configurable, goal is to have a diverse grid configuration
         # For example:
@@ -30,10 +34,18 @@ class HouseholdAgent(Agent):
         # self.electrolyzer = Electrolyzer(self)
         # self.PV = PVPanel(self)
 
+        """ Trading state"""
+        self.trading_state = 'passive'
+        self.bid = None
+        self.offer = None
+        self.sold_energy = None
+        self.bought_energy = None
+
+
+
     def utility_function(self, params):
         """agent-individual utility function generates 1 quantity for 1 price"""
         # TODO: create functions that generate a demand curve (are these dynamics even needed?)
-
         if self.trading_state == 'buying':
             buy_allocation, price = params
             demand = - self.ess.surplus
@@ -73,7 +85,6 @@ class HouseholdAgent(Agent):
         price_quantity_point = optimize.minimize(self.utility_function, x0, constraints=cons, method='SLSQP')
         price, quantity = price_quantity_point.x
 
-        # TODO: check for coin balance in Wallet object
         if price*quantity > self.wallet.coin_balance:
             house_log.warning('cannot afford such a bid')
 
