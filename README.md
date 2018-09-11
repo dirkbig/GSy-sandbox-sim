@@ -28,4 +28,6 @@ This is a research collaboration between Grid Singularity / Energy Web Foundatio
 
 * **Dirk van den Biggelaar**
 * **Fatuma Mohammed Ali**
+* **Marlon Fleck**
+* **Jorn Hartmann**
 
