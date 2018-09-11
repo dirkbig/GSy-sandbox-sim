@@ -26,8 +26,8 @@ A plot is automatically generated and opened, showing all bids and offers in a a
 ## Contribution
 This is a research collaboration between Grid Singularity / Energy Web Foundation - Reiner Lemoine Institut
 
-* **Dirk van den Biggelaar**
-* **Fatuma Mohammed Ali**
-* **Marlon Fleck**
-* **Jorn Hartmann**
+* **Dirk van den Biggelaar** - GSy
+* **Fatuma Mohammed Ali** - GSy
+* **Marlon Fleck** - RLI
+* **Jorn Hartmann** - RLI
 
