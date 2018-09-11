@@ -1,6 +1,6 @@
 # Pay as Clear Market 
 
-agent-based model using MESA package modeling a two-sided market, pay-as-clear pricing rule based micro-grid energy market. Goal is to simulate a grid with households using plug-and-play bidding strategies and devices according a predefined grid set-up
+Agent-based model using MESA package modeling a two-sided market, pay-as-clear pricing rule based micro-grid energy market. Goal is to simulate a grid with households using plug-and-play bidding strategies and devices according a predefined grid set-up
 
 ## Getting started
 
@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ## Run simulation
 
-run the micro-grid simulator file in the command-line
+Run the micro-grid simulator file in the command-line
 ```
 python run_microgrid.py
 ```
