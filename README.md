@@ -24,7 +24,7 @@ python run_microgrid.py
 A plot is automatically generated and opened, showing all bids and offers in a aggregated demand/supply curve, with an market clearing quantity. For pay-as-clear, this corresponds directly with the clearing price on the Y-axis.
 
 ## Contribution
-This is a research collaboration between Grid Singularity (GSy)/Energy Web Foundation (EWF) - Reiner Lemoine Institut (RLI)
+This is a research collaboration between Grid Singularity/Energy Web Foundation - Reiner Lemoine Institut
 
 * **Dirk van den Biggelaar**
 * **Fatuma Mohammed Ali**
