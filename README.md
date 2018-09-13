@@ -19,7 +19,7 @@ Run the micro-grid simulator file in the command-line
 python run_microgrid.py
 ```
 
-Since dependancy on Matlibplot, the 'python is not installed as framework' error could be occurring. If so:
+Since dependency on Matlibplot, the 'python is not installed as framework' error could be occurring. If so:
 ```
 echo "backend: TkAgg" >> ~/.matplotlib/matplotlibrc
 python run_microgrid.py
