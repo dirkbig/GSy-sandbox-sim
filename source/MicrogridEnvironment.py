@@ -1,7 +1,7 @@
 from source.AuctioneerAgent import Auctioneer
 from source.UtilityAgent import UtilityAgent
 from source.HouseholdAgent import HouseholdAgent
-from source.data import Data
+from source.Data import Data
 from source.const import *
 
 from mesa import Model

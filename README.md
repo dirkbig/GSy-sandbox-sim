@@ -19,6 +19,12 @@ Run the micro-grid simulator file in the command-line
 python run_microgrid.py
 ```
 
+Since dependancy on Matlibplot, the 'python is not installed as framework' error could be occurring. If so:
+```
+echo "backend: TkAgg" >> ~/.matplotlib/matplotlibrc
+python run_microgrid.py
+```
+
 ## Results
 
 Configurable: A plot is automatically generated and opened, showing all bids and offers in a aggregated demand/supply curve, with an market clearing quantity. For pay-as-clear, this corresponds directly with the clearing price on the Y-axis.
