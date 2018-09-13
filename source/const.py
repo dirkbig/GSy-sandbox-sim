@@ -1,13 +1,62 @@
-## SIMULATION
+""" Constants """
+
+
+""" Simulation environment """
 num_steps = 10
 auction_type = 'pay_as_clear'
 num_steps = 1
-num_households = 30
-
-# TODO: use package to unitize time properly
+num_households = 100
 market_interval = 15  # minutes
 
-## HOUSEHOLDS
-initial_capacity = 0
-max_capacity = 10
+
+""" Households """
 initial_coins_household = 100
+
+
+""" ESS constants"""
+# initial_capacity = 0
+# max_size_ess = 10
+
+
+""" Electrolyzer constants """
+# Faraday constant F [As/mol].
+faraday = 96485
+# Gas constant R [J /(mol K)].
+gas_const = 8.3144621
+# Moles of electrons needed to produce a mole of hydrogen[-].
+n = 2
+# Molar mass M_H2 [g / mol].
+molarity = 2.01588
+# Molar concentration of the KOH solution (10 mol/l for 28 wt% KOH) [mol/l].
+molarity_KOH = 10
+# Molal concentration of the KOH solution (7.64 mol/kg for 30 wt% KOH) [mol/kg].
+molality_KOH = 7.64
+# pressure of hydrogen in the system in [Pa]=
+pressure_factor = 10**5
+# upper heating value in [MJ / kg]
+upp_heat_val = 141.8
+# efficiency of the electrolysis system (efficiency factor between H2 power and elects. power)
+eta_ely = 0.65
+# The fitting parameter exchange current density[A / cm²].
+fitting_value_exchange_current_density = 1.4043839e-3
+# The thickness of the electrolyte layer [cm].
+fitting_value_electrolyte_thickness = 0.2743715938
+# temperature in [K]
+temp = 293.15
+
+# Time the electrolyzer needs to heat up [s]
+heating_time = 2.5 * 3600
+# start temperature when the electrolyzer is totally cooled down / wasn't in use for a long time
+# (ambient temperature) in [K]
+temp_0 = 293.15
+# highest temperature the electrolyzer can be in [K]
+temp_end = 353.15
+# maximal current density given by the manufacturer in [A/cm^2]
+cur_dens_max = 0.4
+# at this current density the maximal temperature is reached in [A/cm^2]
+cur_dens_max_temp = 0.35
+# minimal current density given by the manufacturer in [mA/cm^2]
+cur_dens_min = 0
+
+# counts the number of seconds the simulation is running
+sec_counter = 1

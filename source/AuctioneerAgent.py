@@ -1,20 +1,22 @@
+from source.auction_methods import *
+from plots import clearing_snapshot
+
 from mesa import Agent
 import seaborn as sns
-import numpy as np
-from source.methods import *
-from plots import clearing_snapshot
+
 sns.set()
 auction_log = logging.getLogger('auctioneer')
 
 
 class Auctioneer(Agent):
     """ Pay as Clear auction market is created here"""
-    def __init__(self, _unique_id, _microgrid):
+    def __init__(self, _unique_id, model):
+        super().__init__(_unique_id, self)
         auction_log.info('auction of type %s created', _unique_id)
-        super().__init__(_unique_id, _microgrid)
+        self.model = model
+
         self.snapshot_plot = True
         self.id = _unique_id
-        self.microgrid = _microgrid
         self.pricing_rule = 'pac'
         self.aggregate_demand_curve = []
         self.aggregate_supply_curve = []
@@ -28,12 +30,64 @@ class Auctioneer(Agent):
         self.clearing_price = None
         self.trade_pairs = None
 
+    def auction_round(self, _bid_list, _offer_list):
+        """check whether all agents have submitted their bids"""
+        # TODO: measure that part of agents submitted bids?
+        # TODO: how can we fix that agents can have direct communication, not through the microgrid as medium...
+        """ resets the acquired energy for all households """
+        for agent in self.model.agents[:]:
+            self.model.agents[agent.id].sold_energy = None
+            self.model.agents[agent.id].bought_energy = None
+        """ takes list of offers and bids from households """
+        self.list_of_offers = _offer_list
+        self.list_of_bids = _bid_list
+
+        print(self.list_of_offers)
+        print(self.list_of_bids)
+
+        """ sorts collected bids and offers """
+        self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
+        self.execute_auction(sorted_x_y_y_pairs_list)
+        self.clearing_of_market(self.trade_pairs)
+
+    def execute_auction(self, sorted_x_y_y_pairs_list):
+        """ auctioneer sets up the market and clears it according pricing rule """
+
+        if len(self.sorted_bid_list) == 0 or len(self.sorted_offer_list) == 0:
+            auction_log.warning("no trade at this step")
+            return
+
+        check_demand_supply(self.sorted_bid_list, self.sorted_offer_list)
+
+        self.trade_pairs = None
+        self.clearing_quantity = None
+        self.clearing_price = None
+        """ picks pricing rule and generates trade_pairs"""
+        if self.pricing_rule == 'pab':
+            self.clearing_quantity, total_turnover, self.trade_pairs = \
+                pab_pricing(sorted_x_y_y_pairs_list, self.sorted_bid_list, self.sorted_offer_list)
+
+            auction_log.info("Clearing quantity %f, total turnover is %f",
+                             self.clearing_quantity, total_turnover)
+
+        elif self.pricing_rule == 'pac':
+            self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
+                pac_pricing(sorted_x_y_y_pairs_list, self.sorted_bid_list, self.sorted_offer_list)
+            auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
+                             self.clearing_quantity, self.clearing_price, total_turnover)
+
+        if self.snapshot_plot:
+            clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
+
     def sorting(self):
         """sorts bids and offers into an aggregated demand/supply curve"""
-        # TODO: inherently link bids/offers with agents id
+
         # sort on price, not quantity, so price_point[1]
         sorted_bid_list = sorted(self.list_of_bids, key=lambda price_point: price_point[1], reverse=True)
         sorted_offer_list = sorted(self.list_of_offers, key=lambda price_point: price_point[1])
+
+        print(sorted_bid_list)
+        print(sorted_offer_list)
 
         # creation of aggregate supply/demand points
         aggregate_quantity_points = []
@@ -60,6 +114,8 @@ class Auctioneer(Agent):
 
         x_y_y_pairs_list.extend(x_bid_pairs_list)
         x_y_y_pairs_list.extend(x_supply_pairs_list)
+
+        print(x_y_y_pairs_list)
 
         """sorted_x_y_y_pairs_list[agents][quantity_point, bid_price, offer_price]"""
         sorted_x_y_y_pairs_list = sorted(x_y_y_pairs_list, key=lambda l: l[0])
@@ -114,7 +170,7 @@ class Auctioneer(Agent):
         """ here is a design choice; channel all the funds to the auctioneer and divide accordingly to supply?
             or allow direct transactions between supplier and consumer? hybrid: auctioneer mediates direct trade"""
         for trade in range(len(trade_pairs)):
-            # data-struct: [seller_id, buyer_id, trade_quantity, payment]
+            # data structure: [seller_id, buyer_id, trade_quantity, payment]
             id_seller = trade_pairs[trade][0]
             id_buyer = trade_pairs[trade][1]
             trade_quantity = trade_pairs[trade][2]
@@ -126,50 +182,5 @@ class Auctioneer(Agent):
             self.model.agents[id_seller].wallet.settle_revenue(payment)
             self.model.agents[id_buyer].wallet.settle_payment(payment)
 
-    def auction_setup(self):
-        """ auctioneer sets up the market and clears it according pricing rule """
 
-        """ sorts collected bids and offers """
-        # sorted_"kind"_list[agent][quantity/price]
-        self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
-
-        check_demand_supply(self.sorted_bid_list, self.sorted_offer_list)
-
-        self.trade_pairs = None
-        self.clearing_quantity = None
-        self.clearing_price = None
-        """ picks pricing rule and generates trade_pairs"""
-        if self.pricing_rule == 'pab':
-            self.clearing_quantity, total_turnover, self.trade_pairs = \
-                pab_pricing(sorted_x_y_y_pairs_list, self.sorted_bid_list, self.sorted_offer_list)
-
-            auction_log.info("Clearing quantity %f, total turnover is %f",
-                             self.clearing_quantity, total_turnover)
-
-        elif self.pricing_rule == 'pac':
-            self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
-                pac_pricing(sorted_x_y_y_pairs_list, self.sorted_bid_list, self.sorted_offer_list)
-            auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
-                             self.clearing_quantity, self.clearing_price, total_turnover)
-
-        if self.snapshot_plot:
-            clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
-
-        self.clearing_of_market(self.trade_pairs)
-
-    def settlement_of_market(self):
-        """settles energy trade """
-
-    def auction_round(self, _bid_list, _offer_list):
-        """check whether all agents have submitted their bids"""
-        # TODO: measure that part of agents submitted bids?
-        # TODO: how can we fix that agents can have direct communication, not through the microgrid as medium...
-        """ resets the acquired energy for all households """
-        for agent in self.model.agents[:]:
-            self.model.agents[agent.id].sold_energy = None
-            self.model.agents[agent.id].bought_energy = None
-        """ takes list of offers and bids from households """
-        self.list_of_offers = _offer_list
-        self.list_of_bids = _bid_list
-        self.auction_setup()
 

@@ -2,9 +2,6 @@ import logging
 import numpy as np
 method_logger = logging.getLogger('methods')
 
-""" these methods are static calculators. They are not private but common sense. The input (data) to these functions however,
-    is owned by the auctioneer; the natural user of these methods. """
-
 
 def check_demand_supply(sorted_bid_list_, sorted_offer_list_):
     if len(sorted_bid_list_) is not 0:
@@ -25,15 +22,18 @@ def check_demand_supply(sorted_bid_list_, sorted_offer_list_):
 
 def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     """ trade matching according pay-as-clear pricing rule """
-
+    print(sorted_x_y_y_pairs_list_)
     clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list_)
     """ some checks """
+    if clearing_quantity is None or clearing_price is None:
+        method_logger.warning("No clearing quantity or price was found")
+        return clearing_quantity, clearing_price, None, None
+
     total_turnover_ = clearing_quantity * clearing_price
     assert total_turnover_ > 0 and clearing_quantity > 0
 
     trade_pairs_pac_ = []
     matched_quantity = 0
-
     filled = False
 
     num_suppliers = len(sorted_offer_list)
@@ -41,7 +41,7 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     available_supply_of_selected_seller = sorted_offer_list[supplier][0]
     seller_id = sorted_offer_list[supplier][2]
 
-    method_logger.info('starting market matching')
+    method_logger.info('starting market matching, according to Pay-As-Clear')
     while not filled:
         # TODO: test this, also regarding the backwards / forwards issue.
         for i in range(len(sorted_bid_list)):
@@ -85,15 +85,10 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
                     break
 
     total_turnover_trade_pairs = np.sum(trade_pairs_pac_, axis=0)[3]
-    # print(total_turnover_trade_pairs)
-    # print(total_turnover_)
     assert matched_quantity == clearing_quantity
     assert total_turnover_trade_pairs - 0.01 <= total_turnover_ <= total_turnover_trade_pairs + 0.01
-    # print(clearing_price)
-    # print(clearing_quantity)
 
     method_logger.info('finished matching winning bids and offers')
-
     return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pac_
 
 
@@ -104,7 +99,8 @@ def pab_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
 
     trade_pairs_pab_ = None
     total_turnover_ = None
-    """ this function should return a pairing of bids and offers for which price"""
+    """ this function should return a pairing of bids and offers for determined prices"""
+
     return clearing_quantity, total_turnover_, trade_pairs_pab_
 
 

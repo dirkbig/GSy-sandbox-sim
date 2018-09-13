@@ -1,13 +1,14 @@
+from source import MicrogridEnvironment
 from source.const import *
-from source import microgrid_env
+
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 grid_log = logging.getLogger('run_microgrid')
 
 
 def run_microgrid_sim(_auction_type):
     """create microgrid"""
-    microgrid_ = microgrid_env.MicroGrid(_auction_type)
+    microgrid_ = MicrogridEnvironment.MicroGrid()
     grid_log.info('microgrid class created')
     return microgrid_
 
