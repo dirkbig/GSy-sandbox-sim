@@ -9,7 +9,7 @@ This is a project in Python 3.6.3. We advice to use a virtual environment.
 Clone repo into a dedicated folder (in your home directory). In terminal, located inside this folder, do:
 
 ```
-git checkout https://github.com/dirkbig/pac
+git clone https://github.com/dirkbig/pac
 ```
 
 Install dependencies (MESA, matlibplot, seaborn, and some standard ones), by directing pip-installer towards the requirements.txt
