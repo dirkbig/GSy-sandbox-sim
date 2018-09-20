@@ -60,3 +60,9 @@ cur_dens_min = 0
 
 # counts the number of seconds the simulation is running
 sec_counter = 1
+
+""" Hydrogen refueling station """
+hrs_storage_size = 100
+
+
+
