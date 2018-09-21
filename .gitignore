@@ -1,0 +1,4 @@
+# Exclude PyCharm settings.
+.idea*
+# Exclude the virtual environment.
+venv*
