@@ -24,3 +24,6 @@ def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list
            title='clearing markets aggregate demand and supply blocks')
     plt.show()
 
+    # TODO: somehow update the plot every plot, look into:
+    # https://stackoverflow.com/questions/46001645/how-to-make-a-progresing-plot-in-matplotlib
+

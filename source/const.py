@@ -1,11 +1,17 @@
-""" Constants """
+""" DATA """
 
+utility_presence = True
+selected_utility_price_profile = 'utility_price_profile_constant.csv'
+
+
+
+""" Constants """
 
 """ Simulation environment """
 num_steps = 10
 auction_type = 'pay_as_clear'
 num_steps = 1
-num_households = 100
+num_households = 30
 market_interval = 15  # minutes
 
 

@@ -21,8 +21,8 @@ class Auctioneer(Agent):
         self.aggregate_demand_curve = []
         self.aggregate_supply_curve = []
 
-        self.list_of_bids = []
-        self.list_of_offers = []
+        self.bid_list = []
+        self.offer_list = []
 
         self.sorted_bid_list = None
         self.sorted_offer_list = None
@@ -30,7 +30,7 @@ class Auctioneer(Agent):
         self.clearing_price = None
         self.trade_pairs = None
 
-    def auction_round(self, _bid_list, _offer_list):
+    def auction_round(self):
         """check whether all agents have submitted their bids"""
         # TODO: measure that part of agents submitted bids?
         # TODO: how can we fix that agents can have direct communication, not through the microgrid as medium...
@@ -38,14 +38,13 @@ class Auctioneer(Agent):
         for agent in self.model.agents[:]:
             self.model.agents[agent.id].sold_energy = None
             self.model.agents[agent.id].bought_energy = None
-        """ takes list of offers and bids from households """
-        self.list_of_offers = _offer_list
-        self.list_of_bids = _bid_list
-
-        print(self.list_of_offers)
-        print(self.list_of_bids)
 
         """ sorts collected bids and offers """
+        # TODO: when ALL supply falls (far) under demand price, all supply is of course matched by pricing rule??
+        # I think this creates a bug, which I currently avoid by breaking the sequence. But should be fixed
+        # source of the bug is at the sorting algorithm, should allow a clearing also when supply completely falls
+        # BELOW demand curve
+
         self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
         self.execute_auction(sorted_x_y_y_pairs_list)
         self.clearing_of_market(self.trade_pairs)
@@ -53,15 +52,14 @@ class Auctioneer(Agent):
     def execute_auction(self, sorted_x_y_y_pairs_list):
         """ auctioneer sets up the market and clears it according pricing rule """
 
+        check_demand_supply(self.sorted_bid_list, self.sorted_offer_list)
         if len(self.sorted_bid_list) == 0 or len(self.sorted_offer_list) == 0:
             auction_log.warning("no trade at this step")
-            return
-
-        check_demand_supply(self.sorted_bid_list, self.sorted_offer_list)
 
         self.trade_pairs = None
         self.clearing_quantity = None
         self.clearing_price = None
+
         """ picks pricing rule and generates trade_pairs"""
         if self.pricing_rule == 'pab':
             self.clearing_quantity, total_turnover, self.trade_pairs = \
@@ -83,11 +81,8 @@ class Auctioneer(Agent):
         """sorts bids and offers into an aggregated demand/supply curve"""
 
         # sort on price, not quantity, so price_point[1]
-        sorted_bid_list = sorted(self.list_of_bids, key=lambda price_point: price_point[1], reverse=True)
-        sorted_offer_list = sorted(self.list_of_offers, key=lambda price_point: price_point[1])
-
-        print(sorted_bid_list)
-        print(sorted_offer_list)
+        sorted_bid_list = sorted(self.bid_list, key=lambda price_point: price_point[1], reverse=True)
+        sorted_offer_list = sorted(self.offer_list, key=lambda price_point: price_point[1])
 
         # creation of aggregate supply/demand points
         aggregate_quantity_points = []
@@ -114,8 +109,6 @@ class Auctioneer(Agent):
 
         x_y_y_pairs_list.extend(x_bid_pairs_list)
         x_y_y_pairs_list.extend(x_supply_pairs_list)
-
-        print(x_y_y_pairs_list)
 
         """sorted_x_y_y_pairs_list[agents][quantity_point, bid_price, offer_price]"""
         sorted_x_y_y_pairs_list = sorted(x_y_y_pairs_list, key=lambda l: l[0])
@@ -166,21 +159,23 @@ class Auctioneer(Agent):
         """clears market """
 
         """ listing of all offers/bids selected for trade """
+        if trade_pairs is not None:
+            for trade in range(len(trade_pairs)):
+                # data structure: [seller_id, buyer_id, trade_quantity, payment]
+                id_seller = trade_pairs[trade][0]
+                id_buyer = trade_pairs[trade][1]
+                trade_quantity = trade_pairs[trade][2]
+                payment = trade_pairs[trade][3]
+                """ execute trade buy calling household agent's wallet settlement """
 
-        """ here is a design choice; channel all the funds to the auctioneer and divide accordingly to supply?
-            or allow direct transactions between supplier and consumer? hybrid: auctioneer mediates direct trade"""
-        for trade in range(len(trade_pairs)):
-            # data structure: [seller_id, buyer_id, trade_quantity, payment]
-            id_seller = trade_pairs[trade][0]
-            id_buyer = trade_pairs[trade][1]
-            trade_quantity = trade_pairs[trade][2]
-            payment = trade_pairs[trade][3]
-            """ execute trade buy calling household agent's wallet settlement """
+                self.model.agents[id_seller].sold_energy = trade_quantity
+                self.model.agents[id_buyer].bought_energy = trade_quantity
+                self.model.agents[id_seller].wallet.settle_revenue(payment)
+                self.model.agents[id_buyer].wallet.settle_payment(payment)
+        else:
+            auction_log.warning("no trade at this step")
 
-            self.model.agents[id_seller].sold_energy = trade_quantity
-            self.model.agents[id_buyer].bought_energy = trade_quantity
-            self.model.agents[id_seller].wallet.settle_revenue(payment)
-            self.model.agents[id_buyer].wallet.settle_payment(payment)
-
-
+        """ clear lists for later use in next step """
+        self.bid_list = []
+        self.offer_list = []
 

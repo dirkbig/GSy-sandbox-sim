@@ -1,4 +1,4 @@
-from source.Devices import *
+from source.devices import *
 from source.wallet import Wallet
 from source.const import *
 from mesa import Agent
@@ -56,15 +56,15 @@ class HouseholdAgent(Agent):
             self.devices['Electrolyzer'] = self.electrolyzer
             self.has_electrolyzer = True
 
-        print(self.devices)
         house_log.info(self.devices)
 
         """standard house attributes"""
         self.wallet = Wallet(_unique_id)
 
-        # TODO: make a house setup configurable, goal is to have a diverse grid configuration
+        # TODO: make a house setup configurable, goal is to have a variable grid configuration
 
         """ trading """
+        self.selected_strategy = 'smart_ess_strategy'
         self.trading_state = None
         self.bid = None
         self.offer = None
@@ -76,11 +76,13 @@ class HouseholdAgent(Agent):
 
         """ very naive adaptation of the use of utility functions for a smart-ESS-strategy """
         if self.trading_state == 'buying':
+            # TODO: constrain by maximum willingness-to-pay?
             buy_allocation, price = params
             demand = - self.ess.surplus
             utility = (demand - buy_allocation * price) ** 2 + buy_allocation * price + price * 0.005
 
         elif self.trading_state == 'supplying':
+            # TODO: lower constrain by marginal costs and upper-constrain by utility-grid
             sell_allocation, price = params
             surplus = self.ess.surplus
             utility = (- surplus + sell_allocation*price) ** 2 - sell_allocation * price + price * 0.008
@@ -118,35 +120,52 @@ class HouseholdAgent(Agent):
 
     def smart_ess_strategy(self):
         """ smart ESS strategy, calls:
-                -> ess_demand_calc: decides whether buying or selling,
-                -> price_point_optimization: decides on what quantity and for what price
-                    -> utility_function: governs the trade-off that the optimization optimizes
+                -> ess_demand_calc: decides whether buying or selling, and how much;
+                    -> price_point_optimization: decides on what quantity and for what price;
+                        -> utility_function: governs the trade-off that the optimization optimizes.
         """
-
         self.ess.ess_demand_calc(self.model.step_count)
 
-        # MOVE TO ESS CLASS??
-        print(self.trading_state)
         if self.ess.surplus > 0:
             self.trading_state = 'supplying'
             """ bid approach, using utility function"""
             price, quantity = self.price_point_optimization()
             self.offer = [price, quantity, self.id]
-            print('I AM SELLING', self.offer)
             self.announce_offer()
             self.bid = None
 
         elif self.ess.surplus < 0:
             self.trading_state = 'buying'
-            """ offer approach using utility function"""
+            """ offer approach using utility function """
             price, quantity = self.price_point_optimization()
             self.bid = [price, quantity, self.id]
-            print('I AM BUYING', self.bid)
             self.announce_bid()
             self.offer = None
         else:
             self.trading_state = 'passive'
-        # MOVE TO ESS CLASS??
+
+    def simple_strategy(self):
+        """ PV and Loads and ESS make offers/bids themselves
+            might add that ESS prioritize devices within household """
+        self.state_update_from_devices()
+
+        ''' PV  first supplies to ESS
+                then supplies to market'''
+
+        ''' Load first takes from ESS
+                then takes from market'''
+
+        """ should look like this """
+        # marginal costs of PV()
+        # supply offer (-curve) calculation
+
+        # willingness to pay for load()
+        # demand bid (-curve) calculation
+
+        # posting of bids and offers on the market
+
+        # wait for clearing of the market, evaluate what has been bought / sold
+        # add the rest to or from the ESS
 
     def state_update_from_devices(self):
         """ updates the household agent on state of devices """
@@ -168,24 +187,32 @@ class HouseholdAgent(Agent):
         for device in self.devices:
             self.devices[device].uniform_call_to_device(self.model.step_count)
 
-        """ SMART STRATEGIES """
-        if self.has_ess is True:
+        """ 
+            STRATEGIES 
+            how to come up with price-quantity points on the auction platform 
+        """
+        if self.has_ess is True and self.selected_strategy == 'smart_ess_strategy':
+            """ 
+                smart_ess_strategy is a strategy where the ESS takes over responsibility to acquire energy
+                both to satisfy the load of household and to reach an storage SOC that is preferred 
+                thus, the ESS determines the quantity that the house tries to buy. 
+            """
             self.smart_ess_strategy()
 
+        if self.selected_strategy == 'simple_strategy':
+            """ simple_strategy: generators will provide at marginal costs and load will buy in for willingness-to-pay
+            """
+            self.simple_strategy()
         house_log.info('house%d is %s', self.id, self.trading_state)
 
-    def post_auction_step(self):
-        """ after auctioneer gives clearing signal"""
-        pass
+    # def post_auction_step(self):
+    #     """ after auctioneer gives clearing signal """
+    #     pass
 
     def announce_bid(self):
-        """ currently, the auctioneer agent take self.bid data from the agent"""
-        # print('Agent %d says; I probably have to formally tell somebody about my bid in the future...' % self.id)
-        # print(self.bid, '....anyone???')
-        pass
+        """ announces bid to auction agent by appending to bid list """
+        self.model.auction.bid_list.append(self.bid)
 
     def announce_offer(self):
-        """ currently, the auctioneer agent takes self.offer data from the agent"""
-        # print('Agent %d says; I probably have to formally tell somebody about my offer in the future...' % self.id)
-        # print(self.offer, '....anyone???')
-        pass
+        """ announces offer to auction agent by appending to offer list """
+        self.model.auction.offer_list.append(self.offer)

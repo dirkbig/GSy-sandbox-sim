@@ -22,7 +22,6 @@ def check_demand_supply(sorted_bid_list_, sorted_offer_list_):
 
 def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     """ trade matching according pay-as-clear pricing rule """
-    print(sorted_x_y_y_pairs_list_)
     clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list_)
     """ some checks """
     if clearing_quantity is None or clearing_price is None:
@@ -52,7 +51,10 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
                 to_be_matched_quantity = to_be_matched_quantity_filler
 
             while to_be_matched_quantity > 0:
+                """ Two cases: either supplier has enough supply for buyer's demand,
+                    or buyer has more demand then supplier's supply """
                 if available_supply_of_selected_seller > to_be_matched_quantity:
+                    """ Case 1: supplier has enough supply to selected buyer, thus update to next buyer """
                     trade_quantity = to_be_matched_quantity
                     payment = trade_quantity * clearing_price
 
@@ -63,6 +65,7 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
                     matched_quantity += trade_quantity
 
                 elif available_supply_of_selected_seller <= to_be_matched_quantity:
+                    """ Case 1: supplier does not have enough supply to selected buyer, thus update to next seller """
                     trade_quantity = available_supply_of_selected_seller
                     payment = trade_quantity * clearing_price
 
@@ -72,10 +75,14 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
                     trade_pairs_pac_.append([seller_id, buyer_id, trade_quantity, payment])
                     matched_quantity += trade_quantity
 
-                    """ update to next supplier in line"""
+                    """ Update to next supplier in line """
                     if supplier < num_suppliers:
                         supplier += 1
-                        available_supply_of_selected_seller = sorted_offer_list[supplier][0]
+                        try:
+                            available_supply_of_selected_seller = sorted_offer_list[supplier][0]
+                        except IndexError:
+                            print(supplier)
+                            print(num_suppliers)
                         seller_id = sorted_offer_list[supplier][2]
                     else:
                         break

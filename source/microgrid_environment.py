@@ -1,7 +1,7 @@
-from source.AuctioneerAgent import Auctioneer
-from source.UtilityAgent import UtilityAgent
-from source.HouseholdAgent import HouseholdAgent
-from source.Data import Data
+from source.auctioneer_agent import Auctioneer
+from source.utility_agent import UtilityAgent
+from source.household_agent import HouseholdAgent
+from source.data import Data
 from source.const import *
 
 from mesa import Model
@@ -15,16 +15,19 @@ class MicroGrid(Model):
     """ Agents are created in this environment that runs the simulation"""
     def __init__(self):
         self.step_count = 0
-        self.data = Data()
         self.agents = []
         self.num_households = num_households
         self.auction_type = auction_type
+
+        """ load in data THIS HAS TO GO FIRST"""
+        self.data = Data()
 
         """ create the auction platform"""
         self.auction = Auctioneer(self.auction_type, self)
 
         """ create the utility grid"""
-        self.utility = UtilityAgent(self)
+        if utility_presence is True:
+            self.utility = UtilityAgent(self)
 
         """ create N agents """
         for i in range(self.num_households):
@@ -32,24 +35,13 @@ class MicroGrid(Model):
             self.agents.append(agent)
 
     def sim_step(self):
-        """advance the model by one step"""
+        """advances the model by one step"""
 
-        bid_list = []
-        offer_list = []
-
-        # random.shuffle(self.agents)
+        random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.pre_auction_step()
-            # This should not be here __________
-            if agent.trading_state == 'buying':
-                assert agent.offer is None
-                bid_list.append(agent.bid)
-            elif agent.trading_state == 'supplying':
-                assert agent.bid is None
-                offer_list.append(agent.offer)
-            # __________________________________
 
-        self.auction.auction_round(bid_list, offer_list)
+        self.auction.auction_round()
         self.update_time()
 
     def update_time(self):

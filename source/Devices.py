@@ -14,7 +14,7 @@ class ESS(object):
         self.initial_capacity = ess_data[0]
         self.max_capacity = ess_data[1]
         self.soc_actual = self.initial_capacity * self.max_capacity
-        print('soc_actual house %d =' % self.agent.id , self.soc_actual)
+        device_log.info('soc_actual house %d = %d' % (self.agent.id , self.soc_actual))
 
         """ initialization of all information the smart-ESS needs for its strategy  """
         self.next_interval_load = None
@@ -31,17 +31,16 @@ class ESS(object):
             (this is of course, all devices within the same house """
 
         current_step = self.agent.model.step_count
-        print('devices list of household %d:' % self.agent.id, self.agent.devices)
+        device_log.info('devices list of household %d:' % self.agent.id, self.agent.devices)
 
         total_supply_from_devices = 0
         for device in self.agent.devices:
             if device != 'ESS':
                 total_supply_from_devices += self.agent.devices[device].uniform_call_to_device(current_step)
-                print(self.agent.devices[device].uniform_call_to_device(current_step))
         self.total_supply_from_devices_at_step = total_supply_from_devices
 
     def uniform_call_to_device(self, current_step):
-        print("ESS of house %s checking in" % self.agent.id)
+        device_log.info("ESS of house %s checking in" % self.agent.id)
         return
 
     def ess_demand_calc(self, current_step):
@@ -56,7 +55,7 @@ class ESS(object):
             -> surplus of ESS = actual SOC + aggregated supply from all devices (could be negative) - the preferred SOC 
         """
         self.surplus = self.soc_actual + self.total_supply_from_devices_at_step - self.soc_preferred
-        print('soc surplus of house %d =' % self.agent.id , self.surplus)
+        device_log.info('soc surplus of house %d =%d' % (self.agent.id, self.surplus))
 
     def soc_preferred_calc(self):
         """forecast of load minus (personal) productions over horizon expresses preferred soc of ESS"""
@@ -88,7 +87,7 @@ class PVPanel(object):
 
     def uniform_call_to_device(self, current_step):
         assert current_step == self.agent.model.step_count
-        print("PV of house %s checking in" % self.agent.id)
+        device_log.info("PV of house %s checking in" % self.agent.id)
         self.next_interval_estimated_generation = self.data[current_step]  # production thus positive
         return self.next_interval_estimated_generation
 
@@ -106,8 +105,7 @@ class GeneralLoad(object):
         return self.next_interval_estimated_load
 
     def uniform_call_to_device(self, current_step):
-
-        print("Load of house %s checking in" % self.agent.id)
+        device_log.info("Load of house %s checking in" % self.agent.id)
         assert current_step == self.agent.model.step_count
         self.next_interval_estimated_load = self.get_load(current_step)
         return self.next_interval_estimated_load
@@ -161,8 +159,7 @@ class Electrolyzer(object):
         return self.next_interval_estimated_fuel_consumption
 
     def uniform_call_to_device(self, current_step):
-
-        print("Electrolyzer of house %s checking in" % self.agent.id)
+        device_log.info("Electrolyzer of house %s checking in" % self.agent.id)
         assert current_step == self.agent.model.step_count
         self.next_interval_estimated_fuel_consumption = self.get_demand_electrolyzer(current_step)
         # this now assumes that an electrolyzer only demands electrical energy to create gas.
