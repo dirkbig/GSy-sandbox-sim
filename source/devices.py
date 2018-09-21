@@ -1,5 +1,5 @@
 from source.const import *
-from source.device_methods import *
+from source.devices_methods import *
 import logging
 device_log = logging.getLogger('device')
 

@@ -14,5 +14,4 @@ class UtilityAgent(Agent):
 
     def utility_pre_auction_step(self):
         """ for each step, utility offers at utility profile rate """
-        sell_rate_utility = self.price_profile[self.model.step_count]
-        # offer_utility_supply =
+        self.sell_rate_utility = self.price_profile[self.model.step_count]

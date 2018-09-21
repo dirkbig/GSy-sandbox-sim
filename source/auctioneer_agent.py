@@ -1,6 +1,6 @@
-from source.auction_methods import *
+from source.auctioneer_methods import *
 from plots import clearing_snapshot
-
+from source.const import num_households
 from mesa import Agent
 import seaborn as sns
 
@@ -30,20 +30,18 @@ class Auctioneer(Agent):
         self.clearing_price = None
         self.trade_pairs = None
 
+        self.percentage_sellers = None
+        self.percentage_buyers = None
+        self.percentage_passive = None
+
     def auction_round(self):
         """check whether all agents have submitted their bids"""
-        # TODO: measure that part of agents submitted bids?
-        # TODO: how can we fix that agents can have direct communication, not through the microgrid as medium...
+        self.user_participation()
+
         """ resets the acquired energy for all households """
         for agent in self.model.agents[:]:
             self.model.agents[agent.id].sold_energy = None
             self.model.agents[agent.id].bought_energy = None
-
-        """ sorts collected bids and offers """
-        # TODO: when ALL supply falls (far) under demand price, all supply is of course matched by pricing rule??
-        # I think this creates a bug, which I currently avoid by breaking the sequence. But should be fixed
-        # source of the bug is at the sorting algorithm, should allow a clearing also when supply completely falls
-        # BELOW demand curve
 
         self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
         self.execute_auction(sorted_x_y_y_pairs_list)
@@ -79,6 +77,11 @@ class Auctioneer(Agent):
 
     def sorting(self):
         """sorts bids and offers into an aggregated demand/supply curve"""
+
+        # TODO: when ALL supply falls (far) under demand price, all supply is of course matched by pricing rule??
+        # this creates a bug, which I currently avoid by breaking the sequence. But should be fixed
+        # source of the bug is at the sorting algorithm, should allow a clearing also when supply completely falls
+        # BELOW demand curve
 
         # sort on price, not quantity, so price_point[1]
         sorted_bid_list = sorted(self.bid_list, key=lambda price_point: price_point[1], reverse=True)
@@ -178,4 +181,24 @@ class Auctioneer(Agent):
         """ clear lists for later use in next step """
         self.bid_list = []
         self.offer_list = []
+
+    def user_participation(self):
+        """ small analysis on user participation per step"""
+        num_selling = 0
+        num_buying = 0
+        num_passive = 0
+
+        for agent in self.model.agents[:]:
+            if agent.trading_state == 'supplying':
+                num_selling += 1
+            elif agent.trading_state == 'buying':
+                num_buying += 1
+            else:
+                num_passive += 1
+        total_num = num_selling + num_buying + num_passive
+        assert total_num == num_households
+
+        self.percentage_sellers = num_selling / total_num
+        self.percentage_buyers = num_buying / total_num
+        self.percentage_passive = num_passive / total_num
 
