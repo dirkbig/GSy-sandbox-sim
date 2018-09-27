@@ -39,8 +39,8 @@ class Auctioneer(Agent):
 
         """ resets the acquired energy for all households """
         for agent in self.model.agents[:]:
-            self.model.agents[agent.id].sold_energy = None
-            self.model.agents[agent.id].bought_energy = None
+            self.model.agents[agent.id].sold_energy = 0
+            self.model.agents[agent.id].bought_energy = 0
 
         if self.offer_list != [] and self.bid_list != []:
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
@@ -77,6 +77,8 @@ class Auctioneer(Agent):
 
         if self.snapshot_plot:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
+
+        print('trade pairs', self.trade_pairs)
 
     def sorting(self):
         """sorts bids and offers into an aggregated demand/supply curve"""
@@ -162,6 +164,9 @@ class Auctioneer(Agent):
 
     def clearing_of_market(self, trade_pairs):
         """clears market """
+        for agent in self.model.agents[:]:
+            self.model.agents[agent].sold_energy = 0
+            self.model.agents[agent].bought_energy = 0
 
         """ listing of all offers/bids selected for trade """
         if trade_pairs is not None:

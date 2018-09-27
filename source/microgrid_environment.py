@@ -1,6 +1,7 @@
 from source.auctioneer_agent import Auctioneer
 from source.utility_agent import UtilityAgent
 from source.household_agent import HouseholdAgent
+from source.electrolyzer import Electrolyzer
 from source.data import Data
 from source.const import *
 
@@ -20,7 +21,7 @@ class MicroGrid(Model):
         """ initiation """
         self.step_count = 0
         self.agents = []
-
+        self.electrolyzer = None
         """ load in data THIS HAS TO GO FIRST"""
 
         """ create the auction platform"""
@@ -35,14 +36,27 @@ class MicroGrid(Model):
             agent = HouseholdAgent(i, self)
             self.agents.append(agent)
 
+        """ electrolyzer """
+        self.electrolyzer = Electrolyzer(i, self)
+
     def sim_step(self):
         """advances the model by one step"""
 
+        """ pre-auction round """
         random.shuffle(self.agents)
         for agent in self.agents[:]:
-            agent.pre_auction_step()
+            agent.pre_auction_round()
+        self.electrolyzer.pre_auction_round()
 
+        """ auction round """
         self.auction.auction_round()
+
+        """ post-auction round """
+        random.shuffle(self.agents)
+        for agent in self.agents[:]:
+            agent.post_auction_round()
+        self.electrolyzer.post_auction_round()
+
         self.update_time()
 
     def update_time(self):

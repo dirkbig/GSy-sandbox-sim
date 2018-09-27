@@ -31,7 +31,6 @@ def csv_read_load_file(num_households_with_load, household_loads_folder):
         if i == num_households_with_load:
             break
 
-
     return data_list
 
 

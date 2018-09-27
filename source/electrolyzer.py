@@ -16,7 +16,7 @@ class Electrolyzer(Agent):
         self.id = _unique_id
         self.model = model
         # Simulation time [min].
-        self.sim_time = market_interval
+        self.sim_time = self.model.data.market_interval
 
         # States of the electrolyzer.
         # Current density (i = I/A) in [A / cm^2]
@@ -83,11 +83,11 @@ class Electrolyzer(Agent):
         # saves last temperature value
         self.temp_before = self.temp
 
-    def pre_auction_step(self):
-        # Before the auction the physical states are renewed.
-        self.update_power()
-        # Update the stored mass hydrogen.
-        self.update_storage()
+    def pre_auction_round(self):
+        pass
+
+    def post_auction_round(self):
+        pass
 
     def update_storage(self):
         # Update the mass of the hydrogen stored.

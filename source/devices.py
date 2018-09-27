@@ -13,7 +13,7 @@ class ESS(object):
         """ ESS characteristics extracted from ess_data """
         self.initial_capacity = ess_data[0]
         self.max_capacity = ess_data[1]
-        self.soc_actual = self.initial_capacity * self.max_capacity
+        self.soc_actual = self.initial_capacity
         device_log.info('soc_actual house %d = %d' % (self.agent.id , self.soc_actual))
 
         """ initialization of all information the smart-ESS needs for its strategy  """
@@ -37,15 +37,50 @@ class ESS(object):
         for device in self.agent.devices:
             if device != 'ESS':
                 total_supply_from_devices += self.agent.devices[device].uniform_call_to_device(current_step)
-        self.total_supply_from_devices_at_step = total_supply_from_devices
+
+        return total_supply_from_devices
 
     def uniform_call_to_device(self, current_step):
         device_log.info("ESS of house %s checking in" % self.agent.id)
+        self.agent.soc_actual = self.soc_actual
         return
+
+    def update_ess_state(self, energy_influx):
+        """ every time something goes in (or out) of the ESS, call this function with the energy influx as parameter """
+        storage_space_left = self.max_capacity - self.soc_actual
+        local_overflow = 0
+        local_deficit = 0
+        assert 0 <= self.soc_actual <= self.max_capacity
+        assert storage_space_left >= 0
+
+        if 0 < energy_influx < storage_space_left:
+            self.soc_actual += energy_influx
+            local_overflow = 0
+        elif energy_influx > storage_space_left > 0:
+            self.soc_actual = self.max_capacity
+            local_overflow = energy_influx - storage_space_left
+        elif energy_influx < 0 < self.soc_actual + energy_influx:
+            self.soc_actual += energy_influx
+            local_deficit = 0
+        elif energy_influx < 0 and self.soc_actual + energy_influx < 0:
+            self.soc_actual = 0
+            local_deficit = energy_influx - self.soc_actual
+
+        assert 0 <= self.soc_actual <= self.max_capacity
+
+        self.agent.soc_actual = self.soc_actual
+        self.agent.data.soc_list_over_time[self.agent.id][self.agent.model.step_count] = self.soc_actual
+        self.agent.data.soc_deficit_overflow_over_time[self.agent.id][self.agent.model.step_count] = local_deficit, \
+            local_overflow
+
+    def ess_physics(self):
+        """ model any interesting physics applicable"""
+        # such as conversion efficiency, depth of charge efficiency
+        pass
 
     def ess_demand_calc(self, current_step):
         """calculates the demand expresses by a household's ESS"""
-        self.update_from_household_devices()
+        total_supply_from_devices = self.update_from_household_devices()
 
         self.soc_preferred_calc()
         if self.soc_preferred is None:
@@ -54,22 +89,13 @@ class ESS(object):
         """ The logic here is straight forward; what is the preferred SOC the battery wants to attain? 
             -> surplus of ESS = actual SOC + aggregated supply from all devices (could be negative) - the preferred SOC 
         """
-        self.surplus = self.soc_actual + self.total_supply_from_devices_at_step - self.soc_preferred
+        self.surplus = self.soc_actual + total_supply_from_devices - self.soc_preferred
         device_log.info('soc surplus of house %d = %f' % (self.agent.id, self.surplus))
 
     def soc_preferred_calc(self):
         """forecast of load minus (personal) productions over horizon expresses preferred soc of ESS"""
         # self.soc_preferred = sum(self.load_horizon) - sum(self.production_horizon)
         return
-
-    def update_ess_state(self):
-        self.soc_actual = self.soc_actual + self.balance
-        assert 0 > self.soc_actual <= self.max_capacity and self.soc_actual
-
-    def ess_physics(self):
-        """ model any interesting physics applicable"""
-        # such as conversion efficiency, depth of charge efficiency
-        pass
 
 
 class PVPanel(object):
@@ -81,14 +107,18 @@ class PVPanel(object):
         # TODO: API to PVLIB-Python?
 
     def get_generation(self, current_step):
-        assert current_step == self.agent.model.step_count
-        self.next_interval_estimated_generation = self.device_pv_data[current_step]
+
+        self.next_interval_estimated_generation = float(self.device_pv_data[current_step])
+        if self.next_interval_estimated_generation is None:
+            self.next_interval_estimated_generation = 0
+
         return self.next_interval_estimated_generation
 
     def uniform_call_to_device(self, current_step):
         assert current_step == self.agent.model.step_count
         device_log.info("PV of house %s checking in" % self.agent.id)
-        self.next_interval_estimated_generation = self.device_pv_data[current_step]  # production thus positive
+        self.next_interval_estimated_generation = self.get_generation(current_step)  # production thus positive
+
         return self.next_interval_estimated_generation
 
 
@@ -102,6 +132,9 @@ class GeneralLoad(object):
     def get_load(self, current_step):
         assert current_step == self.agent.model.step_count
         self.next_interval_estimated_load = - float(self.agent.load_data[current_step])  # load thus negative
+        if self.next_interval_estimated_load is None:
+            self.next_interval_estimated_load = 0
+
         return self.next_interval_estimated_load
 
     def uniform_call_to_device(self, current_step):
@@ -113,7 +146,7 @@ class GeneralLoad(object):
 
 class Electrolyzer(object):
     """ Electrolyzer device"""
-    def __init__(self, agent, electrolyzer_data, cell_area=1500, n_cell=140, p=1.5):
+    def __init__(self, electrolyzer_data, cell_area=1500, n_cell=140, p=1.5):
         self.data = electrolyzer_data
         self.next_interval_estimated_fuel_consumption = None
         self.area_cell = cell_area
@@ -153,15 +186,25 @@ class Electrolyzer(object):
         self.v_act = None
         self.v_ohm = None
 
+    def pre_auction_round(self):
+        pass
+
+    def post_auction_round(self):
+        pass
+
     def get_demand_electrolyzer(self, current_step):
-        assert current_step == self.agent.model.step_count
-        self.next_interval_estimated_fuel_consumption = - self.data[current_step]  # demand thus negative
+        assert current_step == self.model.step_count
+        self.next_interval_estimated_fuel_consumption = - float(self.data[current_step])  # demand thus negative
+        if self.next_interval_estimated_fuel_consumption is None:
+            self.next_interval_estimated_fuel_consumption = 0
+
         return self.next_interval_estimated_fuel_consumption
 
     def uniform_call_to_device(self, current_step):
-        device_log.info("Electrolyzer of house %s checking in" % self.agent.id)
-        assert current_step == self.agent.model.step_count
+        device_log.info("Electrolyzer checking in")
+        assert current_step == self.model.step_count
         self.next_interval_estimated_fuel_consumption = self.get_demand_electrolyzer(current_step)
+
         # this now assumes that an electrolyzer only demands electrical energy to create gas.
         # TODO: create a fuel-cell class/object that is linked to the electrolyser, using its stored gas.
         return self.next_interval_estimated_fuel_consumption

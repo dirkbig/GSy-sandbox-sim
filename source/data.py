@@ -68,6 +68,16 @@ class Data(ConfigurationMixin, object):
             if self.negative_pricing is False:
                 self.utility_pricing_profile[self.utility_pricing_profile < 0] = 0
 
+        """ post evaluation variables, used by plots """
+
+        self.soc_list_over_time = np.zeros([self.num_households_with_ess, self.num_steps])
+        self.soc_deficit_overflow_over_time = np.zeros([self.num_households_with_ess, self.num_steps, 2])
+
+    def plots(self):
+        soc_over_time(self.num_steps, self.soc_list_over_time)
+        households_deficit_overflow(self.num_steps, self.soc_deficit_overflow_over_time)
+        show()
+
     def get_load_profiles(self):
         """ loading in load profiles """
         load_list = csv_read_load_file(self.num_households, self.household_loads_folder)
@@ -88,6 +98,8 @@ class Data(ConfigurationMixin, object):
             if max_element > 1:
                 load_array[i] = load_array[i] / max_element
                 print(max_element)
+
+        load_array = load_array * 0.5
         return load_array
 
     def get_pv_gen_profiles(self):
@@ -143,6 +155,7 @@ class Data(ConfigurationMixin, object):
         return agent_data_array
 
 
+
 if __name__ == "__main__":
     data = Data()
     print('fuel station load: ', data.fuel_station_load)
@@ -150,7 +163,8 @@ if __name__ == "__main__":
     print('household load data set: ', data.household_loads_folder)
     print('total ess storage capacity: %d kWh' % data.total_ess_capacity)
 
-    plot_avg_load_profile(data.num_steps, data.load_array)
-    plot_avg_pv_profile(data.num_steps, data.pv_gen_array)
-    plot_fuel_station_profile(data.num_steps, data.electrolyzer_list)
+    # plot_avg_load_profile(data.num_steps, data.load_array)
+    # plot_avg_pv_profile(data.num_steps, data.pv_gen_array)
+    # plot_fuel_station_profile(data.num_steps, data.electrolyzer_list)
+    total_generation_vs_consumption(data.num_steps, data.pv_gen_array, data.load_array)
     show()

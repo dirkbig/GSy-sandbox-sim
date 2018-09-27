@@ -22,17 +22,17 @@ class HouseholdAgent(Agent):
         self.pv_data = self.model.data.agent_data_array[self.id][1]
         self.ess_data = self.model.data.agent_data_array[self.id][2]
 
-        self.load_on_step = None
-        self.pv_production_on_step = None
-        self.ess_demand_on_step = None
-        self.electrolyzer_demand_on_step = None
+        self.load_on_step = 0
+        self.pv_production_on_step = 0
+        self.ess_demand_on_step = 0
+        # self.electrolyzer_demand_on_step = None
 
         """ Creation of device objects, depending is Data class assigns them """
         self.devices = {}
         self.has_load = False
         self.has_pv = False
         self.has_ess = False
-        self.has_electrolyzer = False
+        # self.has_electrolyzer = False
 
         if self.load_data is not None:
             self.load = GeneralLoad(self, self.load_data)
@@ -48,6 +48,10 @@ class HouseholdAgent(Agent):
             self.ess = ESS(self, self.ess_data)
             self.devices['ESS'] = self.ess
             self.has_ess = True
+            self.soc_actual = self.ess.soc_actual
+
+        else:
+            self.soc_actual = 0
 
         # if self.electrolyzer_data is not None:
         #     self.electrolyzer = Electrolyzer(self, self.electrolyzer_data)
@@ -62,12 +66,13 @@ class HouseholdAgent(Agent):
         # TODO: make a house setup configurable, goal is to have a variable grid configuration
 
         """ trading """
-        self.selected_strategy = 'smart_ess_strategy'
+        self.selected_strategy = 'no_trade'
         self.trading_state = None
         self.bid = None
         self.offer = None
-        self.sold_energy = None
-        self.bought_energy = None
+        self.sold_energy = 0
+        self.bought_energy = 0
+        self.net_energy_in = None
 
     def utility_function(self, params):
         """agent-individual utility function generates 1 quantity for 1 price"""
@@ -129,7 +134,6 @@ class HouseholdAgent(Agent):
             """ bid approach, using utility function"""
             price, quantity = self.price_point_optimization()
             self.offer = [price, quantity, self.id]
-            self.announce_offer()
             self.bid = None
 
         elif self.ess.surplus < 0:
@@ -137,7 +141,6 @@ class HouseholdAgent(Agent):
             """ offer approach using utility function """
             price, quantity = self.price_point_optimization()
             self.bid = [price, quantity, self.id]
-            self.announce_bid()
             self.offer = None
         else:
             self.trading_state = 'passive'
@@ -175,21 +178,21 @@ class HouseholdAgent(Agent):
         if self.has_pv is True:
             self.pv_production_on_step = self.pv.get_generation(current_step)
 
-        if self.has_electrolyzer is True:
-            self.electrolyzer_demand_on_step = self.electrolyzer.get_demand_electrolyzer(self, current_step)
+        # if self.has_electrolyzer is True:
+        #     self.electrolyzer_demand_on_step = self.electrolyzer.get_demand_electrolyzer(self, current_step)
 
-    def pre_auction_step(self):
+    def pre_auction_round(self):
         """ each agent makes a step here, before auction step"""
 
         self.state_update_from_devices()
         for device in self.devices:
             self.devices[device].uniform_call_to_device(self.model.step_count)
 
-
         """ 
             STRATEGIES 
             how to come up with price-quantity points on the auction platform 
         """
+
         if self.has_ess is True and self.selected_strategy == 'smart_ess_strategy':
             """ 
                 smart_ess_strategy is a strategy where the ESS takes over responsibility to acquire energy
@@ -198,20 +201,38 @@ class HouseholdAgent(Agent):
             """
             self.smart_ess_strategy()
 
-        if self.selected_strategy == 'simple_strategy':
-            """ simple_strategy: generators will provide at marginal costs and load will buy in for willingness-to-pay
+        elif self.selected_strategy == 'simple_strategy':
+            """ 
+                simple_strategy: generators will provide at marginal costs and load will buy in for willingness-to-pay
             """
             self.simple_strategy()
+
+        elif self.selected_strategy == 'no_trade':
+            self.offer = None
+            self.bid = None
+
+        self.announce_bid_and_offers()
+
+    def post_auction_round(self):
+        """ after auctioneer gives clearing signal and """
+        self.net_energy_in = self.pv_production_on_step + self.load_on_step + self.bought_energy - self.sold_energy
+
+        """ unmatched loads? """
+        if self.has_ess is True:
+            self.ess.update_ess_state(self.net_energy_in)
+        else:
+            pass
+            # deficit / overflow
+
+        pass
+
+    def announce_bid_and_offers(self):
+        """ announces bid to auction agent by appending to bid list """
         house_log.info('house%d is %s', self.id, self.trading_state)
 
-    # def post_auction_step(self):
-    #     """ after auctioneer gives clearing signal """
-    #     pass
+        if self.trading_state == 'supplying':
+            self.model.auction.offer_list.append(self.offer)
 
-    def announce_bid(self):
-        """ announces bid to auction agent by appending to bid list """
-        self.model.auction.bid_list.append(self.bid)
+        elif self.trading_state == 'buying':
+            self.model.auction.bid_list.append(self.bid)
 
-    def announce_offer(self):
-        """ announces offer to auction agent by appending to offer list """
-        self.model.auction.offer_list.append(self.offer)

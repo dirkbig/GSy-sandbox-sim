@@ -16,9 +16,9 @@ class ConfigurationMixin:
         self.num_steps = int(self.num_days * num_minutes_in_a_day / 15)
 
         """ Households basic configuration """
-        self.consumers = 200
-        self.prosumers_with_only_pv = 2
-        self.prosumers_with_ess = 2
+        self.consumers = 0
+        self.prosumers_with_only_pv = 0
+        self.prosumers_with_ess = 0
         self.prosumers_with_pv_and_ess = 2
 
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
@@ -58,8 +58,8 @@ class ConfigurationMixin:
 
         """ ESS """
         self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
-        max_capacity_list = np.ones(self.num_households_with_ess) * 5
-        initial_capacity_list = max_capacity_list
+        max_capacity_list = np.full(self.num_households_with_ess, 10)
+        initial_capacity_list = np.full(self.num_households_with_ess, 10)
         self.ess_characteristics_list = []
 
         for battery in range(self.num_households_with_ess):
@@ -67,6 +67,8 @@ class ConfigurationMixin:
             initial_soc = initial_capacity_list[battery]
             self.ess_characteristics_list.append([initial_soc, max_capacity])
         self.total_ess_capacity = sum(max_capacity_list)
+
+        print(self.ess_characteristics_list)
 
 
 if __name__ == "__main__":

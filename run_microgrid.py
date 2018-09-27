@@ -2,7 +2,7 @@ from source import microgrid_environment
 from source.const import *
 
 import logging
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.ERROR)
 grid_log = logging.getLogger('run_microgrid')
 
 
@@ -25,4 +25,7 @@ microgrid = create_microgrid()
 for step in range(microgrid.data.num_steps):
     step_microgrid()
     print("step", microgrid.step_count)
+
+assert microgrid.step_count == microgrid.data.num_steps
+microgrid.data.plots()
 

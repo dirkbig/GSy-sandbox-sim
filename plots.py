@@ -32,13 +32,13 @@ def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list
 
 
 def plot_avg_load_profile(num_steps, load_array):
-    print(load_array)
+
     steps = range(num_steps)
     fig, ax = plt.subplots()
-    # for agent in range(len(load_array)):
-    #     ax.plot(steps, load_array[agent])
-
-    avg_load = np.ndarray.sum(np.array(load_array), axis=0) # / len(load_array)
+    for agent in range(len(load_array)):
+        # ax.plot(steps, load_array[agent], alpha=0.1)
+        pass
+    avg_load = np.ndarray.sum(np.array(load_array), axis=0) / len(load_array)
 
     ax.plot(steps, avg_load)
     ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
@@ -69,6 +69,38 @@ def plot_fuel_station_profile(num_steps, fuel_station_profile):
     ax.set(xlabel='sim steps', ylabel='H2 [kg] / step-interval',
            title='Load fuel station ')
 
+
+def total_generation_vs_consumption(num_steps, pv_array, load_array):
+
+    steps = range(num_steps)
+    total_load = np.ndarray.sum(np.array(load_array), axis=0) / len(load_array)
+    total_pv_output = np.sum(pv_array, axis=0)/ len(pv_array)
+
+    fig, ax = plt.subplots()
+    ax.plot(steps, total_load, label='total load')
+    ax.plot(steps, total_pv_output, label='total pv')
+
+    ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
+           title='Total generation vs. consumption')
+
+    ax.legend(loc='lower right', bbox_to_anchor=(1, 1), ncol=3, fontsize=8)
+
+
+def soc_over_time(num_steps, soc_per_agent_over_time_array):
+
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+    for ess in range(len(soc_per_agent_over_time_array)):
+        ax.plot(steps, soc_per_agent_over_time_array[ess])
+    ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
+           title='ESS soc')
+
+def households_deficit_overflow(num_steps, soc_deficit_overflow_over_time):
+
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+    for ess in range(len(soc_per_agent_over_time_array)):
+        ax.plot(steps, soc_per_agent_over_time_array[ess])
 
 def show():
     plt.show()
