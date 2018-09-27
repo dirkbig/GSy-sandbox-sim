@@ -51,11 +51,11 @@ class ESS(object):
         if self.soc_preferred is None:
             self.soc_preferred = 0
 
-        """ The logic here is straight forwards; what is the preferred SOC the battery wants to attain? 
+        """ The logic here is straight forward; what is the preferred SOC the battery wants to attain? 
             -> surplus of ESS = actual SOC + aggregated supply from all devices (could be negative) - the preferred SOC 
         """
         self.surplus = self.soc_actual + self.total_supply_from_devices_at_step - self.soc_preferred
-        device_log.info('soc surplus of house %d =%d' % (self.agent.id, self.surplus))
+        device_log.info('soc surplus of house %d = %f' % (self.agent.id, self.surplus))
 
     def soc_preferred_calc(self):
         """forecast of load minus (personal) productions over horizon expresses preferred soc of ESS"""
@@ -76,19 +76,19 @@ class PVPanel(object):
     def __init__(self, agent, pv_data):
         """PVPanel device"""
         self.agent = agent
-        self.data = [pv_data]
+        self.device_pv_data = pv_data
         self.next_interval_estimated_generation = None
         # TODO: API to PVLIB-Python?
 
     def get_generation(self, current_step):
         assert current_step == self.agent.model.step_count
-        self.next_interval_estimated_generation = self.data[current_step]
+        self.next_interval_estimated_generation = self.device_pv_data[current_step]
         return self.next_interval_estimated_generation
 
     def uniform_call_to_device(self, current_step):
         assert current_step == self.agent.model.step_count
         device_log.info("PV of house %s checking in" % self.agent.id)
-        self.next_interval_estimated_generation = self.data[current_step]  # production thus positive
+        self.next_interval_estimated_generation = self.device_pv_data[current_step]  # production thus positive
         return self.next_interval_estimated_generation
 
 
@@ -96,12 +96,12 @@ class GeneralLoad(object):
     def __init__(self, agent, load_data):
         """ General load device """
         self.agent = agent
-        self.data = [load_data]
+        self.device_load_data = load_data
         self.next_interval_estimated_load = None
 
     def get_load(self, current_step):
         assert current_step == self.agent.model.step_count
-        self.next_interval_estimated_load = - self.data[current_step]  # load thus negative
+        self.next_interval_estimated_load = - float(self.agent.load_data[current_step])  # load thus negative
         return self.next_interval_estimated_load
 
     def uniform_call_to_device(self, current_step):

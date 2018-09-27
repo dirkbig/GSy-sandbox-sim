@@ -29,7 +29,9 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
         return clearing_quantity, clearing_price, None, None
 
     total_turnover_ = clearing_quantity * clearing_price
-    assert total_turnover_ > 0 and clearing_quantity > 0
+    print(clearing_price)
+    print(clearing_quantity)
+    # assert total_turnover_ > 0 and clearing_quantity > 0
 
     trade_pairs_pac_ = []
     matched_quantity = 0

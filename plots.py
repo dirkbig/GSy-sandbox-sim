@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+sns.set()
 
 
 def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list):
@@ -27,3 +30,45 @@ def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list
     # TODO: somehow update the plot every plot, look into:
     # https://stackoverflow.com/questions/46001645/how-to-make-a-progresing-plot-in-matplotlib
 
+
+def plot_avg_load_profile(num_steps, load_array):
+    print(load_array)
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+    # for agent in range(len(load_array)):
+    #     ax.plot(steps, load_array[agent])
+
+    avg_load = np.ndarray.sum(np.array(load_array), axis=0) # / len(load_array)
+
+    ax.plot(steps, avg_load)
+    ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
+           title='avg Load')
+
+
+def plot_avg_pv_profile(num_steps, pv_array):
+
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+    # for pv in range(len(pv_array)):
+    #     ax.plot(steps, pv_array[pv])
+    # ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
+    #        title='PV output')
+
+    avg_pv_output = np.sum(pv_array, axis=0)/len(pv_array)
+
+    ax.plot(steps, avg_pv_output)
+    ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
+           title='avg PV output')
+
+
+def plot_fuel_station_profile(num_steps, fuel_station_profile):
+
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+    ax.plot(steps, fuel_station_profile)
+    ax.set(xlabel='sim steps', ylabel='H2 [kg] / step-interval',
+           title='Load fuel station ')
+
+
+def show():
+    plt.show()

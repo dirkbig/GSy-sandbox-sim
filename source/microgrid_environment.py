@@ -14,23 +14,24 @@ env_log = logging.getLogger('microgrid_env')
 class MicroGrid(Model):
     """ Agents are created in this environment that runs the simulation"""
     def __init__(self):
-        self.step_count = 0
-        self.agents = []
-        self.num_households = num_households
-        self.auction_type = auction_type
 
-        """ load in data THIS HAS TO GO FIRST"""
         self.data = Data()
 
+        """ initiation """
+        self.step_count = 0
+        self.agents = []
+
+        """ load in data THIS HAS TO GO FIRST"""
+
         """ create the auction platform"""
-        self.auction = Auctioneer(self.auction_type, self)
+        self.auction = Auctioneer(self.data.auction_type, self)
 
         """ create the utility grid"""
-        if utility_presence is True:
+        if self.data.utility_presence is True:
             self.utility = UtilityAgent(self)
 
         """ create N agents """
-        for i in range(self.num_households):
+        for i in range(self.data.num_households):
             agent = HouseholdAgent(i, self)
             self.agents.append(agent)
 

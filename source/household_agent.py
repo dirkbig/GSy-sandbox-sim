@@ -18,11 +18,9 @@ class HouseholdAgent(Agent):
         self.data = self.model.data
 
         """ Loading in data """
-        self.load_data = self.model.data.load_list[self.id]
-        self.ess_data = self.model.data.ess_list[self.id]
-        self.pv_data = self.model.data.pv_gen_list[self.id]
-        self.electrolyzer_data = self.model.data.electrolyzer_list[self.id]
-        # self.electrolyzer_data = self.model.data.electrolyzer_list[self.id]
+        self.load_data = self.model.data.agent_data_array[self.id][0]
+        self.pv_data = self.model.data.agent_data_array[self.id][1]
+        self.ess_data = self.model.data.agent_data_array[self.id][2]
 
         self.load_on_step = None
         self.pv_production_on_step = None
@@ -46,15 +44,15 @@ class HouseholdAgent(Agent):
             self.devices['PV'] = self.pv
             self.has_pv = True
 
-        if self.ess_data[1] is not None or self.ess_data[1] == 0:
+        if self.ess_data is not None:
             self.ess = ESS(self, self.ess_data)
             self.devices['ESS'] = self.ess
             self.has_ess = True
 
-        if self.electrolyzer_data is not None:
-            self.electrolyzer = Electrolyzer(self, self.electrolyzer_data)
-            self.devices['Electrolyzer'] = self.electrolyzer
-            self.has_electrolyzer = True
+        # if self.electrolyzer_data is not None:
+        #     self.electrolyzer = Electrolyzer(self, self.electrolyzer_data)
+        #     self.devices['Electrolyzer'] = self.electrolyzer
+        #     self.has_electrolyzer = True
 
         house_log.info(self.devices)
 
@@ -186,6 +184,7 @@ class HouseholdAgent(Agent):
         self.state_update_from_devices()
         for device in self.devices:
             self.devices[device].uniform_call_to_device(self.model.step_count)
+
 
         """ 
             STRATEGIES 

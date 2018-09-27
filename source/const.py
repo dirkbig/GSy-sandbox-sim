@@ -1,22 +1,11 @@
 """ DATA """
 
-utility_presence = True
-selected_utility_price_profile = 'utility_price_profile_constant.csv'
-
-
-
 """ Constants """
+ambient_temp = 293.15
+num_minutes_in_a_day = 1440
 
-""" Simulation environment """
-num_steps = 10
-auction_type = 'pay_as_clear'
-num_steps = 1
-num_households = 30
-market_interval = 15  # minutes
-
-
-""" Households """
-initial_coins_household = 100
+""" Money matters """
+initial_coins_household = 10000000000
 
 
 """ ESS constants"""

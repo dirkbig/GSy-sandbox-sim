@@ -1,3 +1,4 @@
+from source.const import *
 import math
 import warnings
 from mesa import Agent
@@ -15,7 +16,7 @@ class Electrolyzer(Agent):
         self.id = _unique_id
         self.model = model
         # Simulation time [min].
-        self.sim_time = const.market_interval
+        self.sim_time = market_interval
 
         # States of the electrolyzer.
         # Current density (i = I/A) in [A / cm^2]
@@ -27,7 +28,7 @@ class Electrolyzer(Agent):
         # power in [kW]
         self.power = 0
         # temperature in [K]
-        self.temp = 293.15
+        self.temp = ambient_temp
 
         # Parameters for the hydrogen station.
         # Amount of (usable) hydrogen stored [kg].
@@ -82,8 +83,6 @@ class Electrolyzer(Agent):
         # saves last temperature value
         self.temp_before = self.temp
 
-
-
     def pre_auction_step(self):
         # Before the auction the physical states are renewed.
         self.update_power()
@@ -102,7 +101,6 @@ class Electrolyzer(Agent):
         if self.stored_hydrogen < 0:
             self.demand_not_fulfilled += abs(self.stored_hydrogen)
             self.stored_hydrogen = 0
-
 
     # Determine new measurement data for next step.
     def update_power(self, new_power_value):
@@ -137,7 +135,6 @@ class Electrolyzer(Agent):
             # Calculate the power [kW].
             self.power = self.voltage * self.current / 1000
 
-
         # Calculate the temperature.
         self.temp = self.cell_temp()
 
@@ -161,7 +158,6 @@ class Electrolyzer(Agent):
         # Calculate the new temperature of the electrolyzer by Newtons law of cooling. The exponent (-t[s]/2310) was
         # parameterized such that the 98 % of the temperature change are reached after 2.5 hours.
         temp_new = temp_aim + (temp_before - temp_aim) * math.exp(-self.sim_time*60 / 2310)
-
 
         # Return the new electrolyzer temperature [K].
         return temp_new
@@ -300,6 +296,7 @@ class Electrolyzer(Agent):
         return voltage_reversible
 
 
+""" Stand alone testing of the Electrolyzer device"""
 if __name__ == "__main__":
     Ely = Electrolyzer(1, [])
 

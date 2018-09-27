@@ -1,6 +1,5 @@
 from source.auctioneer_methods import *
 from plots import clearing_snapshot
-from source.const import num_households
 from mesa import Agent
 import seaborn as sns
 
@@ -15,7 +14,7 @@ class Auctioneer(Agent):
         auction_log.info('auction of type %s created', _unique_id)
         self.model = model
 
-        self.snapshot_plot = True
+        self.snapshot_plot = False
         self.id = _unique_id
         self.pricing_rule = 'pac'
         self.aggregate_demand_curve = []
@@ -43,16 +42,20 @@ class Auctioneer(Agent):
             self.model.agents[agent.id].sold_energy = None
             self.model.agents[agent.id].bought_energy = None
 
-        self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
-        self.execute_auction(sorted_x_y_y_pairs_list)
-        self.clearing_of_market(self.trade_pairs)
+        if self.offer_list != [] and self.bid_list != []:
+            self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
+            self.execute_auction(sorted_x_y_y_pairs_list)
+            self.clearing_of_market(self.trade_pairs)
+            return
+
+        else:
+            auction_log.warning("no trade at this step")
+            return
 
     def execute_auction(self, sorted_x_y_y_pairs_list):
         """ auctioneer sets up the market and clears it according pricing rule """
 
         check_demand_supply(self.sorted_bid_list, self.sorted_offer_list)
-        if len(self.sorted_bid_list) == 0 or len(self.sorted_offer_list) == 0:
-            auction_log.warning("no trade at this step")
 
         self.trade_pairs = None
         self.clearing_quantity = None
@@ -155,7 +158,6 @@ class Auctioneer(Agent):
                 sorted_x_y_y_pairs_list[i][1] = 0
             if sorted_x_y_y_pairs_list[i][2] is None:
                 sorted_x_y_y_pairs_list[i][2] = 0
-
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 
     def clearing_of_market(self, trade_pairs):
@@ -178,6 +180,8 @@ class Auctioneer(Agent):
         else:
             auction_log.warning("no trade at this step")
 
+        print("trade pairs", trade_pairs)
+
         """ clear lists for later use in next step """
         self.bid_list = []
         self.offer_list = []
@@ -196,7 +200,7 @@ class Auctioneer(Agent):
             else:
                 num_passive += 1
         total_num = num_selling + num_buying + num_passive
-        assert total_num == num_households
+        assert total_num == self.model.data.num_households
 
         self.percentage_sellers = num_selling / total_num
         self.percentage_buyers = num_buying / total_num
