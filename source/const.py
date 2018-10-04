@@ -7,6 +7,8 @@ auction_type = 'pay_as_clear'
 num_steps = 1
 num_households = 100
 market_interval = 15  # minutes
+# Start time in UNIX (e.g. 1420070400 for 00:00:00-01.01.2015).
+#start_time = 1420070400
 
 
 """ Households """

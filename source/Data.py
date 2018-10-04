@@ -15,7 +15,7 @@ class Data(object):
                 -> do not use for testing, since input is all random, just for bug finding"""
             self.load_list = 1.8*np.random.rand(num_households)
             self.pv_gen_list = np.random.rand(num_households)
-            self.electrolyzer_list = [None for electrolyzer in range(num_households)]
+            self.h2_load_list = self.get_h2_load_profile()
 
             self.ess_list = [[np.random.randint(0, 1) for char in range(2)] for house in range(num_households)]  # TODO: currently NOT : [initial_soc, max_capacity]
             print(self.ess_list)
@@ -26,7 +26,7 @@ class Data(object):
                 -> use for testing of simply grids and hypotheses, check whether strategies are behaving"""
             self.load_list =            [0,  0, 100, 10]
             self.pv_gen_list =          [3,     None, 3, None]
-            self.electrolyzer_list =    [None, None, None, None]
+            self.h2_load_list =         [2]
 
             self.ess_list = [[0.5, 5], [0.5, 5], [0, 5], [0, 5]]  # currently: [initial_soc, max_capacity]
 
@@ -37,22 +37,23 @@ class Data(object):
             # TODO: add time series data from Stanford SMART* data-set
             self.load_dict = self.get_load_profiles()       # DONE: linked to load-profiles @ data_load_profiles
             self.pv_gen_dict = self.get_pv_gen_profiles()   # TODO: find suitable PV data set
-            self.electrolyzer_list = self.get_electrolyzer_profiles()
+            self.h2_load_list = self.get_h2_load_profile()  # DONE: H2 load for the year 2015 is loaded.
 
             self.ess_list = self.get_ess_characteristics()    # TODO: currently NOT : [initial_soc, max_capacity]
 
-            assert len(self.load_list) == len(self.ess_list) == len(self.pv_gen_list)
+            # assert len(self.load_list) == len(self.ess_list) == len(self.pv_gen_list)
+            self.simulation_length_steps = len(self.load_dict)
 
         self.simulation_length_steps = len(self.load_list)
 
     @staticmethod
     def get_load_profiles():
         """ loading in load profiles """
-        load_dict = csv_read_file(num_households)
+        load_dict = csv_read_load_profile(num_households)
         return load_dict
 
     @staticmethod
-    def get_pv_gen_profiles(self):
+    def get_pv_gen_profiles():
         """ loading in load profiles """
         pv_gen_dict = {}
         for agent in range(num_households):
@@ -63,10 +64,10 @@ class Data(object):
         return pv_gen_dict
 
     @staticmethod
-    def get_electrolyzer_profiles():
+    def get_h2_load_profile():
         """ loading in load profiles """
-        electrolyzer_dict = None  # TODO: None?? that is a problem...
-        return electrolyzer_dict
+        h2_load = csv_read_load_h2()
+        return h2_load
 
     @staticmethod
     def get_ess_characteristics():

@@ -17,7 +17,10 @@ class Electrolyzer(Agent):
         # Simulation time [min].
         self.sim_time = const.market_interval
 
-        # States of the electrolyzer.
+        """ Loading in data. """
+        self.h2_demand = self.model.data.h2_load_list
+
+        """ States of the electrolyzer. """
         # Current density (i = I/A) in [A / cm^2]
         self.cur_dens = 0
         # current in [A]
@@ -82,8 +85,6 @@ class Electrolyzer(Agent):
         # saves last temperature value
         self.temp_before = self.temp
 
-
-
     def pre_auction_step(self):
         # Before the auction the physical states are renewed.
         self.update_power()
@@ -95,14 +96,13 @@ class Electrolyzer(Agent):
         mass_old = self.stored_hydrogen
         mass_produced = self.current * self.z_cell / (2 * self.faraday) * self.molarity
         # HAS TO BE READ VIA THE TIMESERIES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        mass_demanded = 0
+        mass_demanded = self.h2_demand[self.model.step_count][1]
         # Update the mass in the storage
         self.stored_hydrogen = mass_old + mass_produced - mass_demanded
         # Check if hydrogen demand could't be fulfilled. If so, track it and set the storage to empty.
         if self.stored_hydrogen < 0:
             self.demand_not_fulfilled += abs(self.stored_hydrogen)
             self.stored_hydrogen = 0
-
 
     # Determine new measurement data for next step.
     def update_power(self, new_power_value):
@@ -300,13 +300,42 @@ class Electrolyzer(Agent):
         return voltage_reversible
 
 
+class DepthVar():
+
+    def add_method(self, method_name, val):
+        return self.__setattr__(method_name, val)
+
+
+
 if __name__ == "__main__":
-    Ely = Electrolyzer(1, [])
+    from source.data_methods import csv_read_load_h2
+    data = DepthVar()
+    data.add_method("h2_load_list", 3)
+    model = DepthVar()
+    model.add_method("data", data)
+
+    data_directory = "..data_timeseries"
+    ts_name = "ts_h2load_classverysmall_kg_15min_2015.csv"
+    data_array = []
+    import csv
+    with open(data_directory + "/" + ts_name) as csv_file:
+        data_file = csv.reader(csv_file, delimiter=',')
+        for row in data_file:
+            data_array.append(row)
+
+    print(model.data.h2_load_list)
+    model.data.h2_load_list = data_array
+
+    Ely = Electrolyzer(1, model)
+    # Set warning filter so that a warning that appears multiple times is not suppressed.
+    # warnings.simplefilter('always', UserWarning)
 
     for i_timestep in range(20):
-        ely_voltage = 190
+        # Define the power bought for the electrolyzer [kW].
+        ely_power = 230
+        Ely.model.step_count = i_timestep
 
-        Ely.update_power(ely_voltage)
+        Ely.update_power(ely_power)
         Ely.update_storage()
 
         print("Time step {:3.0f}; time passed {:4.0f} min; Ely power {:.2f} kW; Voltage {:.2f} V; Ely current {:.2f}"

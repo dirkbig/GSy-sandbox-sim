@@ -21,20 +21,20 @@ class HouseholdAgent(Agent):
         self.load_data = self.model.data.load_list[self.id]
         self.ess_data = self.model.data.ess_list[self.id]
         self.pv_data = self.model.data.pv_gen_list[self.id]
-        self.electrolyzer_data = self.model.data.electrolyzer_list[self.id]
+        #self.electrolyzer_data = self.model.data.electrolyzer_list[self.id]
         # self.electrolyzer_data = self.model.data.electrolyzer_list[self.id]
 
         self.load_on_step = None
         self.pv_production_on_step = None
         self.ess_demand_on_step = None
-        self.electrolyzer_demand_on_step = None
+        #self.electrolyzer_demand_on_step = None
 
         """ Creation of device objects, depending is Data class assigns them """
         self.devices = {}
         self.has_load = False
         self.has_pv = False
         self.has_ess = False
-        self.has_electrolyzer = False
+        #self.has_electrolyzer = False
 
         if self.load_data is not None:
             self.load = GeneralLoad(self, self.load_data)
@@ -51,10 +51,12 @@ class HouseholdAgent(Agent):
             self.devices['ESS'] = self.ess
             self.has_ess = True
 
+        """
         if self.electrolyzer_data is not None:
             self.electrolyzer = Electrolyzer(self, self.electrolyzer_data)
             self.devices['Electrolyzer'] = self.electrolyzer
-            self.has_electrolyzer = True
+            self.has_electrolyzer = True 
+        """
 
         print(self.devices)
         house_log.info(self.devices)
@@ -158,8 +160,10 @@ class HouseholdAgent(Agent):
         if self.has_pv is True:
             self.pv_production_on_step = self.pv.get_generation(current_step)
 
+        """
         if self.has_electrolyzer is True:
             self.electrolyzer_demand_on_step = self.electrolyzer.get_demand_electrolyzer(self, current_step)
+        """
 
     def pre_auction_step(self):
         """ each agent makes a step here, before auction step"""

@@ -1,6 +1,7 @@
 from source.AuctioneerAgent import Auctioneer
 from source.UtilityAgent import UtilityAgent
 from source.HouseholdAgent import HouseholdAgent
+from source.Electrolyzer import Electrolyzer
 from source.Data import Data
 from source.const import *
 
@@ -25,6 +26,9 @@ class MicroGrid(Model):
 
         """ create the utility grid"""
         self.utility = UtilityAgent(self)
+
+        """ Create the electrolyzer (hydrogen refueling station) agent."""
+        self.electrolyzer = Electrolyzer(1, self)
 
         """ create N agents """
         for i in range(self.num_households):
