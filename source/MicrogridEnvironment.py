@@ -28,7 +28,7 @@ class MicroGrid(Model):
         self.utility = UtilityAgent(self)
 
         """ Create the electrolyzer (hydrogen refueling station) agent."""
-        self.electrolyzer = Electrolyzer(1, self)
+        #self.electrolyzer = Electrolyzer(1, self)
 
         """ create N agents """
         for i in range(self.num_households):

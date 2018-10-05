@@ -17,8 +17,10 @@ class Electrolyzer(Agent):
         # Simulation time [min].
         self.sim_time = const.market_interval
 
-        """ Loading in data. """
+        """ H2 demand list. """
         self.h2_demand = self.model.data.h2_load_list
+        # Track the used demand [kg].
+        self.track_demand = []
 
         """ States of the electrolyzer. """
         # Current density (i = I/A) in [A / cm^2]
@@ -95,14 +97,21 @@ class Electrolyzer(Agent):
         # Update the mass of the hydrogen stored.
         mass_old = self.stored_hydrogen
         mass_produced = self.current * self.z_cell / (2 * self.faraday) * self.molarity
-        # HAS TO BE READ VIA THE TIMESERIES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        mass_demanded = self.h2_demand[self.model.step_count][1]
+        # Get the demand of this timestep.
+        mass_demanded = float(self.h2_demand[self.model.step_count][1])
+        self.track_demand.append(mass_demanded)
         # Update the mass in the storage
         self.stored_hydrogen = mass_old + mass_produced - mass_demanded
         # Check if hydrogen demand could't be fulfilled. If so, track it and set the storage to empty.
         if self.stored_hydrogen < 0:
             self.demand_not_fulfilled += abs(self.stored_hydrogen)
             self.stored_hydrogen = 0
+        #elif self.stored_hydrogen > const.hrs_storage_size:
+            # Case: the storage is more than full, thus iteratively the power has to be reduced
+            #mass_overload = self.stored_hydrogen - const.hrs_storage_size
+
+
+
 
     # Determine new measurement data for next step.
     def update_power(self, new_power_value):
@@ -136,7 +145,6 @@ class Electrolyzer(Agent):
 
             # Calculate the power [kW].
             self.power = self.voltage * self.current / 1000
-
 
         # Calculate the temperature.
         self.temp = self.cell_temp()
@@ -213,12 +221,12 @@ class Electrolyzer(Agent):
         self.cur_dens = cur_dens_iteration
         self.power = power_iteration
 
-    def ely_voltage_u_act(ely, cur_dens, temp):
+    def ely_voltage_u_act(self, cur_dens, temp):
         # This voltage part describes the activity losses within the electolyser.
         # Source: 'Modeling an alkaline electrolysis cell through reduced-order and loss estimate approaches'
         # from Milewski et al. (2014)!
 
-        j0 = ely.fitting_value_exchange_current_density
+        j0 = self.fitting_value_exchange_current_density
 
         '# COMPUTATION FOR EACH NODE'
         # The temperature of this loop run[K].
@@ -227,27 +235,27 @@ class Electrolyzer(Agent):
         alpha_a = 0.0675 + 0.00095 * this_temp
         alpha_c = 0.1175 + 0.00095 * this_temp
         # The two parts of the activation voltage for this node[V].
-        u_act_a = 2.306 * (ely.gas_const * this_temp) / (ely.n * ely.faraday * alpha_a) * math.log10(cur_dens / j0)
-        u_act_c = 2.306 * (ely.gas_const * this_temp) / (ely.n * ely.faraday * alpha_c) * math.log10(cur_dens / j0)
+        u_act_a = 2.306 * (self.gas_const * this_temp) / (self.n * self.faraday * alpha_a) * math.log10(cur_dens / j0)
+        u_act_c = 2.306 * (self.gas_const * this_temp) / (self.n * self.faraday * alpha_c) * math.log10(cur_dens / j0)
         # The activation voltage for this node[V].
         voltage_activation = u_act_a + u_act_c
 
         return voltage_activation
 
-    def ely_voltage_u_ohm(ely, cur_dens, temp):
+    def ely_voltage_u_ohm(self, cur_dens, temp):
         # This model takes into account two ohmic losses, one being the resistance of the electrolyte itself
         # (resistanceElectrolyte) and other losses like the presence of bubbles (resistanceOther).
         # Source: 'Modeling an alkaline electrolysis cell through reduced-order and loss estimate approaches'
         # from Milewski et al. (2014)
 
-        electrolyte_thickness = ely.fitting_value_electrolyte_thickness
+        electrolyte_thickness = self.fitting_value_electrolyte_thickness
 
         # Temperature of this loop run [K].
         this_temp = temp
         # The conductivity of the the potassium hydroxide (KOH) solution [1/(Ohm*cm)].
-        conductivity_electrolyte = -2.041 * ely.molarity_KOH - 0.0028 * ely.molarity_KOH ** 2 + 0.001043 * \
-                                   ely.molarity_KOH ** 3 + 0.005332 * ely.molarity_KOH * this_temp + 207.2 * \
-                                   ely.molarity_KOH / this_temp - 0.0000003 * ely.molarity_KOH ** 2 * this_temp ** 2
+        conductivity_electrolyte = -2.041 * self.molarity_KOH - 0.0028 * self.molarity_KOH ** 2 + 0.001043 * \
+                                   self.molarity_KOH ** 3 + 0.005332 * self.molarity_KOH * this_temp + 207.2 * \
+                                   self.molarity_KOH / this_temp - 0.0000003 * self.molarity_KOH ** 2 * this_temp ** 2
         # The electrolyte resistance [Ohm*cm²].
         resistance_electrolyte = electrolyte_thickness / conductivity_electrolyte
         # Void fraction of the electrolyte (j is multiplied by 10^4 because the units the formula is made for is A/m²
@@ -300,47 +308,8 @@ class Electrolyzer(Agent):
         return voltage_reversible
 
 
-class DepthVar():
-
-    def add_method(self, method_name, val):
-        return self.__setattr__(method_name, val)
 
 
 
-if __name__ == "__main__":
-    from source.data_methods import csv_read_load_h2
-    data = DepthVar()
-    data.add_method("h2_load_list", 3)
-    model = DepthVar()
-    model.add_method("data", data)
-
-    data_directory = "..data_timeseries"
-    ts_name = "ts_h2load_classverysmall_kg_15min_2015.csv"
-    data_array = []
-    import csv
-    with open(data_directory + "/" + ts_name) as csv_file:
-        data_file = csv.reader(csv_file, delimiter=',')
-        for row in data_file:
-            data_array.append(row)
-
-    print(model.data.h2_load_list)
-    model.data.h2_load_list = data_array
-
-    Ely = Electrolyzer(1, model)
-    # Set warning filter so that a warning that appears multiple times is not suppressed.
-    # warnings.simplefilter('always', UserWarning)
-
-    for i_timestep in range(20):
-        # Define the power bought for the electrolyzer [kW].
-        ely_power = 230
-        Ely.model.step_count = i_timestep
-
-        Ely.update_power(ely_power)
-        Ely.update_storage()
-
-        print("Time step {:3.0f}; time passed {:4.0f} min; Ely power {:.2f} kW; Voltage {:.2f} V; Ely current {:.2f}"
-              " A; Current density {:.4f} A/cm²; Stored mass {:6.2f} kg; Temp: {:.2f}".format(
-                i_timestep, i_timestep*const.market_interval, Ely.power, Ely.voltage,
-                Ely.current, Ely.cur_dens, Ely.stored_hydrogen, Ely.temp))
 
 

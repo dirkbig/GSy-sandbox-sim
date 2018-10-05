@@ -64,6 +64,7 @@ cur_dens_min = 0
 sec_counter = 1
 
 """ Hydrogen refueling station """
+# Max. storable mass [kg].
 hrs_storage_size = 100
 
 
