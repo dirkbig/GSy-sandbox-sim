@@ -6,6 +6,8 @@ import numpy as np
 import logging
 data_log = logging.getLogger('data')
 
+# TODO: UNIX TO DATE
+
 
 class Data(ConfigurationMixin, object):
     def __init__(self):
@@ -51,8 +53,16 @@ class Data(ConfigurationMixin, object):
             assert len(self.ess_list) == self.num_households_with_ess
 
             assert len(self.electrolyzer_list) == self.num_steps
-            assert len(self.load_array[0]) == self.num_steps
-            assert len(self.pv_gen_array[0]) == self.num_steps
+
+            try:
+                assert len(self.load_array[0]) == self.num_steps
+            except IndexError:
+                pass
+
+            try:
+                assert len(self.pv_gen_array[0]) == self.num_steps
+            except IndexError:
+                pass
 
             self.agent_data_array = self.fill_in_classification_array()
 
@@ -68,14 +78,14 @@ class Data(ConfigurationMixin, object):
             if self.negative_pricing is False:
                 self.utility_pricing_profile[self.utility_pricing_profile < 0] = 0
 
-        """ post evaluation variables, used by plots """
-
-        self.soc_list_over_time = np.zeros([self.num_households_with_ess, self.num_steps])
-        self.soc_deficit_overflow_over_time = np.zeros([self.num_households_with_ess, self.num_steps, 2])
+        """ SOC and unmatched loads and generation in grid """
+        self.soc_list_over_time = np.zeros([self.num_households, self.num_steps])
+        self.deficit_over_time = np.zeros([self.num_households, self.num_steps])
+        self.overflow_over_time = np.zeros([self.num_households, self.num_steps])
 
     def plots(self):
         soc_over_time(self.num_steps, self.soc_list_over_time)
-        households_deficit_overflow(self.num_steps, self.soc_deficit_overflow_over_time)
+        households_deficit_overflow(self.num_steps, self.deficit_over_time, self.overflow_over_time)
         show()
 
     def get_load_profiles(self):
@@ -85,7 +95,7 @@ class Data(ConfigurationMixin, object):
         """ load is in minutes, now convert to intervals """
         for i in range(len(load_list)):
             load_list[i] = load_list[i][0::self.market_interval]
-            # TODO: add all consumption in 15 to element instead of naive sampling
+            # TODO: add all consumption within 15 step interval to i interval element, instead of (naive) sampling
 
             assert len(load_list[i]) == self.num_steps
 
@@ -155,7 +165,6 @@ class Data(ConfigurationMixin, object):
         return agent_data_array
 
 
-
 if __name__ == "__main__":
     data = Data()
     print('fuel station load: ', data.fuel_station_load)
@@ -163,8 +172,8 @@ if __name__ == "__main__":
     print('household load data set: ', data.household_loads_folder)
     print('total ess storage capacity: %d kWh' % data.total_ess_capacity)
 
-    # plot_avg_load_profile(data.num_steps, data.load_array)
-    # plot_avg_pv_profile(data.num_steps, data.pv_gen_array)
-    # plot_fuel_station_profile(data.num_steps, data.electrolyzer_list)
+    plot_avg_load_profile(data.num_steps, data.load_array)
+    plot_avg_pv_profile(data.num_steps, data.pv_gen_array)
+    plot_fuel_station_profile(data.num_steps, data.electrolyzer_list)
     total_generation_vs_consumption(data.num_steps, data.pv_gen_array, data.load_array)
     show()

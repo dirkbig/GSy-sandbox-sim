@@ -75,10 +75,15 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
+        if self.model.step_count == 50:
+            clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
+
         if self.snapshot_plot:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
 
         print('trade pairs', self.trade_pairs)
+
+        # TODO: save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards
 
     def sorting(self):
         """sorts bids and offers into an aggregated demand/supply curve"""
@@ -165,8 +170,8 @@ class Auctioneer(Agent):
     def clearing_of_market(self, trade_pairs):
         """clears market """
         for agent in self.model.agents[:]:
-            self.model.agents[agent].sold_energy = 0
-            self.model.agents[agent].bought_energy = 0
+            self.model.agents[agent.id].sold_energy = 0
+            self.model.agents[agent.id].bought_energy = 0
 
         """ listing of all offers/bids selected for trade """
         if trade_pairs is not None:
@@ -207,7 +212,10 @@ class Auctioneer(Agent):
         total_num = num_selling + num_buying + num_passive
         assert total_num == self.model.data.num_households
 
+        # TODO: translate this to percentage of households actually capable of selling or buying...
+        # of course pure consumers will never be able to trade energy...
         self.percentage_sellers = num_selling / total_num
         self.percentage_buyers = num_buying / total_num
         self.percentage_passive = num_passive / total_num
 
+        print(self.percentage_sellers, self.percentage_buyers, self.percentage_passive)

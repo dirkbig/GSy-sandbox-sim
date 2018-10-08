@@ -78,16 +78,14 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
                     matched_quantity += trade_quantity
 
                     """ Update to next supplier in line """
-                    if supplier < num_suppliers:
-                        supplier += 1
+                    while supplier <= num_suppliers:
                         try:
                             available_supply_of_selected_seller = sorted_offer_list[supplier][0]
                         except IndexError:
                             print(supplier)
                             print(num_suppliers)
                         seller_id = sorted_offer_list[supplier][2]
-                    else:
-                        break
+                        supplier += 1
 
                 if matched_quantity >= clearing_quantity:
                     filled = True

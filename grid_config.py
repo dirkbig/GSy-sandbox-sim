@@ -26,17 +26,21 @@ class ConfigurationMixin:
 
         self.classification_array = []
 
-        for agent in range(self.prosumers_with_pv_and_ess):
-            self.classification_array.append([True, True, True])
+        """ consumers"""
+        for agent in range(self.consumers):
+            self.classification_array.append([True, False, False])
 
-        for agent in range(self.prosumers_with_ess):
-            self.classification_array.append([True, False, True])
-
+        """ prosumers with only PV """
         for agent in range(self.prosumers_with_only_pv):
             self.classification_array.append([True, True, False])
 
-        for agent in range(self.consumers):
-            self.classification_array.append([True, False, False])
+        """ prosumers with only ESS"""
+        for agent in range(self.prosumers_with_ess):
+            self.classification_array.append([True, False, True])
+
+        """ prosumers with both PV and ESS"""
+        for agent in range(self.prosumers_with_pv_and_ess):
+            self.classification_array.append([True, True, True])
 
         """ Electrolyzer """
         self.cell_area = 1500
@@ -51,6 +55,7 @@ class ConfigurationMixin:
 
         """ Household loads """
         self.household_loads_folder = 'household_load_profiles_SMART*'
+        self.num_households_with_consumption = self.num_households
 
         """ PV """
         self.num_pv_panels = self.prosumers_with_only_pv + self.prosumers_with_pv_and_ess

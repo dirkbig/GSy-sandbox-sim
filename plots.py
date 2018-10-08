@@ -88,6 +88,9 @@ def total_generation_vs_consumption(num_steps, pv_array, load_array):
 
 def soc_over_time(num_steps, soc_per_agent_over_time_array):
 
+    """ throw away all rows filled with zero """
+    # TODO: delete rows that are all zero, only non-zero rows are relevant
+
     steps = range(num_steps)
     fig, ax = plt.subplots()
     for ess in range(len(soc_per_agent_over_time_array)):
@@ -95,12 +98,26 @@ def soc_over_time(num_steps, soc_per_agent_over_time_array):
     ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
            title='ESS soc')
 
-def households_deficit_overflow(num_steps, soc_deficit_overflow_over_time):
+
+def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time):
+
 
     steps = range(num_steps)
     fig, ax = plt.subplots()
-    for ess in range(len(soc_per_agent_over_time_array)):
-        ax.plot(steps, soc_per_agent_over_time_array[ess])
+    """ overflows """
+    # for ess in range(len(soc_deficit_overflow_over_time)):
+    #     soc_deficit_overflow_over_time[]
+    #     ax.plot(steps, soc_deficit_overflow_over_time[ess])
+
+    """ deficits """
+    for ess in range(len(deficit_over_time)):
+        ax.plot(steps, deficit_over_time[ess])
+    for ess in range(len(overflow_over_time)):
+        ax.plot(steps, overflow_over_time[ess])
+
+    ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
+           title='ESS deficits')
+
 
 def show():
     plt.show()

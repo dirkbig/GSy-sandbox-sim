@@ -25,14 +25,12 @@ class HouseholdAgent(Agent):
         self.load_on_step = 0
         self.pv_production_on_step = 0
         self.ess_demand_on_step = 0
-        # self.electrolyzer_demand_on_step = None
 
         """ Creation of device objects, depending is Data class assigns them """
         self.devices = {}
         self.has_load = False
         self.has_pv = False
         self.has_ess = False
-        # self.has_electrolyzer = False
 
         if self.load_data is not None:
             self.load = GeneralLoad(self, self.load_data)
@@ -53,20 +51,19 @@ class HouseholdAgent(Agent):
         else:
             self.soc_actual = 0
 
-        # if self.electrolyzer_data is not None:
-        #     self.electrolyzer = Electrolyzer(self, self.electrolyzer_data)
-        #     self.devices['Electrolyzer'] = self.electrolyzer
-        #     self.has_electrolyzer = True
-
         house_log.info(self.devices)
 
         """standard house attributes"""
         self.wallet = Wallet(_unique_id)
 
-        # TODO: make a house setup configurable, goal is to have a variable grid configuration
-
         """ trading """
+        if self.has_ess is True:
+            self.selected_strategy = 'smart_ess_strategy'
+        if self.has_ess is False:
+            self.selected_strategy = 'simple_strategy'
+
         self.selected_strategy = 'no_trade'
+
         self.trading_state = None
         self.bid = None
         self.offer = None
@@ -150,6 +147,14 @@ class HouseholdAgent(Agent):
             might add that ESS prioritize devices within household """
         self.state_update_from_devices()
 
+        quantity = self.load_on_step
+        print("load on step of simple consumer agent", self.load_on_step)
+
+        price = 100
+        self.trading_state = 'buying'
+        self.bid = [price, quantity, self.id]
+        self.offer = None
+
         ''' PV  first supplies to ESS
                 then supplies to market'''
 
@@ -192,7 +197,6 @@ class HouseholdAgent(Agent):
             STRATEGIES 
             how to come up with price-quantity points on the auction platform 
         """
-
         if self.has_ess is True and self.selected_strategy == 'smart_ess_strategy':
             """ 
                 smart_ess_strategy is a strategy where the ESS takes over responsibility to acquire energy

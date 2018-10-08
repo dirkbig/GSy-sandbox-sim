@@ -70,12 +70,15 @@ class ESS(object):
 
         self.agent.soc_actual = self.soc_actual
         self.agent.data.soc_list_over_time[self.agent.id][self.agent.model.step_count] = self.soc_actual
-        self.agent.data.soc_deficit_overflow_over_time[self.agent.id][self.agent.model.step_count] = local_deficit, \
-            local_overflow
+        self.agent.data.deficit_over_time[self.agent.id][self.agent.model.step_count] = local_deficit
+        self.agent.data.overflow_over_time[self.agent.id][self.agent.model.step_count] = local_overflow
 
+    @staticmethod
     def ess_physics(self):
         """ model any interesting physics applicable"""
+        # TODO: RLI ESS model
         # such as conversion efficiency, depth of charge efficiency
+        """ depth of charge """
         pass
 
     def ess_demand_calc(self, current_step):
@@ -94,6 +97,7 @@ class ESS(object):
 
     def soc_preferred_calc(self):
         """forecast of load minus (personal) productions over horizon expresses preferred soc of ESS"""
+        # TODO: perfect foresight estimation of horizon
         # self.soc_preferred = sum(self.load_horizon) - sum(self.production_horizon)
         return
 
@@ -254,6 +258,7 @@ class FuelCell(object):
         This class models the FuelCell 
     """
     # TODO: the second half of the electrolyzer / fuel-cell story.  RLI is responsible for this.
+
 
 
 
