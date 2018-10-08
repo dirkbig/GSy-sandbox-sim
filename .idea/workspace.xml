@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b51419d8-2e94-4ec6-883c-8137bba46e54" name="Default" comment="fixed battery boundaries, plots and a bunch more stuff">
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/dirkvandenbiggelaar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/dirkvandenbiggelaar.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="b51419d8-2e94-4ec6-883c-8137bba46e54" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -14,7 +13,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="run_microgrid.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="run_microgrid.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/run_microgrid.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="195">
@@ -22,6 +21,15 @@
               <folding>
                 <element signature="e#0#40#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="75">
+              <caret line="5" column="9" lean-forward="true" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -175,6 +183,7 @@
         <option value="$PROJECT_DIR$/profiles/electrolyzer_load_profiles/ts_h2load_kg_15min_classverysmall_2015.csv" />
         <option value="$PROJECT_DIR$/source/household_agent.py" />
         <option value="$PROJECT_DIR$/grid_config.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -492,7 +501,14 @@
       <option name="project" value="LOCAL" />
       <updated>1538987309732</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="fixed battery boundaries, plots and a bunch more stuff">
+      <created>1538987624366</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1538987624367</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TodoView">
@@ -508,10 +524,10 @@
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.30443975" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.30443975" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5013165" side_tool="true" weight="0.3839104" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.276808" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.276808" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.3299389" />
       <window_info anchor="bottom" id="Python Console" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -585,13 +601,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/profiles/utility_price_profiles/ts_electricityintraday_EURperkWh_15min_2015.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="19" lean-forward="true" selection-start-column="19" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/profiles/utility_price_profiles/utility_price_profile_constant.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -862,6 +871,13 @@
           <folding>
             <element signature="e#0#40#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="9" lean-forward="true" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
         </state>
       </provider>
     </entry>
