@@ -2,3 +2,5 @@
 .idea*
 # Exclude the virtual environment.
 venv*
+
+.DS_Store
