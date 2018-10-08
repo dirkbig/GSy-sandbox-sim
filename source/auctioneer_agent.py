@@ -46,9 +46,17 @@ class Auctioneer(Agent):
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
             self.execute_auction(sorted_x_y_y_pairs_list)
             self.clearing_of_market(self.trade_pairs)
+
+            """ clear lists for later use in next step """
+            self.bid_list = []
+            self.offer_list = []
             return
 
         else:
+            """ clear lists for later use in next step """
+            self.bid_list = []
+            self.offer_list = []
+
             auction_log.warning("no trade at this step")
             return
 
@@ -75,9 +83,6 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
-        if self.model.step_count == 50:
-            clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
-
         if self.snapshot_plot:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
 
@@ -94,8 +99,10 @@ class Auctioneer(Agent):
         # BELOW demand curve
 
         # sort on price, not quantity, so price_point[1]
-        sorted_bid_list = sorted(self.bid_list, key=lambda price_point: price_point[1], reverse=True)
-        sorted_offer_list = sorted(self.offer_list, key=lambda price_point: price_point[1])
+        # print("offers", self.offer_list)
+        # print("bids", self.bid_list)
+        sorted_bid_list = sorted(self.bid_list, key=lambda price_point: price_point[0], reverse=True)
+        sorted_offer_list = sorted(self.offer_list, key=lambda price_point: price_point[0])
 
         # creation of aggregate supply/demand points
         aggregate_quantity_points = []
@@ -165,6 +172,7 @@ class Auctioneer(Agent):
                 sorted_x_y_y_pairs_list[i][1] = 0
             if sorted_x_y_y_pairs_list[i][2] is None:
                 sorted_x_y_y_pairs_list[i][2] = 0
+
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 
     def clearing_of_market(self, trade_pairs):
@@ -192,10 +200,6 @@ class Auctioneer(Agent):
 
         print("trade pairs", trade_pairs)
 
-        """ clear lists for later use in next step """
-        self.bid_list = []
-        self.offer_list = []
-
     def user_participation(self):
         """ small analysis on user participation per step"""
         num_selling = 0
@@ -218,4 +222,4 @@ class Auctioneer(Agent):
         self.percentage_buyers = num_buying / total_num
         self.percentage_passive = num_passive / total_num
 
-        print(self.percentage_sellers, self.percentage_buyers, self.percentage_passive)
+        # print(self.percentage_sellers, self.percentage_buyers, self.percentage_passive)

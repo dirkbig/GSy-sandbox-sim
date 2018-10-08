@@ -29,8 +29,8 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
         return clearing_quantity, clearing_price, None, None
 
     total_turnover_ = clearing_quantity * clearing_price
-    print(clearing_price)
-    print(clearing_quantity)
+    print("clearing price", clearing_price)
+    print("clearing quantity", clearing_quantity)
     # assert total_turnover_ > 0 and clearing_quantity > 0
 
     trade_pairs_pac_ = []
@@ -38,8 +38,9 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     filled = False
 
     num_suppliers = len(sorted_offer_list)
+    """ start at first supplier """
     supplier = 0
-    available_supply_of_selected_seller = sorted_offer_list[supplier][0]
+    available_supply_of_selected_seller = sorted_offer_list[supplier][1]
     seller_id = sorted_offer_list[supplier][2]
 
     method_logger.info('starting market matching, according to Pay-As-Clear')
@@ -47,7 +48,7 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
         # TODO: test this, also regarding the backwards / forwards issue.
         for i in range(len(sorted_bid_list)):
             buyer_id = sorted_bid_list[i][2]
-            to_be_matched_quantity = sorted_bid_list[i][0]
+            to_be_matched_quantity = sorted_bid_list[i][1]
             if matched_quantity + to_be_matched_quantity > clearing_quantity:
                 to_be_matched_quantity_filler = clearing_quantity - matched_quantity
                 to_be_matched_quantity = to_be_matched_quantity_filler
@@ -77,15 +78,16 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
                     trade_pairs_pac_.append([seller_id, buyer_id, trade_quantity, payment])
                     matched_quantity += trade_quantity
 
-                    """ Update to next supplier in line """
-                    while supplier <= num_suppliers:
+                    """ Update to next supplier in line, but only if there is still a supplier next in line... """
+                    if supplier < num_suppliers - 1:
                         try:
                             available_supply_of_selected_seller = sorted_offer_list[supplier][0]
                         except IndexError:
-                            print(supplier)
-                            print(num_suppliers)
+                            method_logger.error('IndexError somehow')
                         seller_id = sorted_offer_list[supplier][2]
                         supplier += 1
+                    else:
+                        break
 
                 if matched_quantity >= clearing_quantity:
                     filled = True
@@ -123,8 +125,8 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
             as clearing price"""
         # TODO: this is very ugly... alas, everything around here is ugly
         if sorted_x_y_y_pairs_list[i][1] < sorted_x_y_y_pairs_list[i][2]:
-            clearing_quantity_ = sorted_x_y_y_pairs_list[i - 1][0]
-            clearing_price_ = sorted_x_y_y_pairs_list[i][1]
+            clearing_price_ = sorted_x_y_y_pairs_list[i][0]
+            clearing_quantity_ = sorted_x_y_y_pairs_list[i - 1][1]
             break
 
     return clearing_quantity_, clearing_price_

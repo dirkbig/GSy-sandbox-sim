@@ -41,7 +41,7 @@ class Data(ConfigurationMixin, object):
             assert len(self.load_list) == len(self.ess_list) == len(self.pv_gen_list)
 
         elif data_type == 'data_set_time_series':
-            """ run model with real data, check if the strategies are performing, and for research results"""
+            """ run model with real data, check if the strategies are performing, and for research results """
             self.load_array = self.get_load_profiles()
             self.pv_gen_array = self.get_pv_gen_profiles()
             self.ess_list = self.ess_characteristics_list

@@ -13,6 +13,8 @@ class ESS(object):
         """ ESS characteristics extracted from ess_data """
         self.initial_capacity = ess_data[0]
         self.max_capacity = ess_data[1]
+        self.min_capacity = 0.1 * self.max_capacity
+
         self.soc_actual = self.initial_capacity
         device_log.info('soc_actual house %d = %d' % (self.agent.id , self.soc_actual))
 
@@ -25,6 +27,10 @@ class ESS(object):
         self.total_supply_from_devices_at_step = None
         self.soc_preferred = None
         self.surplus = None
+
+        """ SOC forecasting """
+        self.production_horizon = 0
+        self.load_horizon = 0
 
     def update_from_household_devices(self):
         """ ask an update from all devices within the information sphere
@@ -98,7 +104,24 @@ class ESS(object):
     def soc_preferred_calc(self):
         """forecast of load minus (personal) productions over horizon expresses preferred soc of ESS"""
         # TODO: perfect foresight estimation of horizon
-        # self.soc_preferred = sum(self.load_horizon) - sum(self.production_horizon)
+        horizon = 24
+        count = self.agent.model.step_count
+        """ 'Estimate' the coming X hours of load and production forecast """
+        if self.agent.has_load is True:
+            self.load_horizon = self.agent.load_data[count:count + horizon]
+        else:
+            self.load_horizon = [0]
+
+        if self.agent.has_pv is True:
+            self.production_horizon = self.agent.pv_data[count:count + horizon]
+        else:
+            self.production_horizon = [0]
+
+        self.soc_preferred = sum(self.load_horizon) - sum(self.production_horizon)
+        if self.soc_preferred < self.min_capacity:
+            self.soc_preferred = self.min_capacity
+
+        print('soc_preferred', self.soc_preferred)
         return
 
 

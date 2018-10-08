@@ -19,7 +19,7 @@ class ConfigurationMixin:
         self.consumers = 0
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 2
+        self.prosumers_with_pv_and_ess = 3
 
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
@@ -63,8 +63,8 @@ class ConfigurationMixin:
 
         """ ESS """
         self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
-        max_capacity_list = np.full(self.num_households_with_ess, 10)
-        initial_capacity_list = np.full(self.num_households_with_ess, 10)
+        max_capacity_list = np.full(self.num_households_with_ess, 3)
+        initial_capacity_list = np.full(self.num_households_with_ess, 3)
         self.ess_characteristics_list = []
 
         for battery in range(self.num_households_with_ess):
