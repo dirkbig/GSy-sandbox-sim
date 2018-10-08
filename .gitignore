@@ -4,3 +4,6 @@
 venv*
 
 .DS_Store
+source/.DS_Store
+profiles/.DS_Store
+

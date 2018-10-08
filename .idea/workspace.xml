@@ -17,7 +17,7 @@
         <entry file="file://$PROJECT_DIR$/run_microgrid.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="195">
-              <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+              <caret line="13" selection-start-line="13" selection-end-line="13" />
               <folding>
                 <element signature="e#0#40#0" expanded="true" />
               </folding>
@@ -28,8 +28,8 @@
       <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="9" lean-forward="true" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
+            <state relative-caret-position="135">
+              <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
             </state>
           </provider>
         </entry>
@@ -50,7 +50,7 @@
         <entry file="file://$PROJECT_DIR$/source/electrolyzer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-2416">
-              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+              <caret line="8" selection-start-line="8" selection-end-line="8" />
             </state>
           </provider>
         </entry>
@@ -59,7 +59,7 @@
         <entry file="file://$PROJECT_DIR$/source/data_methods.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-18">
-              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+              <caret line="8" selection-start-line="8" selection-end-line="8" />
             </state>
           </provider>
         </entry>
@@ -68,7 +68,7 @@
         <entry file="file://$PROJECT_DIR$/profiles/data_load_profiles/household_load_profiles_SMART*/2011-04-02-b15.csv">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-1740">
-              <caret line="24" column="8" lean-forward="true" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
+              <caret line="24" column="8" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -91,7 +91,7 @@
         <entry file="file://$PROJECT_DIR$/source/const.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="105">
-              <caret line="7" column="37" lean-forward="true" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
+              <caret line="7" column="37" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -508,7 +508,21 @@
       <option name="project" value="LOCAL" />
       <updated>1538987624367</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="DS_Store banished">
+      <created>1538987882725</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1538987882725</updated>
+    </task>
+    <task id="LOCAL-00019" summary="DS_Store banished">
+      <created>1538987893304</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1538987893304</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TodoView">
@@ -579,7 +593,8 @@
     <MESSAGE value="Configuration Mixin is not in action, upto 400 households to be modelled, configurarable amount of RES prosumers in the grid.&#10;Data class is fixed, reasonable robust and accepting csv load profiles, 1-step functionality is depreciated currently, would like to revive it though.&#10;microgrid is iterating over steps now, steps decided in grid config now, which is better.&#10;&#10;Run data.py as main for plots on various profiles&#10;&#10;Agents are not trading, will be next step." />
     <MESSAGE value="readme update" />
     <MESSAGE value="fixed battery boundaries, plots and a bunch more stuff" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed battery boundaries, plots and a bunch more stuff" />
+    <MESSAGE value="DS_Store banished" />
+    <option name="LAST_COMMIT_MESSAGE" value="DS_Store banished" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -793,14 +808,14 @@
     <entry file="file://$PROJECT_DIR$/source/const.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
-          <caret line="7" column="37" lean-forward="true" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
+          <caret line="7" column="37" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/profiles/data_load_profiles/household_load_profiles_SMART*/2011-04-02-b15.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1740">
-          <caret line="24" column="8" lean-forward="true" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
+          <caret line="24" column="8" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -814,7 +829,7 @@
     <entry file="file://$PROJECT_DIR$/source/electrolyzer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-2416">
-          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+          <caret line="8" selection-start-line="8" selection-end-line="8" />
         </state>
       </provider>
     </entry>
@@ -860,14 +875,14 @@
     <entry file="file://$PROJECT_DIR$/source/data_methods.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-18">
-          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+          <caret line="8" selection-start-line="8" selection-end-line="8" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/run_microgrid.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
-          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+          <caret line="13" selection-start-line="13" selection-end-line="13" />
           <folding>
             <element signature="e#0#40#0" expanded="true" />
           </folding>
@@ -876,8 +891,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="9" lean-forward="true" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
+        <state relative-caret-position="135">
+          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
         </state>
       </provider>
     </entry>
