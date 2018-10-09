@@ -4,7 +4,7 @@ from source.const import *
 from mesa import Agent
 import scipy.optimize as optimize
 import logging
-house_log = logging.getLogger('house')
+house_log = logging.getLogger('run_microgrid.house')
 
 
 class HouseholdAgent(Agent):
@@ -21,20 +21,19 @@ class HouseholdAgent(Agent):
         self.load_data = self.model.data.load_list[self.id]
         self.ess_data = self.model.data.ess_list[self.id]
         self.pv_data = self.model.data.pv_gen_list[self.id]
-        #self.electrolyzer_data = self.model.data.electrolyzer_list[self.id]
         # self.electrolyzer_data = self.model.data.electrolyzer_list[self.id]
 
         self.load_on_step = None
         self.pv_production_on_step = None
         self.ess_demand_on_step = None
-        #self.electrolyzer_demand_on_step = None
+        # self.electrolyzer_demand_on_step = None
 
         """ Creation of device objects, depending is Data class assigns them """
         self.devices = {}
         self.has_load = False
         self.has_pv = False
         self.has_ess = False
-        #self.has_electrolyzer = False
+        # self.has_electrolyzer = False
 
         if self.load_data is not None:
             self.load = GeneralLoad(self, self.load_data)

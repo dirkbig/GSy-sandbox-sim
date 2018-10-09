@@ -1,14 +1,14 @@
 from source.const import *
 from source.data_methods import *
-
+import random
 import numpy as np
 
 
 class Data(object):
-    def __init__(self):
+    def __init__(self, data_type='random_1_step'):
         """initialise data sets"""
         self.num_households = num_households
-        data_type = "random_1_step"  # random_1_step, custom_load_profiles, data_set_time_series
+        # data_type = "random_1_step"  # random_1_step, custom_load_profiles, data_set_time_series
 
         if data_type == 'random_1_step':
             """ check whether the market platform can complete a full run, using random numbers of simplicity
@@ -16,6 +16,7 @@ class Data(object):
             self.load_list = 1.8*np.random.rand(num_households)
             self.pv_gen_list = np.random.rand(num_households)
             self.h2_load_list = self.get_h2_load_profile()
+            self.elec_price_list = self.get_elec_price_list()
 
             self.ess_list = [[np.random.randint(0, 1) for char in range(2)] for house in range(num_households)]  # TODO: currently NOT : [initial_soc, max_capacity]
             print(self.ess_list)
@@ -38,8 +39,8 @@ class Data(object):
             self.load_dict = self.get_load_profiles()       # DONE: linked to load-profiles @ data_load_profiles
             self.pv_gen_dict = self.get_pv_gen_profiles()   # TODO: find suitable PV data set
             self.h2_load_list = self.get_h2_load_profile()  # DONE: H2 load for the year 2015 is loaded.
-
-            self.ess_list = self.get_ess_characteristics()    # TODO: currently NOT : [initial_soc, max_capacity]
+            self.elec_price_list = self.get_elec_price_list()  # DONE: Electricity price (EEX spot marked) 2015.
+            self.ess_list = self.get_ess_characteristics()     # TODO: currently NOT : [initial_soc, max_capacity]
 
             # assert len(self.load_list) == len(self.ess_list) == len(self.pv_gen_list)
             self.simulation_length_steps = len(self.load_dict)
@@ -67,10 +68,17 @@ class Data(object):
     def get_h2_load_profile():
         """ loading in load profiles """
         h2_load = csv_read_load_h2()
-        return h2_load
+        # Return only the H2 load values of the matrix (second column) [kg].
+        return [x[1] for x in h2_load]
 
     @staticmethod
     def get_ess_characteristics():
         """ generates ESS characteristics"""
         ess_characteristics = None  # TODO: None?? that is a problem...
         return ess_characteristics
+
+    @staticmethod
+    def get_elec_price_list():
+        electricity_price = csv_read_electricity_price()
+        # Return only the values (second column of the matrix) [EUR/kWh].
+        return [x[1] for x in electricity_price]

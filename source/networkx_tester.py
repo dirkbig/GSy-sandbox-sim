@@ -9,7 +9,7 @@ import networkx as nx
 # plotly.tools.set_credentials_file(username='dirkGSy', api_key='rJJU93ceA9z7ZtDVEU0Y')
 # plotly.tools.set_config_file(world_readable=True, sharing='public')
 
-network_graph_log = logging.getLogger('network_visual')
+network_graph_log = logging.getLogger('run_microgrid.network_visual')
 
 
 class NetworkPlot(object):

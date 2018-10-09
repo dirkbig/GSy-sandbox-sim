@@ -5,6 +5,11 @@ import logging
 logging.basicConfig(level=logging.WARNING)
 grid_log = logging.getLogger('run_microgrid')
 
+fh = logging.FileHandler('pac_log.txt')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+grid_log.addHandler(fh)
+
 
 def run_microgrid_sim(_auction_type):
     """create microgrid"""

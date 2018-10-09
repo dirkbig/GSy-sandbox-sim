@@ -1,6 +1,6 @@
 from source import const
 import logging
-wallet_log = logging.getLogger('wallet')
+wallet_log = logging.getLogger('run_microgrid.wallet')
 
 
 class Wallet(object):

@@ -1,6 +1,6 @@
 
 from source.Electrolyzer import Electrolyzer
-from source.data_methods import csv_read_load_h2
+from source.Data import Data
 import source.const as const
 
 
@@ -15,11 +15,12 @@ class DepthVar:
 
 def run():
     # While the creation of the electrolyzer instance requires a model instance, it has to be created
-    h2_load = csv_read_load_h2()
+    ts_data = Data('random_1_step')
 
     model = DepthVar()
     model.add_method("data")
-    model.data.add_method("h2_load_list", h2_load)
+    model.data.add_method("h2_load_list", ts_data.h2_load_list)
+    model.data.add_method("elec_price_list", ts_data.elec_price_list)
 
     ely = Electrolyzer(1, model)
     # Set warning filter so that a warning that appears multiple times is not suppressed.
@@ -27,11 +28,10 @@ def run():
 
     for i_timestep in range(2000):
         # Define the power bought for the electrolyzer [kW].
-        ely_power = 170
+        ely_power = 250
         ely.model.step_count = i_timestep
 
-        ely.update_power(ely_power)
-        ely.update_storage()
+        ely.pre_auction_step()
 
         print("Time step {:3.0f}; Time passed {:5.0f} min; Ely power {:.2f} kW; Voltage {:.2f} V; Ely cur. {:.2f}"
               " A; Cur. density {:.4f} A/cm²; Stored mass {:6.2f} kg; Demand {:4.2f} kg; Demand not met {:4.2f} kg, "

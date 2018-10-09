@@ -1,6 +1,6 @@
 from mesa import Agent
 import logging
-utility_log = logging.getLogger('utility grid')
+utility_log = logging.getLogger('run_microgrid.utility grid')
 
 
 class UtilityAgent(Agent):

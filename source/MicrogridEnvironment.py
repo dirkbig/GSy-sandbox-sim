@@ -6,10 +6,9 @@ from source.Data import Data
 from source.const import *
 
 from mesa import Model
-import random
 
 import logging
-env_log = logging.getLogger('microgrid_env')
+env_log = logging.getLogger('run_microgrid.microgrid_env')
 
 
 class MicroGrid(Model):
@@ -28,7 +27,7 @@ class MicroGrid(Model):
         self.utility = UtilityAgent(self)
 
         """ Create the electrolyzer (hydrogen refueling station) agent."""
-        #self.electrolyzer = Electrolyzer(1, self)
+        self.electrolyzer = Electrolyzer(1, self)
 
         """ create N agents """
         for i in range(self.num_households):

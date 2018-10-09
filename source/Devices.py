@@ -1,7 +1,7 @@
 from source.const import *
 from source.device_methods import *
 import logging
-device_log = logging.getLogger('device')
+device_log = logging.getLogger('run_microgrid.device')
 
 
 class ESS(object):
@@ -111,97 +111,6 @@ class GeneralLoad(object):
         assert current_step == self.agent.model.step_count
         self.next_interval_estimated_load = self.get_load(current_step)
         return self.next_interval_estimated_load
-
-
-class Electrolyzer(object):
-    """ Electrolyzer device"""
-    def __init__(self, agent, electrolyzer_data, cell_area=1500, n_cell=140, p=1.5):
-        self.data = electrolyzer_data
-        self.next_interval_estimated_fuel_consumption = None
-        self.area_cell = cell_area
-        self.z_cell = n_cell
-        self.faraday = faraday
-        self.gas_const = gas_const
-        self.n = n
-        self.molarity = molarity
-        self.molarity_KOH = molarity_KOH
-        self.pressure = p * pressure_factor
-        self.upp_heat_val = upp_heat_val
-        self.eta_ely = eta_ely
-
-        self.fitting_value_exchange_current_density = fitting_value_exchange_current_density
-        self.fitting_value_electrolyte_thickness = fitting_value_electrolyte_thickness
-
-        """ Electrolyzer state """
-        self.cur_dens = 0
-        self.current = 0
-        self.voltage = 0
-        self.power = 0
-        self.temp = temp
-
-        self.heating_time = heating_time
-        self.temp_0 = temp_0
-        self.temp_end = temp_end
-        self.cur_dens_max = cur_dens_max
-        self.cur_dens_max_temp = cur_dens_max_temp
-        self.cur_dens_min = cur_dens_min
-
-        self.sec_counter = sec_counter
-        self.cur_dens_before = self.cur_dens
-        self.temp_before = self.temp
-
-        """ Voltage variables for updating state of electrolyzer regarding power """
-        self.v_rev = None
-        self.v_act = None
-        self.v_ohm = None
-
-    def get_demand_electrolyzer(self, current_step):
-        assert current_step == self.agent.model.step_count
-        self.next_interval_estimated_fuel_consumption = - self.data[current_step]  # demand thus negative
-        return self.next_interval_estimated_fuel_consumption
-
-    def uniform_call_to_device(self, current_step):
-
-        print("Electrolyzer of house %s checking in" % self.agent.id)
-        assert current_step == self.agent.model.step_count
-        self.next_interval_estimated_fuel_consumption = self.get_demand_electrolyzer(current_step)
-        # this now assumes that an electrolyzer only demands electrical energy to create gas.
-        # TODO: create a fuel-cell class/object that is linked to the electrolyser, using its stored gas.
-        return self.next_interval_estimated_fuel_consumption
-
-    def update_power(self, optimization_data):
-        """ Updates power consumption of electrolyzer """
-
-        """There could be a case where power or current is given from the opt data. So check which data is given"""
-        if optimization_data[2] > 0 and optimization_data[3] == 0:
-            """When power is provided"""
-            self.power = optimization_data[2]
-            get_v_i(self)
-
-        elif optimization_data[2] == 0 and optimization_data[3] > 0:
-            """If current is provided"""
-            self.current = optimization_data[3]
-            self.cur_dens = self.current / self.area_cell
-
-            self.v_rev = ely_voltage_u_rev(self, self.temp)
-            self.v_act = ely_voltage_u_act(self, self.cur_dens, self.temp)
-            self.v_ohm = ely_voltage_u_ohm(self, self.cur_dens, self.temp)
-
-            if self.cur_dens == 0:
-                self.voltage = 0
-            else:
-                self.voltage = (self.v_act + self.v_rev + self.v_ohm) * self.z_cell
-
-            self.power = self.voltage * self.current
-
-        else:
-            self.current = 0
-            self.cur_dens = 0
-            self.power = 0
-            self.voltage = 0
-
-        """ Updates electrolyzer temperature"""
-        self.temp = cell_temp(self)
 
 
 class FuelCell(object):

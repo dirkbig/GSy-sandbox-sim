@@ -1,6 +1,6 @@
 import logging
 import numpy as np
-method_logger = logging.getLogger('methods')
+method_logger = logging.getLogger('run_microgrid.methods')
 
 
 def check_demand_supply(sorted_bid_list_, sorted_offer_list_):
