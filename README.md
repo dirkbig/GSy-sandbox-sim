@@ -33,7 +33,10 @@ python run_microgrid.py
 
 ## Results
 
-Configurable: A plot is automatically generated and opened, showing all bids and offers in a aggregated demand/supply curve, with an market clearing quantity. For pay-as-clear, this corresponds directly with the clearing price on the Y-axis.
+A plot is automatically generated and opened, showing all bids and offers in a aggregated demand/supply curve, with an market clearing quantity. For pay-as-clear, this corresponds directly with the clearing price on the Y-axis. Not adviced when running
+large amounts of steps.
+
+When running data,py as main, agent profiles are plotted, according to the grid_config.py file. grid_config.py is used by microgrid simulation.
 
 ## Contribution
 This is a research collaboration between Grid Singularity / Energy Web Foundation - Reiner Lemoine Institut

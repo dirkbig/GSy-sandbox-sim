@@ -4,3 +4,9 @@
 venv*
 # Exclude compilation data
 *__pycache__*
+
+
+.DS_Store
+source/.DS_Store
+profiles/.DS_Store
+

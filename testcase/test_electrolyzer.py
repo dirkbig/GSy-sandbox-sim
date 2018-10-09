@@ -1,6 +1,6 @@
 
-from source.Electrolyzer import Electrolyzer
-from source.Data import Data
+from source.electrolyzer import Electrolyzer
+from source.data import Data
 import source.const as const
 
 
