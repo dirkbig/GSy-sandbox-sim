@@ -3,6 +3,7 @@ import warnings
 from mesa import Agent
 import source.const as const
 import logging
+import numpy as np
 from scipy.optimize import linprog as lp
 electrolyzer_log = logging.getLogger("electrolyzer")
 
@@ -185,7 +186,7 @@ class Electrolyzer(Agent):
         # falls below the min. storage level (safety buffer).
 
         # Number of time steps of the future used for the optimization.
-        n_step = 96
+        n_step = 96*7
         # Define the electricity costs [EUR/kWh].
         c = self.model.data.elec_price_list[self.current_step:self.current_step+n_step]
         # Define the inequality matrix (A) and vector (b) that make sure that at no time step the storage is below the
@@ -197,10 +198,13 @@ class Electrolyzer(Agent):
         # The b value is the sum of the demand for each time step (- because see comment above).
         b = self.h2_demand[self.current_step:self.current_step+n_step]
         b = [-float(x) for x in b]
+        # Accumulate all demands over time.
+        b = np.cumsum(b).tolist()
         # Now the usable hydrogen is added to all values of b except the last one. This allows stored hydrogen to be
         # used but will force the optimization to have at least as much hydrogen stored at the end of the looked at time
         # frame as there is now stored.
         b = [x + self.stored_hydrogen - self.storage_buffer for x in b]
+        b[-1] -= self.stored_hydrogen - self.storage_buffer
         # Define the bounds for the hydrogen produced.
         x_bound = ((0, self.max_production_per_step),) * n_step
         # Do the optimization with linprog.
