@@ -61,23 +61,22 @@ class ESS(object):
 
         if 0 < energy_influx < storage_space_left:
             self.soc_actual += energy_influx
-            local_overflow = 0
         elif energy_influx > storage_space_left > 0:
             self.soc_actual = self.max_capacity
-            local_overflow = energy_influx - storage_space_left
+            local_overflow = abs(energy_influx) - storage_space_left
         elif energy_influx < 0 < self.soc_actual + energy_influx:
             self.soc_actual += energy_influx
-            local_deficit = 0
         elif energy_influx < 0 and self.soc_actual + energy_influx < 0:
             self.soc_actual = 0
-            local_deficit = energy_influx - self.soc_actual
+            local_deficit = abs(energy_influx) - self.soc_actual
 
         assert 0 <= self.soc_actual <= self.max_capacity
+        assert local_overflow == 0 or local_deficit == 0
 
         self.agent.soc_actual = self.soc_actual
         self.agent.data.soc_list_over_time[self.agent.id][self.agent.model.step_count] = self.soc_actual
-        self.agent.data.deficit_over_time[self.agent.id][self.agent.model.step_count] = local_deficit
-        self.agent.data.overflow_over_time[self.agent.id][self.agent.model.step_count] = local_overflow
+
+        return local_overflow, local_deficit
 
     @staticmethod
     def ess_physics(self):

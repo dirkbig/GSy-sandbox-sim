@@ -189,11 +189,17 @@ class Auctioneer(Agent):
                 id_buyer = trade_pairs[trade][1]
                 trade_quantity = trade_pairs[trade][2]
                 payment = trade_pairs[trade][3]
-                """ execute trade buy calling household agent's wallet settlement """
 
-                self.model.agents[id_seller].sold_energy = trade_quantity
+                """ execute trade buy calling household agent's wallet settlement """
+                if id_seller is self.model.data.num_households + 111:
+                    """ seller was Utility """
+                    self.model.utility.sold_energy = trade_quantity
+                    self.model.utility.wallet.settle_revenue(payment)
+                else:
+                    self.model.agents[id_seller].sold_energy = trade_quantity
+                    self.model.agents[id_seller].wallet.settle_revenue(payment)
+
                 self.model.agents[id_buyer].bought_energy = trade_quantity
-                self.model.agents[id_seller].wallet.settle_revenue(payment)
                 self.model.agents[id_buyer].wallet.settle_payment(payment)
         else:
             auction_log.warning("no trade at this step")

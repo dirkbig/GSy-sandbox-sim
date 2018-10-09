@@ -236,12 +236,18 @@ class HouseholdAgent(Agent):
 
         """ unmatched loads? """
         if self.has_ess is True:
-            self.ess.update_ess_state(self.net_energy_in)
+            overflow, deficit = self.ess.update_ess_state(self.net_energy_in)
         else:
-            pass
-            # deficit / overflow
+            if self.net_energy_in > 0:
+                overflow = self.net_energy_in
+                deficit = 0
+            elif self.net_energy_in <= 0:
+                overflow = self.net_energy_in
+                deficit = 0
+        self.data.deficit_over_time[self.id][self.model.step_count] = deficit
+        self.data.overflow_over_time[self.id][self.model.step_count] = overflow
 
-        pass
+
 
     def announce_bid_and_offers(self):
         """ announces bid to auction agent by appending to bid list """

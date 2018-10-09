@@ -7,7 +7,7 @@ class Wallet(object):
     """(crypto?)wallet owned by respective agent"""
     def __init__(self, _unique_id):
         self.id = _unique_id
-        self.coin_balance = const.initial_coins_household
+        self.coin_balance = 100000
 
     def settle_payment(self, payment):
         if payment <= self.coin_balance:

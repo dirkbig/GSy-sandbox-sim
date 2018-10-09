@@ -1,4 +1,6 @@
 from mesa import Agent
+from source.wallet import Wallet
+
 import logging
 utility_log = logging.getLogger('utility grid')
 
@@ -7,13 +9,15 @@ class UtilityAgent(Agent):
     """ Utility agent is created by calling this function """
     def __init__(self, model):
         self.model = model
-        self.id = 'utility'
+        self.id = self.model.data.num_households + 111
         self.dynamical_pricing = False
 
         """load in utility energy price profile"""
         self.price_profile = self.model.data.utility_pricing_profile
         self.sell_rate_utility = None
         self.utility_offer = None
+
+        self.wallet = Wallet(self.id)
 
     def pre_auction_round(self):
         """ for each step, utility offers at utility profile rate """
