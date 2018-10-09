@@ -2,7 +2,7 @@ from source import microgrid_environment
 from source.const import *
 
 import logging
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.ERROR)
 grid_log = logging.getLogger('run_microgrid')
 
 

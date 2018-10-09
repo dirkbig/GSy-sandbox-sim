@@ -12,6 +12,7 @@ initial_coins_household = 10000000000
 # initial_capacity = 0
 # max_size_ess = 10
 
+horizon = 24
 
 """ Electrolyzer constants """
 # Faraday constant F [As/mol].

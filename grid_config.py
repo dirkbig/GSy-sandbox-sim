@@ -10,16 +10,15 @@ class ConfigurationMixin:
 
         """ Simulation environment """
         self.auction_type = 'pay_as_clear'
-
         self.num_days = 1
         self.market_interval = 15  # minutes
         self.num_steps = int(self.num_days * num_minutes_in_a_day / 15)
 
         """ Households basic configuration """
-        self.consumers = 0
+        self.consumers = 3
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 3
+        self.prosumers_with_pv_and_ess = 0
 
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
@@ -51,10 +50,11 @@ class ConfigurationMixin:
         """ Utility presence """
         self.utility_presence = True
         self.negative_pricing = False
+        self.dynamical_pricing = False
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
 
         """ Household loads """
-        self.household_loads_folder = 'household_load_profiles_SMART*'
+        self.household_loads_folder = 'household_load_profiles_SMART'
         self.num_households_with_consumption = self.num_households
 
         """ PV """

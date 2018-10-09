@@ -22,6 +22,8 @@ class MicroGrid(Model):
         self.step_count = 0
         self.agents = []
         self.electrolyzer = None
+
+        self.entities_dict = {}
         """ load in data THIS HAS TO GO FIRST"""
 
         """ create the auction platform"""
@@ -43,9 +45,13 @@ class MicroGrid(Model):
         """advances the model by one step"""
 
         """ pre-auction round """
+
+        self.utility.pre_auction_round()
+
         random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.pre_auction_round()
+
         self.electrolyzer.pre_auction_round()
 
         """ auction round """

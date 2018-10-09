@@ -104,16 +104,18 @@ class ESS(object):
     def soc_preferred_calc(self):
         """forecast of load minus (personal) productions over horizon expresses preferred soc of ESS"""
         # TODO: perfect foresight estimation of horizon
-        horizon = 24
         count = self.agent.model.step_count
         """ 'Estimate' the coming X hours of load and production forecast """
+
         if self.agent.has_load is True:
-            self.load_horizon = self.agent.load_data[count:count + horizon]
+            max_horizon = min(len(self.agent.pv_data), count + horizon)
+            self.load_horizon = self.agent.load_data[count:count + max_horizon]
         else:
             self.load_horizon = [0]
 
         if self.agent.has_pv is True:
-            self.production_horizon = self.agent.pv_data[count:count + horizon]
+            max_horizon = min(len(self.agent.pv_data), count + horizon)
+            self.production_horizon = self.agent.pv_data[count: max_horizon]
         else:
             self.production_horizon = [0]
 

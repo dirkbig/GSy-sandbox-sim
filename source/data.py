@@ -92,17 +92,21 @@ class Data(ConfigurationMixin, object):
         """ loading in load profiles """
         load_list = csv_read_load_file(self.num_households, self.household_loads_folder)
 
+        test = True
+        if test is True:
+            load_list = np.ones([self.num_households, self.num_steps]) * 0.1
+            return load_list
+
         """ load is in minutes, now convert to intervals """
         for i in range(len(load_list)):
             load_list[i] = load_list[i][0::self.market_interval]
             # TODO: add all consumption within 15 step interval to i interval element, instead of (naive) sampling
-
             assert len(load_list[i]) == self.num_steps
 
         """ manual tuning of data can happen here """
         load_array = np.array(load_list)
         load_array[np.isnan(load_array)] = 0
-        # TODO: link to german consumption rates?
+        # TODO: german consumption rates?
         for i in range(len(load_list)):
             max_element = np.amax(load_array[i])
             if max_element > 1:

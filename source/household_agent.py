@@ -63,7 +63,7 @@ class HouseholdAgent(Agent):
             self.selected_strategy = 'simple_strategy'
 
         """ overrides all strategies for a no-trade paradigm """
-        self.selected_strategy = 'smart_ess_strategy'
+        self.selected_strategy = 'simple_strategy'
 
         self.trading_state = None
         self.bid = None
@@ -98,11 +98,11 @@ class HouseholdAgent(Agent):
 
         def constraint1(params):
             allocation, price_cons = params
-            return price_cons - 0.00001
+            return price_cons - 0
 
         def constraint2(params):
             allocation, price_cons = params
-            return allocation - 0.00001
+            return allocation - 0
 
         con1 = {'type': 'ineq', 'fun': constraint1}
         con2 = {'type': 'ineq', 'fun': constraint2}
@@ -146,19 +146,38 @@ class HouseholdAgent(Agent):
             self.offer = None
         else:
             self.trading_state = 'passive'
+            self.bid = None
+            self.offer = None
 
     def simple_strategy(self):
-        """ PV and Loads and ESS make offers/bids themselves
-            might add that ESS prioritize devices within household """
+        """ household makes simple bid or offer depending on the netto energy going in our out of the house """
         self.state_update_from_devices()
-        self.net_energy_in_simple_strategy = self.pv_production_on_step - self.load_on_step
-        quantity = abs(self.load_on_step)
-        print("load on step of simple consumer agent", self.load_on_step)
 
-        price = 100
-        self.trading_state = 'buying'
-        self.bid = [price, quantity, self.id]
-        self.offer = None
+        if self.has_ess is True:
+            self.ess.ess_demand_calc(self.model.step_count)
+            self.net_energy_in_simple_strategy = self.ess.surplus
+        else:
+            self.net_energy_in_simple_strategy = self.pv_production_on_step - abs(self.load_on_step)
+
+        if self.net_energy_in_simple_strategy > 0:
+            self.trading_state = 'supplying'
+            """ bid approach, using utility function"""
+            price = 8
+            quantity = self.net_energy_in_simple_strategy
+            self.offer = [price, quantity, self.id]
+            self.bid = None
+
+        elif self.net_energy_in_simple_strategy < 0:
+            self.trading_state = 'buying'
+            """ offer approach using utility function """
+            price = 20
+            quantity = abs(self.net_energy_in_simple_strategy)
+            self.bid = [price, quantity, self.id]
+            self.offer = None
+        else:
+            self.trading_state = 'passive'
+            self.bid = None
+            self.offer = None
 
         ''' PV  first supplies to ESS
                 then supplies to market'''
@@ -200,17 +219,9 @@ class HouseholdAgent(Agent):
             how to come up with price-quantity points on the auction platform 
         """
         if self.has_ess is True and self.selected_strategy == 'smart_ess_strategy':
-            """ 
-                smart_ess_strategy is a strategy where the ESS takes over responsibility to acquire energy
-                both to satisfy the load of household and to reach an storage SOC that is preferred 
-                thus, the ESS determines the quantity that the house tries to buy. 
-            """
             self.smart_ess_strategy()
 
         elif self.selected_strategy == 'simple_strategy':
-            """ 
-                simple_strategy: generators will provide at marginal costs and load will buy in for willingness-to-pay
-            """
             self.simple_strategy()
 
         elif self.selected_strategy == 'no_trade':
