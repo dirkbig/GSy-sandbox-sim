@@ -5,10 +5,12 @@ import numpy as np
 import logging
 data_methods_log = logging.getLogger('run_microgrid.data_methods')
 
+path = "./profiles"
+
+
 def csv_read_load_profile(num_households_):
     data_dict = {}
     data_directory = "data_load_profiles"
-path = "/Users/dirkvandenbiggelaar/gsy/pac/profiles"
 
 
 def csv_read_load_file(num_households_with_load, household_loads_folder):
@@ -67,7 +69,7 @@ def csv_read_pv_output_file(num_pv_panels, pv_output_profile):
     return data_list
 
 
-def csv_read_utility_file(selected_utility_price_profile, num_steps):
+def csv_read_utility_file(selected_utility_price_profile):
     utility_data_dir = path + "/utility_price_profiles"
 
     if selected_utility_price_profile not in os.listdir(utility_data_dir):
@@ -84,8 +86,6 @@ def csv_read_utility_file(selected_utility_price_profile, num_steps):
                     price = float(row[-1])
                     data_array.append(price)
                     row_i += 1
-                    if row_i >= num_steps:
-                        break
 
     utility_data_array = data_array
     return utility_data_array

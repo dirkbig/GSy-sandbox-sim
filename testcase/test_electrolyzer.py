@@ -15,12 +15,12 @@ class DepthVar:
 
 def run():
     # While the creation of the electrolyzer instance requires a model instance, it has to be created
-    ts_data = Data('random_1_step')
+    ts_data = Data()
 
     model = DepthVar()
     model.add_method("data")
-    model.data.add_method("h2_load_list", ts_data.h2_load_list)
-    model.data.add_method("elec_price_list", ts_data.elec_price_list)
+    model.data.add_method("electrolyzer_list", ts_data.electrolyzer_list)
+    model.data.add_method("utility_pricing_profile", ts_data.utility_pricing_profile)
 
     ely = Electrolyzer(1, model)
     # Set warning filter so that a warning that appears multiple times is not suppressed.
@@ -31,7 +31,7 @@ def run():
         ely_power = 250
         ely.model.step_count = i_timestep
 
-        ely.pre_auction_step()
+        ely.pre_auction_round()
 
         print("Time step {:3.0f}; Time passed {:5.0f} min; Ely power {:.2f} kW; Voltage {:.2f} V; Ely cur. {:.2f}"
               " A; Cur. density {:.4f} A/cm²; Stored mass {:6.2f} kg; Demand {:4.2f} kg; Demand not met {:4.2f} kg, "

@@ -7,7 +7,7 @@ class UtilityAgent(Agent):
     """ Utility agent is created by calling this function """
     def __init__(self, model):
         self.model = model
-        self.id = 'utility'
+        self.id = 1
         self.dynamical_pricing = False
 
         """load in utility energy price profile"""

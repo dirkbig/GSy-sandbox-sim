@@ -54,7 +54,7 @@ class Data(ConfigurationMixin, object):
             assert len(self.pv_gen_array) == self.num_pv_panels
             assert len(self.ess_list) == self.num_households_with_ess
 
-            assert len(self.electrolyzer_list) == self.num_steps
+            # assert len(self.electrolyzer_list) == self.num_steps
 
             try:
                 assert len(self.load_array[0]) == self.num_steps
@@ -74,7 +74,7 @@ class Data(ConfigurationMixin, object):
 
         if self.utility_presence is True:
             self.utility_pricing_profile = self.get_utility_profile()
-            assert len(self.utility_pricing_profile) == self.num_steps
+            assert len(self.utility_pricing_profile) >= self.num_steps
             self.utility_pricing_profile = np.asarray(self.utility_pricing_profile)
 
             if self.negative_pricing is False:
@@ -135,7 +135,7 @@ class Data(ConfigurationMixin, object):
         # Return only the values (second column of the matrix) [EUR/kWh].
         return [x[1] for x in electricity_price]
         """
-        utility_profile_dict = csv_read_utility_file(self.utility_profile, self.num_steps)
+        utility_profile_dict = csv_read_utility_file(self.utility_profile)
 
         # utility_profile_dict = utility_profile_dict[0::self.market_interval]
         return utility_profile_dict
@@ -150,7 +150,7 @@ class Data(ConfigurationMixin, object):
         """
         electrolyzer_list = csv_read_electrolyzer_profile(self.fuel_station_load)
 
-        electrolyzer_list = electrolyzer_list[0:self.num_steps]
+        # electrolyzer_list = electrolyzer_list[0:self.num_steps]
         return electrolyzer_list
 
     def fill_in_classification_array(self):

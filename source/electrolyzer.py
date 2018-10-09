@@ -21,7 +21,7 @@ class Electrolyzer(Agent):
         self.current_step = 0
 
         """ H2 demand list. """
-        self.h2_demand = self.model.data.h2_load_list
+        self.h2_demand = self.model.data.electrolyzer_list
         # Track the used demand [kg].
         self.track_demand = []
 
@@ -51,7 +51,7 @@ class Electrolyzer(Agent):
         # Define the storage buffer size wanted (class very small requires on avg. 56 kg/d) [kg]
         self.storage_buffer = 56
         # Amount of (usable) hydrogen stored [kg].
-        self.stored_hydrogen = self.storage_buffer
+        self.stored_hydrogen = self.storage_buffer * 2
         # Max. amount of (usable) hydrogen stored [kg].
         self.storage_size = const.hrs_storage_size
         # Tracker for the hydrogen demand that couldn't be fulfilled [kg].
@@ -105,7 +105,7 @@ class Electrolyzer(Agent):
 
         electrolyzer_log.info("Electrolyzer object was generated.")
 
-    def pre_auction_step(self, new_power_val=0):
+    def pre_auction_round(self, new_power_val=0):
         # Update the current time step.
         self.current_step = self.model.step_count
         # Before the auction the physical states are renewed.
@@ -114,6 +114,9 @@ class Electrolyzer(Agent):
         self.update_storage()
         # Get the new bid.
         self.update_bid()
+
+    def post_auction_round(self):
+        pass
 
     def update_storage(self):
         # Update the mass of the hydrogen stored.
@@ -186,9 +189,10 @@ class Electrolyzer(Agent):
         # falls below the min. storage level (safety buffer).
 
         # Number of time steps of the future used for the optimization.
-        n_step = 96*7
+        n_step = 96
         # Define the electricity costs [EUR/kWh].
-        c = self.model.data.elec_price_list[self.current_step:self.current_step+n_step]
+        c = self.model.data.utility_pricing_profile[self.current_step:self.current_step+n_step]
+        c = [int(x * 100000) for x in c]
         # Define the inequality matrix (A) and vector (b) that make sure that at no time step the storage is below the
         # wanted buffer value.
         # The matrix A is supposed to sum up all hydrogen produced for each time step, therefore A is a lower triangular
@@ -203,13 +207,14 @@ class Electrolyzer(Agent):
         # Now the usable hydrogen is added to all values of b except the last one. This allows stored hydrogen to be
         # used but will force the optimization to have at least as much hydrogen stored at the end of the looked at time
         # frame as there is now stored.
-        b = [x + self.stored_hydrogen - self.storage_buffer for x in b]
-        b[-1] -= self.stored_hydrogen - self.storage_buffer
+        b = [int(x + self.stored_hydrogen - self.storage_buffer) for x in b]
+        # b[-1] -= self.stored_hydrogen - self.storage_buffer
         # Define the bounds for the hydrogen produced.
         x_bound = ((0, self.max_production_per_step),) * n_step
         # Do the optimization with linprog.
         opt_res = lp(c, A, b, bounds=x_bound)
         # Return the optimal value for this time slot [kg]
+        print("Optimization success is {}".format(opt_res.success))
         return opt_res.x[0]
 
 

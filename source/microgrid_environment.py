@@ -39,7 +39,7 @@ class MicroGrid(Model):
             self.agents.append(agent)
 
         """ electrolyzer """
-        self.electrolyzer = Electrolyzer(i, self)
+        self.electrolyzer = Electrolyzer(1, self)
 
     def sim_step(self):
         """advances the model by one step"""
