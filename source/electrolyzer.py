@@ -189,7 +189,7 @@ class Electrolyzer(Agent):
         # falls below the min. storage level (safety buffer).
 
         # Number of time steps of the future used for the optimization.
-        n_step = 96
+        n_step = 96*14
         # Define the electricity costs [EUR/kWh].
         c = self.model.data.utility_pricing_profile[self.current_step:self.current_step+n_step]
         c = [int(x * 100000) for x in c]
@@ -212,14 +212,11 @@ class Electrolyzer(Agent):
         # Define the bounds for the hydrogen produced.
         x_bound = ((0, self.max_production_per_step),) * n_step
         # Do the optimization with linprog.
-        opt_res = lp(c, A, b, bounds=x_bound)
+        opt_res = lp(c, A, b, method="interior-point", bounds=x_bound)
         # Return the optimal value for this time slot [kg]
         print("Optimization success is {}".format(opt_res.success))
         return opt_res.x[0]
 
-
-
-        pass
 
     def cell_temp(self):
         # Calculate the electrolyzer temperature for the next time step.
