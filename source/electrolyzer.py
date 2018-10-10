@@ -189,33 +189,54 @@ class Electrolyzer(Agent):
         # falls below the min. storage level (safety buffer).
 
         # Number of time steps of the future used for the optimization.
-        n_step = 96*14
+        n_step = 96 * 7
         # Define the electricity costs [EUR/kWh].
         c = self.model.data.utility_pricing_profile[self.current_step:self.current_step+n_step]
-        c = [int(x * 100000) for x in c]
         # Define the inequality matrix (A) and vector (b) that make sure that at no time step the storage is below the
         # wanted buffer value.
         # The matrix A is supposed to sum up all hydrogen produced for each time step, therefore A is a lower triangular
         # matrix with all entries being -1 (- because we want to make sure that the hydrogen amount does not fall below
         # a certain amount, thus the <= must be turned in a >=, therefore A and b values are all set negative).
         A = [[-1] * (i + 1) + [0] * (n_step - i - 1) for i in range(n_step)]
+        # Append A by the negative of itself to set the boundaries that the storage cannot be more than full.
+        A_append = [[1] * (i + 1) + [0] * (n_step - i - 1) for i in range(n_step)]
+        A += A_append
         # The b value is the sum of the demand for each time step (- because see comment above).
-        b = self.h2_demand[self.current_step:self.current_step+n_step]
-        b = [-float(x) for x in b]
+        cumsum_h2_demand = self.h2_demand[self.current_step:self.current_step+n_step]
+        cumsum_h2_demand = [-float(x) for x in cumsum_h2_demand]
+
         # Accumulate all demands over time.
-        b = np.cumsum(b).tolist()
+        cumsum_h2_demand = np.cumsum(cumsum_h2_demand).tolist()
         # Now the usable hydrogen is added to all values of b except the last one. This allows stored hydrogen to be
         # used but will force the optimization to have at least as much hydrogen stored at the end of the looked at time
         # frame as there is now stored.
-        b = [int(x + self.stored_hydrogen - self.storage_buffer) for x in b]
-        # b[-1] -= self.stored_hydrogen - self.storage_buffer
+        b = [x + self.stored_hydrogen - self.storage_buffer for x in cumsum_h2_demand]
+        b_append = [-x + self.storage_size for x in b]
+        b[-1] -= self.stored_hydrogen - self.storage_buffer
+        b += b_append
         # Define the bounds for the hydrogen produced.
         x_bound = ((0, self.max_production_per_step),) * n_step
         # Do the optimization with linprog.
         opt_res = lp(c, A, b, method="interior-point", bounds=x_bound)
         # Return the optimal value for this time slot [kg]
         print("Optimization success is {}".format(opt_res.success))
+        self.plot_linprog_result(opt_res.x, cumsum_h2_demand, c)
         return opt_res.x[0]
+
+    def plot_linprog_result(self, h2_produced, cumsum_h2_demand, electricity_price):
+        import matplotlib.pyplot as plt
+        cumsum_h2_produced = np.cumsum(h2_produced).tolist()
+        fig, (ax1, ax3) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [3, 1]})
+        ax1.step(list(range(len(h2_produced))), np.array(cumsum_h2_produced) + np.array(cumsum_h2_demand) + self.stored_hydrogen)
+        ax1.set_ylabel("Storage filling level [kg]")
+        ax1.set_xlabel("Step [-]")
+        ax2 = ax1.twinx()
+        ax2.step(list(range(len(h2_produced))), electricity_price, color='r')
+        ax2.set_ylabel("Electricity price [EUR/kWh]", color='r')
+        ax3.step(list(range(len(h2_produced))), h2_produced/self.max_production_per_step * 100, color='g')
+        ax3.set_ylabel("Electrolyzer utilization [%]", color='g')
+
+        plt.show()
 
 
     def cell_temp(self):

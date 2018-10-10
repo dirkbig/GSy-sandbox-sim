@@ -46,7 +46,7 @@ class ConfigurationMixin:
 
         """ Utility presence """
         self.utility_presence = True
-        self.negative_pricing = False
+        self.negative_pricing = True
         self.dynamical_pricing = False
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
 
