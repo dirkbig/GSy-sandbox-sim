@@ -230,8 +230,12 @@ class Electrolyzer(Agent):
             x_bound = ((0, self.max_production_per_step),) * n_step
             # Do the optimization with linprog.
             opt_res = lp(c, A, b, method="interior-point", bounds=x_bound)
-            opt_production = opt_res.x.tolist()
             # Return the optimal value for this time slot [kg]
+            if opt_res.success:
+                opt_production = opt_res.x.tolist()
+            else:
+                # Case: Linprog couldn't derive optimal result, thus produce as much H2 as possible.
+                opt_production = [self.max_production_per_step]
             print("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
             electrolyzer_log.info("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
 
@@ -303,8 +307,12 @@ class Electrolyzer(Agent):
             # Do the optimization with linprog.
             opt_res = solvers.qp(P, q, G, d)
             # Transform cvxopt matrix format to list.
-            opt_production = np.array(opt_res['x']).tolist()
-            opt_production = [x[0] for x in opt_production]
+            if opt_res['status'] == 'optimal':
+                opt_production = np.array(opt_res['x']).tolist()
+                opt_production = [x[0] for x in opt_production]
+            else:
+                opt_production = [self.max_production_per_step]
+
             # Return the optimal value for this time slot [kg]
             print("Electrolyzer bidding - Optimization status is '{}'".format(opt_res['status']))
             electrolyzer_log.info("Optimization status is '{}'".format(opt_res['status']))
