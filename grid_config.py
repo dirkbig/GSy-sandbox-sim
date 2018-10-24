@@ -48,7 +48,7 @@ class ConfigurationMixin:
         self.utility_presence = True
         self.negative_pricing = True
         self.dynamical_pricing = False
-        self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
+        self.utility_profile = 'ts_intradayPlusEeg_EURperkWh_15min_2015.csv'
 
         """ Household loads """
         self.household_loads_folder = 'household_load_profiles_SMART'

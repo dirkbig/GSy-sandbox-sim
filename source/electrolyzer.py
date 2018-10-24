@@ -181,6 +181,7 @@ class Electrolyzer(Agent):
         self.temp = self.get_cell_temp()
 
     def update_bid(self):
+        # Define the number of steps the perfect foresight optimization should look in the future.
         n_step = 14 * 96
 
         if self.bidding_solver == "linprog":
@@ -254,7 +255,6 @@ class Electrolyzer(Agent):
             P = np.eye(len(c))
             # Multiply c with the eye matrix and convert the matrix back to a list.
             P = P * c
-            p = P.tolist()
 
             # q is a vector consisting of 1.5 * max_production_per_step / 0.4 * 2 * c. The formula is derived by the
             # assumption, that the electrolyzer cell voltage rises linearly from 1.5 V when off to 1.9 V when on max.
@@ -288,6 +288,7 @@ class Electrolyzer(Agent):
             # Now the usable hydrogen is added to all values of b except the last one. This allows stored hydrogen to be
             # used but will force the optimization to have at least as much hydrogen stored at the end of the looked at
             # time frame as there is now stored.
+            """ IDEA: Maybe the goal should be to have a filling level of half the storage at the end of the opt. """
             b = [x + self.stored_hydrogen - self.storage_buffer for x in cumsum_h2_demand]
             b_append = [-x + self.storage_size for x in b]
             b[-1] -= self.stored_hydrogen - self.storage_buffer
@@ -295,8 +296,6 @@ class Electrolyzer(Agent):
             # Set the x boundaries (0 <= x <= max. H2 production per step).
             b += [self.max_production_per_step for _ in range(n_step)]
             b += [0 for _ in range(n_step)]
-            # Define the bounds for the hydrogen produced.
-            x_bound = ((0, self.max_production_per_step),) * n_step
 
             # Convert all the lists needed to cvxopt matrix format.
             P = matrix(P)
@@ -304,6 +303,8 @@ class Electrolyzer(Agent):
             G = matrix(A)
             d = matrix(b)
 
+            # Silence the optimizer output.
+            solvers.options['show_progress'] = False
             # Do the optimization with linprog.
             opt_res = solvers.qp(P, q, G, d)
             # Transform cvxopt matrix format to list.
@@ -322,8 +323,11 @@ class Electrolyzer(Agent):
             return None
 
         # self.plot_optimization_result(opt_production, cumsum_h2_demand, c)
-        # Return the power value needed for the optimized production [kW]
-        return self.get_power_by_production(opt_production[0])
+
+        # Return the power value needed for the optimized production and the price [kW, EUR/kWh]
+        charging_power = self.get_power_by_production(opt_production[0])
+        price = c[0]
+        return [charging_power, price]
 
     def plot_optimization_result(self, h2_produced, cumsum_h2_demand, electricity_price):
         import matplotlib.pyplot as plt

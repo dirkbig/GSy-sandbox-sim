@@ -30,9 +30,9 @@ def convert_ts_utd(ts_name, ts_converted_name):
 
 if __name__ == '__main__':
     # Convert the UNIX timestamps of a timeseries to date strings in the format "yyyy.MM.dd hh:mm".
-    ts_load = ''
-    ts_save = ''
+    ts_load = r'\\SRV02\RL-Institut\02_Institutsorganisation\Team\Power_Runde\Blockchain\2018_05_30_energy_web_foundation\bidding_strategies\timerseries\ts_eeg_surcharge_flexible_EURperkWh_15min_2015_UNIX.csv'
+    ts_save = r'\\SRV02\RL-Institut\02_Institutsorganisation\Team\Power_Runde\Blockchain\2018_05_30_energy_web_foundation\bidding_strategies\timerseries\ts_eeg_surcharge_flexible_EURperkWh_15min_2015.csv'
     convert_ts_utd(ts_load, ts_save)
+    print("Timeseries was converted and saved!")
 
-    print(unix_to_datestring(1301702400))
 
