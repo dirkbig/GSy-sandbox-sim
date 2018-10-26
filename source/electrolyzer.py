@@ -83,8 +83,11 @@ class Electrolyzer(Agent):
         # saves last temperature value
         self.temp_before = self.temp
 
-    def pre_auction_round(self):
-        pass
+    def pre_auction_step(self):
+        # Before the auction the physical states are renewed.
+        self.update_power()
+        # Update the stored mass hydrogen.
+        self.update_storage()
 
     def post_auction_round(self):
         pass
