@@ -31,10 +31,10 @@ class ConfigurationMixin:
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
 
         """ Households basic configuration """
-        self.consumers = 4
+        self.consumers = 2
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 0
+        self.prosumers_with_pv_and_ess = 1
 
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
@@ -57,18 +57,24 @@ class ConfigurationMixin:
         for agent in range(self.prosumers_with_pv_and_ess):
             self.classification_array.append([True, True, True])
 
-        """ Household loads """
+        """ 
+            Load data
+        """
         self.household_loads_folder = 'household_load_profiles_SMART'
         self.num_households_with_consumption = self.num_households
 
-        """ PV """
+        """ 
+            PV data
+        """
         self.num_pv_panels = self.prosumers_with_only_pv + self.prosumers_with_pv_and_ess
         self.pv_output_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
 
-        """ ESS """
+        """    
+            ESS data
+        """
         self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
-        max_capacity_list = np.full(self.num_households_with_ess, 0.1)
-        initial_capacity_list = np.full(self.num_households_with_ess, 0.1)
+        max_capacity_list = np.full(self.num_households_with_ess, 1)
+        initial_capacity_list = np.full(self.num_households_with_ess, 0.3)
         self.ess_characteristics_list = []
 
         for battery in range(self.num_households_with_ess):
@@ -76,8 +82,6 @@ class ConfigurationMixin:
             initial_soc = initial_capacity_list[battery]
             self.ess_characteristics_list.append([initial_soc, max_capacity])
         self.total_ess_capacity = sum(max_capacity_list)
-
-        print(self.ess_characteristics_list)
 
 
 if __name__ == "__main__":
