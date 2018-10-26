@@ -161,7 +161,6 @@ class HouseholdAgent(Agent):
 
         if self.net_energy_in_simple_strategy > 0:
             self.trading_state = 'supplying'
-            """ bid approach, using utility function"""
             price = 8
             quantity = self.net_energy_in_simple_strategy
             self.offer = [price, quantity, self.id]
@@ -169,7 +168,6 @@ class HouseholdAgent(Agent):
 
         elif self.net_energy_in_simple_strategy < 0:
             self.trading_state = 'buying'
-            """ offer approach using utility function """
             price = 20
             quantity = abs(self.net_energy_in_simple_strategy)
             self.bid = [price, quantity, self.id]
@@ -239,15 +237,22 @@ class HouseholdAgent(Agent):
             overflow, deficit = self.ess.update_ess_state(self.net_energy_in)
         else:
             if self.net_energy_in > 0:
-                overflow = self.net_energy_in
+                overflow = abs(self.net_energy_in)
                 deficit = 0
             elif self.net_energy_in <= 0:
-                overflow = self.net_energy_in
-                deficit = 0
-        self.data.deficit_over_time[self.id][self.model.step_count] = deficit
+                overflow = 0
+                deficit = abs(self.net_energy_in)
+
+        # if overflow != 0 or deficit != 0:
+        #     print("bleh")
+        #     pass
+
+        """ data logging """
         self.data.overflow_over_time[self.id][self.model.step_count] = overflow
+        self.data.deficit_over_time[self.id][self.model.step_count] = deficit
 
-
+        print('overflow agent', self.id, overflow)
+        print('deficit agent', self.id, deficit)
 
     def announce_bid_and_offers(self):
         """ announces bid to auction agent by appending to bid list """
@@ -255,9 +260,7 @@ class HouseholdAgent(Agent):
 
         if self.trading_state == 'supplying':
             self.model.auction.offer_list.append(self.offer)
-            print("offer", self.offer)
         elif self.trading_state == 'buying':
             self.model.auction.bid_list.append(self.bid)
-            print("bid", self.bid)
 
 

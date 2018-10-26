@@ -14,8 +14,24 @@ class ConfigurationMixin:
         self.market_interval = 15  # minutes
         self.num_steps = int(self.num_days * num_minutes_in_a_day / 15)
 
+        """ Market structure """
+        self.pricing_rule = 'pac'
+
+        """ Electrolyzer """
+        self.electrolyzer_presence = False
+        self.cell_area = 1500
+        self.n_cell = 140
+        self.p = 1.5
+        self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
+
+        """ Utility  """
+        self.utility_presence = True
+        self.negative_pricing = False
+        self.dynamical_pricing = False
+        self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
+
         """ Households basic configuration """
-        self.consumers = 3
+        self.consumers = 4
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
         self.prosumers_with_pv_and_ess = 0
@@ -41,18 +57,6 @@ class ConfigurationMixin:
         for agent in range(self.prosumers_with_pv_and_ess):
             self.classification_array.append([True, True, True])
 
-        """ Electrolyzer """
-        self.cell_area = 1500
-        self.n_cell = 140
-        self.p = 1.5
-        self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
-
-        """ Utility presence """
-        self.utility_presence = True
-        self.negative_pricing = False
-        self.dynamical_pricing = False
-        self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
-
         """ Household loads """
         self.household_loads_folder = 'household_load_profiles_SMART'
         self.num_households_with_consumption = self.num_households
@@ -63,8 +67,8 @@ class ConfigurationMixin:
 
         """ ESS """
         self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
-        max_capacity_list = np.full(self.num_households_with_ess, 3)
-        initial_capacity_list = np.full(self.num_households_with_ess, 3)
+        max_capacity_list = np.full(self.num_households_with_ess, 0.1)
+        initial_capacity_list = np.full(self.num_households_with_ess, 0.1)
         self.ess_characteristics_list = []
 
         for battery in range(self.num_households_with_ess):

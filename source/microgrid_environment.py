@@ -1,3 +1,4 @@
+from mesa.datacollection import DataCollector
 from source.auctioneer_agent import Auctioneer
 from source.utility_agent import UtilityAgent
 from source.household_agent import HouseholdAgent
@@ -22,7 +23,7 @@ class MicroGrid(Model):
         self.step_count = 0
         self.agents = []
         self.electrolyzer = None
-
+        self.utility = None
         self.entities_dict = {}
         """ load in data THIS HAS TO GO FIRST"""
 
@@ -39,20 +40,23 @@ class MicroGrid(Model):
             self.agents.append(agent)
 
         """ electrolyzer """
-        self.electrolyzer = Electrolyzer(i, self)
+        if self.data.utility_presence is True:
+            self.electrolyzer = Electrolyzer(i, self)
+
+        self.data_collector = DataCollector()
 
     def sim_step(self):
         """advances the model by one step"""
 
         """ pre-auction round """
-        if self.data.utility_presence is True:
-            self.utility.pre_auction_round()
-
         random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.pre_auction_round()
 
-        if self.electrolyzer is True:
+        if self.utility is not None:
+            self.utility.pre_auction_round()
+
+        if self.electrolyzer is not None:
             self.electrolyzer.pre_auction_round()
 
         """ auction round """
@@ -62,7 +66,12 @@ class MicroGrid(Model):
         random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.post_auction_round()
-        self.electrolyzer.post_auction_round()
+
+        if self.utility is not None:
+            self.utility.post_auction_round()
+
+        if self.electrolyzer is None:
+            self.electrolyzer.post_auction_round()
 
         self.update_time()
 

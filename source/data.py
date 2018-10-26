@@ -78,6 +78,8 @@ class Data(ConfigurationMixin, object):
             if self.negative_pricing is False:
                 self.utility_pricing_profile[self.utility_pricing_profile < 0] = 0
 
+        """ DATA LOGGING """
+
         """ SOC and unmatched loads and generation in grid """
         self.soc_list_over_time = np.zeros([self.num_households, self.num_steps])
         self.deficit_over_time = np.zeros([self.num_households, self.num_steps])
@@ -94,7 +96,7 @@ class Data(ConfigurationMixin, object):
 
         test = True
         if test is True:
-            load_list = np.ones([self.num_households, self.num_steps]) * 0.1
+            load_list = np.ones([self.num_households, self.num_steps]) * 0.01
             return load_list
 
         """ load is in minutes, now convert to intervals """

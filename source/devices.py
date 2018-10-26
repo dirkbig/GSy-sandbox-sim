@@ -60,13 +60,17 @@ class ESS(object):
         assert storage_space_left >= 0
 
         if 0 < energy_influx < storage_space_left:
+            """ charging without overflow """
             self.soc_actual += energy_influx
         elif energy_influx > storage_space_left > 0:
+            """ charging with overflow """
             self.soc_actual = self.max_capacity
             local_overflow = abs(energy_influx) - storage_space_left
         elif energy_influx < 0 < self.soc_actual + energy_influx:
+            """ discharging without depletion """
             self.soc_actual += energy_influx
         elif energy_influx < 0 and self.soc_actual + energy_influx < 0:
+            """ discharging with depletion """
             self.soc_actual = 0
             local_deficit = abs(energy_influx) - self.soc_actual
 
@@ -107,7 +111,7 @@ class ESS(object):
         """ 'Estimate' the coming X hours of load and production forecast """
 
         if self.agent.has_load is True:
-            max_horizon = min(len(self.agent.pv_data), count + horizon)
+            max_horizon = min(len(self.agent.load_data), count + horizon)
             self.load_horizon = self.agent.load_data[count:count + max_horizon]
         else:
             self.load_horizon = [0]

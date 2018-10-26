@@ -1,5 +1,4 @@
 from source import microgrid_environment
-from source.const import *
 
 import logging
 logging.basicConfig(level=logging.ERROR)
@@ -19,8 +18,6 @@ def step_microgrid():
 
 
 microgrid = create_microgrid()
-
-# TODO: model this for a 24h simulation in a for-loop using 24h profiles
 
 for step in range(microgrid.data.num_steps):
     print("step", microgrid.step_count)

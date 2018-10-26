@@ -101,7 +101,6 @@ def soc_over_time(num_steps, soc_per_agent_over_time_array):
 
 def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time):
 
-
     steps = range(num_steps)
     fig, ax = plt.subplots()
     """ overflows """

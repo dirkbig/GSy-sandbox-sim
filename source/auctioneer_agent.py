@@ -1,4 +1,5 @@
 from source.auctioneer_methods import *
+
 from plots import clearing_snapshot
 from mesa import Agent
 import seaborn as sns
@@ -16,12 +17,13 @@ class Auctioneer(Agent):
 
         self.snapshot_plot = False
         self.id = _unique_id
-        self.pricing_rule = 'pac'
+        self.pricing_rule = self.model.data.pricing_rule
         self.aggregate_demand_curve = []
         self.aggregate_supply_curve = []
 
         self.bid_list = []
         self.offer_list = []
+        self.utility_market_maker_rate = None
 
         self.sorted_bid_list = None
         self.sorted_offer_list = None
@@ -37,12 +39,20 @@ class Auctioneer(Agent):
         """check whether all agents have submitted their bids"""
         self.user_participation()
 
+        print("bid list", self.bid_list)
+        print("offer list", self.offer_list)
+
+        # total_bid =
+        # total_offer =
+
         """ resets the acquired energy for all households """
         for agent in self.model.agents[:]:
             self.model.agents[agent.id].sold_energy = 0
             self.model.agents[agent.id].bought_energy = 0
 
-        if self.offer_list != [] and self.bid_list != []:
+        if self.offer_list != [] and self.bid_list != [] or (self.model.utility is not None and self.bid_list != []):
+            """ only proceed to auction if there is demand and supply (i.e. supply in the form of
+                prosumers or utility grid) """
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
             self.execute_auction(sorted_x_y_y_pairs_list)
             self.clearing_of_market(self.trade_pairs)
@@ -101,8 +111,14 @@ class Auctioneer(Agent):
         # sort on price, not quantity, so price_point[1]
         # print("offers", self.offer_list)
         # print("bids", self.bid_list)
+
         sorted_bid_list = sorted(self.bid_list, key=lambda price_point: price_point[0], reverse=True)
         sorted_offer_list = sorted(self.offer_list, key=lambda price_point: price_point[0])
+
+        if self.model.utility is not None:
+            """ append (in a clever, semi-aesthetic way) the utility offer to the offer list according to the 
+                utility_market_maker_rate """
+            sorted_bid_list, sorted_offer_list = self.append_utility_offer(sorted_bid_list, sorted_offer_list)
 
         # creation of aggregate supply/demand points
         aggregate_quantity_points = []
@@ -191,7 +207,7 @@ class Auctioneer(Agent):
                 payment = trade_pairs[trade][3]
 
                 """ execute trade buy calling household agent's wallet settlement """
-                if id_seller is self.model.data.num_households + 111:
+                if id_seller is 'utility':
                     """ seller was Utility """
                     self.model.utility.sold_energy = trade_quantity
                     self.model.utility.wallet.settle_revenue(payment)
@@ -203,8 +219,6 @@ class Auctioneer(Agent):
                 self.model.agents[id_buyer].wallet.settle_payment(payment)
         else:
             auction_log.warning("no trade at this step")
-
-        print("trade pairs", trade_pairs)
 
     def user_participation(self):
         """ small analysis on user participation per step"""
@@ -229,3 +243,44 @@ class Auctioneer(Agent):
         self.percentage_passive = num_passive / total_num
 
         # print(self.percentage_sellers, self.percentage_buyers, self.percentage_passive)
+
+    def append_utility_offer(self, sorted_bid_list, sorted_offer_list):
+        """ function is only called when an Utility is present, it supplements the offer list of auctioneer
+            with an 'infinite' supply of energy up to the necessary amount to cover all demand, bought or not """
+        print(sorted_bid_list)
+        print(sorted_offer_list)
+
+        bid_total = sum(np.asarray(sorted_bid_list)[:, 1])
+        try:
+            prosumer_offer_total = sum(np.asarray(sorted_offer_list)[:, 1])
+        except IndexError:
+            prosumer_offer_total = 0
+
+        """ Append utility"""
+        utility_id = 'utility'
+        total_offer_below_mmr = 0
+
+        if len(sorted_offer_list) is 0:
+            utility_quantity = bid_total
+            sorted_offer_list.insert(0, [self.utility_market_maker_rate, utility_quantity, utility_id])
+
+        else:
+            for offer in range(len(sorted_offer_list)):
+                if sorted_offer_list[offer][0] <= self.utility_market_maker_rate:
+                    total_offer_below_mmr += sorted_offer_list[offer][1]
+                    """ offer is less expensive than market maker rate """
+                    pass
+                if sorted_offer_list[offer][0] > self.utility_market_maker_rate or offer == len(sorted_offer_list) - 1:
+                    """ offer is more expensive that market maker rate, 
+                        utility is only activated if market maker rate is competitive (lower than prosumer rate)"""
+                    if bid_total > total_offer_below_mmr:
+                        utility_quantity = bid_total - total_offer_below_mmr
+                        sorted_offer_list.insert(offer + 1, [self.utility_market_maker_rate, utility_quantity, utility_id])
+
+        print(sorted_bid_list)
+        print(sorted_offer_list)
+
+        sorted_bid_list = sorted(sorted_bid_list, key=lambda price_point: price_point[0], reverse=True)
+        sorted_offer_list = sorted(sorted_offer_list, key=lambda price_point: price_point[0])
+
+        return sorted_bid_list, sorted_offer_list
