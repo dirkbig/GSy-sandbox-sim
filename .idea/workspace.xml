@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b51419d8-2e94-4ec6-883c-8137bba46e54" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/source/battery.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/electrolyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/electrolyzer.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -14,49 +15,12 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="auctioneer_agent.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/source/auctioneer_agent.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="140">
-              <caret line="209" column="42" selection-start-line="209" selection-start-column="42" selection-end-line="209" selection-end-column="42" />
-              <folding>
-                <element signature="e#0#39#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="grid_config.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="grid_config.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/grid_config.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="41" column="38" selection-start-line="41" selection-start-column="38" selection-end-line="41" selection-end-column="38" />
+            <state>
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="utility_agent.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/source/utility_agent.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="7" column="17" lean-forward="true" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-              <folding>
-                <element signature="e#0#22#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="auctioneer_methods.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/source/auctioneer_methods.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1515">
-              <caret line="102" column="28" selection-start-line="102" selection-start-column="28" selection-end-line="102" selection-end-column="28" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -65,31 +29,43 @@
       <file leaf-file-name="data_methods.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/source/data_methods.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="25" selection-start-line="25" selection-end-line="25" />
+            <state relative-caret-position="135">
+              <caret line="13" selection-start-line="13" selection-end-line="13" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="household_agent.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/source/household_agent.py">
+      <file leaf-file-name="devices.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/source/devices.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="530">
-              <caret line="245" selection-start-line="245" selection-end-line="247" selection-end-column="18" />
+            <state relative-caret-position="304">
+              <caret line="55" selection-start-line="55" selection-end-line="55" />
               <folding>
-                <element signature="e#0#28#0" expanded="true" />
+                <element signature="e#0#26#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="microgrid_environment.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/source/microgrid_environment.py">
+      <file leaf-file-name="electrolyzer.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/source/electrolyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="545">
-              <caret line="62" column="28" selection-start-line="62" selection-start-column="28" selection-end-line="62" selection-end-column="28" />
+            <state relative-caret-position="5640">
+              <caret line="376" column="33" selection-start-line="376" selection-start-column="33" selection-end-line="376" selection-end-column="33" />
               <folding>
-                <element signature="e#0#45#0" expanded="true" />
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="battery.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/source/battery.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="645">
+              <caret line="43" column="31" lean-forward="true" selection-start-line="43" selection-start-column="31" selection-end-line="43" selection-end-column="31" />
+              <folding>
+                <element signature="e#0#22#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -98,8 +74,8 @@
       <file leaf-file-name="run_microgrid.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/run_microgrid.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="16" column="37" lean-forward="true" selection-start-line="16" selection-start-column="37" selection-end-line="16" selection-end-column="37" />
+            <state relative-caret-position="255">
+              <caret line="17" selection-start-line="17" selection-end-line="17" />
               <folding>
                 <element signature="e#0#40#0" expanded="true" />
               </folding>
@@ -149,7 +125,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="remote-master" />
+        <entry key="$PROJECT_DIR$" value="MARLON" />
       </map>
     </option>
   </component>
@@ -182,7 +158,6 @@
         <option value="$PROJECT_DIR$/data_load_profiles/2011-04-02-b937.csv" />
         <option value="$PROJECT_DIR$/profiles/utility_price_profiles/utility_price_profile_constant.csv" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/source/electrolyzer.py" />
         <option value="$PROJECT_DIR$/source/data_methods.py" />
         <option value="$PROJECT_DIR$/profiles/electrolyzer_load_profiles/ts_h2load_kg_15min_classverysmall_2015.csv" />
         <option value="$PROJECT_DIR$/.gitignore" />
@@ -199,6 +174,8 @@
         <option value="$PROJECT_DIR$/source/auctioneer_methods.py" />
         <option value="$PROJECT_DIR$/source/auctioneer_agent.py" />
         <option value="$PROJECT_DIR$/grid_config.py" />
+        <option value="$PROJECT_DIR$/source/electrolyzer.py" />
+        <option value="$PROJECT_DIR$/source/battery.py" />
       </list>
     </option>
   </component>
@@ -225,23 +202,7 @@
             <path>
               <item name="pac" type="b2602c69:ProjectViewProjectNode" />
               <item name="pac" type="462c0819:PsiDirectoryNode" />
-              <item name="profiles" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="pac" type="b2602c69:ProjectViewProjectNode" />
-              <item name="pac" type="462c0819:PsiDirectoryNode" />
-              <item name="profiles" type="462c0819:PsiDirectoryNode" />
-              <item name="data_load_profiles" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="pac" type="b2602c69:ProjectViewProjectNode" />
-              <item name="pac" type="462c0819:PsiDirectoryNode" />
               <item name="source" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="pac" type="b2602c69:ProjectViewProjectNode" />
-              <item name="pac" type="462c0819:PsiDirectoryNode" />
-              <item name="strategies" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -274,8 +235,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.run_microgrid">
-    <configuration name="data" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.Electrolyzer">
+    <configuration name="Electrolyzer" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="pac" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -287,13 +248,31 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/data.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/Electrolyzer.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="electrolyzer" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="auctioneer_agent" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="pac" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/AuctioneerAgent.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="delete_me" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="pac" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -305,13 +284,13 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/electrolyzer.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/delete_me.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="grid_config" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="networkx_tester" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="pac" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -323,25 +302,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_config.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="plots" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="pac" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plots.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/networkx_tester.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -354,9 +315,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Program Files (x86)\Python36-32\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_microgrid.py" />
@@ -367,18 +328,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.run_microgrid" />
-      <item itemvalue="Python.grid_config" />
-      <item itemvalue="Python.data" />
-      <item itemvalue="Python.plots" />
-      <item itemvalue="Python.electrolyzer" />
+      <item itemvalue="Python.auctioneer_agent" />
+      <item itemvalue="Python.networkx_tester" />
+      <item itemvalue="Python.Electrolyzer" />
+      <item itemvalue="Python.delete_me" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.delete_me" />
+        <item itemvalue="Python.Electrolyzer" />
+        <item itemvalue="Python.networkx_tester" />
+        <item itemvalue="Python.auctioneer_agent" />
         <item itemvalue="Python.run_microgrid" />
-        <item itemvalue="Python.data" />
-        <item itemvalue="Python.electrolyzer" />
-        <item itemvalue="Python.plots" />
-        <item itemvalue="Python.grid_config" />
       </list>
     </recent_temporary>
   </component>
@@ -570,10 +531,10 @@
     <frame x="-199" y="-1080" width="1920" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12532912" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12532912" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5013165" side_tool="true" weight="0.3839104" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.18431772" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5018431" side_tool="true" visible="true" weight="0.18431772" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49815693" visible="true" weight="0.18431772" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="0.3299389" />
       <window_info anchor="bottom" id="Python Console" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -581,13 +542,42 @@
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4623218" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.18431772" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12532912" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="9" weight="0.3299389" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4623218" />
       <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Python Console" order="7" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5013165" side_tool="true" weight="0.3839104" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49815693" weight="0.3299389" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32977587" />
+      <window_info id="Favorites" order="2" side_tool="true" />
     </layout>
+    <layout-to-restore>
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11901001" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.3839104" />
+      <window_info anchor="bottom" id="Python Console" order="7" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.398167" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32977587" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5013165" side_tool="true" weight="0.3839104" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3299389" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+    </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -614,9 +604,13 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/source/auctioneer_methods.py</url>
-          <line>99</line>
-          <option name="timeStamp" value="118" />
+          <url>file://$PROJECT_DIR$/source/MicrogridEnvironment.py</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/source/Electrolyzer.py</url>
+          <line>255</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -626,13 +620,9 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="119" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/profiles/data_load_profiles/household_load_profiles_SMART/2011-04-02-b21.csv">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/profiles/data_load_profiles/household_load_profiles_SMART/2011-04-02-b6.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-20578">
@@ -791,30 +781,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/source/devices.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="795">
-          <caret line="55" selection-start-line="55" selection-end-line="55" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/source/data.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1500">
           <caret line="100" lean-forward="true" selection-start-line="100" selection-end-line="100" />
-          <folding>
-            <element signature="e#0#33#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/source/electrolyzer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="86" selection-start-line="86" selection-end-line="86" />
         </state>
       </provider>
     </entry>
@@ -839,16 +809,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/source/data_methods.py">
+    <entry file="file://$PROJECT_DIR$/source/auctioneer_agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="25" selection-start-line="25" selection-end-line="25" />
+        <state relative-caret-position="3075">
+          <caret line="209" column="42" selection-start-line="209" selection-start-column="42" selection-end-line="209" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/source/utility_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/source/auctioneer_methods.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1515">
+        <state relative-caret-position="1530">
           <caret line="102" column="28" selection-start-line="102" selection-start-column="28" selection-end-line="102" selection-end-column="28" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
@@ -856,19 +839,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/source/utility_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="17" lean-forward="true" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#22#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/source/household_agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="530">
+        <state relative-caret-position="3600">
           <caret line="245" selection-start-line="245" selection-end-line="247" selection-end-column="18" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
@@ -878,7 +851,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/source/microgrid_environment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="545">
+        <state relative-caret-position="765">
           <caret line="62" column="28" selection-start-line="62" selection-start-column="28" selection-end-line="62" selection-end-column="28" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
@@ -886,32 +859,58 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/grid_config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/source/data_methods.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="13" selection-start-line="13" selection-end-line="13" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/run_microgrid.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="16" column="37" lean-forward="true" selection-start-line="16" selection-start-column="37" selection-end-line="16" selection-end-column="37" />
+        <state relative-caret-position="255">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
           <folding>
             <element signature="e#0#40#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/source/auctioneer_agent.py">
+    <entry file="file://$PROJECT_DIR$/source/electrolyzer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="209" column="42" selection-start-line="209" selection-start-column="42" selection-end-line="209" selection-end-column="42" />
+        <state relative-caret-position="5640">
+          <caret line="376" column="33" selection-start-line="376" selection-start-column="33" selection-end-line="376" selection-end-column="33" />
           <folding>
-            <element signature="e#0#39#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/grid_config.py">
+    <entry file="file://$PROJECT_DIR$/source/battery.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="41" column="38" selection-start-line="41" selection-start-column="38" selection-end-line="41" selection-end-column="38" />
+        <state relative-caret-position="645">
+          <caret line="43" column="31" lean-forward="true" selection-start-line="43" selection-start-column="31" selection-end-line="43" selection-end-column="31" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#22#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/source/devices.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="55" selection-start-line="55" selection-end-line="55" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>

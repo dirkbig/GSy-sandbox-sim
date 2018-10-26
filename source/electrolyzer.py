@@ -1,9 +1,10 @@
-from source.const import *
 import math
 import warnings
 from mesa import Agent
 import source.const as const
 import logging
+import numpy as np
+from scipy.optimize import linprog as lp
 electrolyzer_log = logging.getLogger("electrolyzer")
 
 
@@ -16,9 +17,25 @@ class Electrolyzer(Agent):
         self.id = _unique_id
         self.model = model
         # Simulation time [min].
-        self.sim_time = self.model.data.market_interval
+        self.interval_time = const.market_interval
+        self.current_step = 0
 
-        # States of the electrolyzer.
+        """ H2 demand list. """
+        self.h2_demand = self.model.data.electrolyzer_list
+        # Track the used demand [kg].
+        self.track_demand = []
+
+        """ Trading. """
+        self.trading_state = None
+        self.bid = None
+        self.offer = None
+        self.sold_energy = None
+        self.bought_energy = None
+
+        # Max. power that can be requested (current model can at least use 179.71 kW)[kW].
+        # self.p_max = 179
+
+        """ States of the electrolyzer. """
         # Current density (i = I/A) in [A / cm^2]
         self.cur_dens = 0
         # current in [A]
@@ -28,11 +45,13 @@ class Electrolyzer(Agent):
         # power in [kW]
         self.power = 0
         # temperature in [K]
-        self.temp = ambient_temp
+        self.temp = 293.15
 
         # Parameters for the hydrogen station.
+        # Define the storage buffer size wanted (class very small requires on avg. 56 kg/d) [kg]
+        self.storage_buffer = 56
         # Amount of (usable) hydrogen stored [kg].
-        self.stored_hydrogen = 0
+        self.stored_hydrogen = self.storage_buffer * 2
         # Max. amount of (usable) hydrogen stored [kg].
         self.storage_size = const.hrs_storage_size
         # Tracker for the hydrogen demand that couldn't be fulfilled [kg].
@@ -62,32 +81,39 @@ class Electrolyzer(Agent):
         # efficiency of the electrolysis system (efficiency factor between H2 power and elects. power)
         self.eta_ely = 0.65
 
-        # The fitting parameter exchange current density[A / cm²].
+        # The fitting parameter exchange current density [A/cm²].
         self.fitting_value_exchange_current_density = 1.4043839e-3
         # The thickness of the electrolyte layer [cm].
         self.fitting_value_electrolyte_thickness = 0.2743715938
 
-        # Min. temperature of the electrolyzer (completely cooled down) in [K]
+        # Min. temperature of the electrolyzer (completely cooled down) [K].
         self.temp_min = 293.15
-        # highest temperature the electrolyzer can be in [K]
+        # Highest temperature the electrolyzer can be [K].
         self.temp_max = 353.15
-        # maximal current density given by the manufacturer in [A/cm^2]
+        # Maximal current density given by the manufacturer [A/cm^2].
         self.cur_dens_max = 0.4
-        # at this current density the maximal temperature is reached in [A/cm^2]
+        # Current density at which the maximal temperature is reached [A/cm^2].
         self.cur_dens_max_temp = 0.35
+        # Max. hydrogen that can be produced in one time step [kg].
+        self.max_production_per_step = self.cur_dens_max * self.area_cell * self.interval_time * 60 * self.z_cell / \
+            (2 * self.faraday) * self.molarity / 1000
 
-        # counts the number of seconds the simulation is running
-        self.sec_counter = 1
         # saves last value of current density
         self.cur_dens_before = self.cur_dens
         # saves last temperature value
         self.temp_before = self.temp
 
-    def pre_auction_step(self):
+        electrolyzer_log.info("Electrolyzer object was generated.")
+
+    def pre_auction_round(self, new_power_val=0):
+        # Update the current time step.
+        self.current_step = self.model.step_count
         # Before the auction the physical states are renewed.
-        self.update_power()
+        self.update_power(new_power_val)
         # Update the stored mass hydrogen.
         self.update_storage()
+        # Get the new bid.
+        self.update_bid()
 
     def post_auction_round(self):
         pass
@@ -95,15 +121,21 @@ class Electrolyzer(Agent):
     def update_storage(self):
         # Update the mass of the hydrogen stored.
         mass_old = self.stored_hydrogen
-        mass_produced = self.current * self.z_cell / (2 * self.faraday) * self.molarity
-        # HAS TO BE READ VIA THE TIMESERIES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        mass_demanded = 0
+        # Calculate the produced mass of hydrogen by Faraday's law of electrolysis [kg].
+        mass_produced = self.current * self.interval_time * 60 * self.z_cell / (2 * self.faraday) * self.molarity / 1000
+        # Get the demand of this time step.
+        mass_demanded = float(self.h2_demand[self.current_step])
+        self.track_demand.append(mass_demanded)
         # Update the mass in the storage
         self.stored_hydrogen = mass_old + mass_produced - mass_demanded
         # Check if hydrogen demand could't be fulfilled. If so, track it and set the storage to empty.
         if self.stored_hydrogen < 0:
             self.demand_not_fulfilled += abs(self.stored_hydrogen)
             self.stored_hydrogen = 0
+        #elif self.stored_hydrogen > const.hrs_storage_size:
+            # Case: the storage is more than full, thus iteratively the power has to be reduced
+            #mass_overload = self.stored_hydrogen - const.hrs_storage_size
+
 
     # Determine new measurement data for next step.
     def update_power(self, new_power_value):
@@ -141,6 +173,51 @@ class Electrolyzer(Agent):
         # Calculate the temperature.
         self.temp = self.cell_temp()
 
+    def update_bid(self):
+        # To derive the bid for this time step, a linear optimization (linprog) determines the optimal amount of
+        # hydrogen that should be produced depending on the electricity price and the demand for the next ?2 weeks?.
+        # This requires perfect foresight and in order to formulate a linear optimization problem, the temperature
+        # dependent electrolyzer efficiency is not taken into account.
+        #
+        # The optimization problem is formulated in the way:
+        # min  c * x
+        # s.t. A * x <= b
+        # x >= 0 and x < max. producible hydrogen
+        #
+        # Here, x is a vector with the amount of hydrogen produced each time step, c is the estimated cost function
+        # for each time step (EEX spot marked costs are used), A * x <= b is used to make sure that the storage never
+        # falls below the min. storage level (safety buffer).
+
+        # Number of time steps of the future used for the optimization.
+        n_step = 96*14
+        # Define the electricity costs [EUR/kWh].
+        c = self.model.data.utility_pricing_profile[self.current_step:self.current_step+n_step]
+        c = [int(x * 100000) for x in c]
+        # Define the inequality matrix (A) and vector (b) that make sure that at no time step the storage is below the
+        # wanted buffer value.
+        # The matrix A is supposed to sum up all hydrogen produced for each time step, therefore A is a lower triangular
+        # matrix with all entries being -1 (- because we want to make sure that the hydrogen amount does not fall below
+        # a certain amount, thus the <= must be turned in a >=, therefore A and b values are all set negative).
+        A = [[-1] * (i + 1) + [0] * (n_step - i - 1) for i in range(n_step)]
+        # The b value is the sum of the demand for each time step (- because see comment above).
+        b = self.h2_demand[self.current_step:self.current_step+n_step]
+        b = [-float(x) for x in b]
+        # Accumulate all demands over time.
+        b = np.cumsum(b).tolist()
+        # Now the usable hydrogen is added to all values of b except the last one. This allows stored hydrogen to be
+        # used but will force the optimization to have at least as much hydrogen stored at the end of the looked at time
+        # frame as there is now stored.
+        b = [int(x + self.stored_hydrogen - self.storage_buffer) for x in b]
+        # b[-1] -= self.stored_hydrogen - self.storage_buffer
+        # Define the bounds for the hydrogen produced.
+        x_bound = ((0, self.max_production_per_step),) * n_step
+        # Do the optimization with linprog.
+        opt_res = lp(c, A, b, method="interior-point", bounds=x_bound)
+        # Return the optimal value for this time slot [kg]
+        print("Optimization success is {}".format(opt_res.success))
+        return opt_res.x[0]
+
+
     def cell_temp(self):
         # Calculate the electrolyzer temperature for the next time step.
 
@@ -160,7 +237,8 @@ class Electrolyzer(Agent):
 
         # Calculate the new temperature of the electrolyzer by Newtons law of cooling. The exponent (-t[s]/2310) was
         # parameterized such that the 98 % of the temperature change are reached after 2.5 hours.
-        temp_new = temp_aim + (temp_before - temp_aim) * math.exp(-self.sim_time*60 / 2310)
+        temp_new = temp_aim + (temp_before - temp_aim) * math.exp(-self.interval_time*60 / 2310)
+
 
         # Return the new electrolyzer temperature [K].
         return temp_new
@@ -212,12 +290,12 @@ class Electrolyzer(Agent):
         self.cur_dens = cur_dens_iteration
         self.power = power_iteration
 
-    def ely_voltage_u_act(ely, cur_dens, temp):
+    def ely_voltage_u_act(self, cur_dens, temp):
         # This voltage part describes the activity losses within the electolyser.
         # Source: 'Modeling an alkaline electrolysis cell through reduced-order and loss estimate approaches'
         # from Milewski et al. (2014)!
 
-        j0 = ely.fitting_value_exchange_current_density
+        j0 = self.fitting_value_exchange_current_density
 
         '# COMPUTATION FOR EACH NODE'
         # The temperature of this loop run[K].
@@ -226,27 +304,27 @@ class Electrolyzer(Agent):
         alpha_a = 0.0675 + 0.00095 * this_temp
         alpha_c = 0.1175 + 0.00095 * this_temp
         # The two parts of the activation voltage for this node[V].
-        u_act_a = 2.306 * (ely.gas_const * this_temp) / (ely.n * ely.faraday * alpha_a) * math.log10(cur_dens / j0)
-        u_act_c = 2.306 * (ely.gas_const * this_temp) / (ely.n * ely.faraday * alpha_c) * math.log10(cur_dens / j0)
+        u_act_a = 2.306 * (self.gas_const * this_temp) / (self.n * self.faraday * alpha_a) * math.log10(cur_dens / j0)
+        u_act_c = 2.306 * (self.gas_const * this_temp) / (self.n * self.faraday * alpha_c) * math.log10(cur_dens / j0)
         # The activation voltage for this node[V].
         voltage_activation = u_act_a + u_act_c
 
         return voltage_activation
 
-    def ely_voltage_u_ohm(ely, cur_dens, temp):
+    def ely_voltage_u_ohm(self, cur_dens, temp):
         # This model takes into account two ohmic losses, one being the resistance of the electrolyte itself
         # (resistanceElectrolyte) and other losses like the presence of bubbles (resistanceOther).
         # Source: 'Modeling an alkaline electrolysis cell through reduced-order and loss estimate approaches'
         # from Milewski et al. (2014)
 
-        electrolyte_thickness = ely.fitting_value_electrolyte_thickness
+        electrolyte_thickness = self.fitting_value_electrolyte_thickness
 
         # Temperature of this loop run [K].
         this_temp = temp
         # The conductivity of the the potassium hydroxide (KOH) solution [1/(Ohm*cm)].
-        conductivity_electrolyte = -2.041 * ely.molarity_KOH - 0.0028 * ely.molarity_KOH ** 2 + 0.001043 * \
-                                   ely.molarity_KOH ** 3 + 0.005332 * ely.molarity_KOH * this_temp + 207.2 * \
-                                   ely.molarity_KOH / this_temp - 0.0000003 * ely.molarity_KOH ** 2 * this_temp ** 2
+        conductivity_electrolyte = -2.041 * self.molarity_KOH - 0.0028 * self.molarity_KOH ** 2 + 0.001043 * \
+                                   self.molarity_KOH ** 3 + 0.005332 * self.molarity_KOH * this_temp + 207.2 * \
+                                   self.molarity_KOH / this_temp - 0.0000003 * self.molarity_KOH ** 2 * this_temp ** 2
         # The electrolyte resistance [Ohm*cm²].
         resistance_electrolyte = electrolyte_thickness / conductivity_electrolyte
         # Void fraction of the electrolyte (j is multiplied by 10^4 because the units the formula is made for is A/m²
@@ -297,21 +375,3 @@ class Electrolyzer(Agent):
         voltage_reversible = voltage_temperature + voltage_pressure
 
         return voltage_reversible
-
-
-""" Stand alone testing of the Electrolyzer device"""
-if __name__ == "__main__":
-    Ely = Electrolyzer(1, [])
-
-    for i_timestep in range(20):
-        ely_voltage = 190
-
-        Ely.update_power(ely_voltage)
-        Ely.update_storage()
-
-        print("Time step {:3.0f}; time passed {:4.0f} min; Ely power {:.2f} kW; Voltage {:.2f} V; Ely current {:.2f}"
-              " A; Current density {:.4f} A/cm²; Stored mass {:6.2f} kg; Temp: {:.2f}".format(
-                i_timestep, i_timestep*const.market_interval, Ely.power, Ely.voltage,
-                Ely.current, Ely.cur_dens, Ely.stored_hydrogen, Ely.temp))
-
-
