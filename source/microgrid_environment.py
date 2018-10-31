@@ -40,7 +40,7 @@ class MicroGrid(Model):
             self.agents.append(agent)
 
         """ electrolyzer """
-        if self.data.utility_presence is True:
+        if self.data.electrolyzer_presence is True:
             self.electrolyzer = Electrolyzer(i, self)
 
         self.data_collector = DataCollector()
@@ -70,7 +70,7 @@ class MicroGrid(Model):
         if self.utility is not None:
             self.utility.post_auction_round()
 
-        if self.electrolyzer is None:
+        if self.electrolyzer is not None:
             self.electrolyzer.post_auction_round()
 
         self.update_time()

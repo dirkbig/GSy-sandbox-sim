@@ -17,7 +17,7 @@ class Electrolyzer(Agent):
         self.id = _unique_id
         self.model = model
         # Simulation time [min].
-        self.interval_time = const.market_interval
+        self.interval_time = 15
         self.current_step = 0
 
         """ H2 demand list. """
@@ -113,7 +113,9 @@ class Electrolyzer(Agent):
         # Update the stored mass hydrogen.
         self.update_storage()
         # Get the new bid.
-        self.update_bid()
+        electrolyzer_bid = self.update_bid()
+        #post bid
+        self.model.auction.bid_list.append(electrolyzer_bid)
 
     def post_auction_round(self):
         pass
@@ -135,7 +137,6 @@ class Electrolyzer(Agent):
         #elif self.stored_hydrogen > const.hrs_storage_size:
             # Case: the storage is more than full, thus iteratively the power has to be reduced
             #mass_overload = self.stored_hydrogen - const.hrs_storage_size
-
 
     # Determine new measurement data for next step.
     def update_power(self, new_power_value):
@@ -211,12 +212,36 @@ class Electrolyzer(Agent):
         # b[-1] -= self.stored_hydrogen - self.storage_buffer
         # Define the bounds for the hydrogen produced.
         x_bound = ((0, self.max_production_per_step),) * n_step
+        print(np.shape(x_bound))
+        print(np.shape(c))
+        print(np.shape(A))
+        print(np.shape(b))
+
         # Do the optimization with linprog.
         opt_res = lp(c, A, b, method="interior-point", bounds=x_bound)
         # Return the optimal value for this time slot [kg]
         print("Optimization success is {}".format(opt_res.success))
-        return opt_res.x[0]
+        opt_res.x[0]
 
+        # TODO: how does this convert to a bid price / bid quantity?
+        # Quantity is calculating how much energy is needed for the optimal amount of hydrogen production
+        # Price determines the probability of actually buying the energy needed for optimal H2 production
+        #   Since energy buy-in price is involved in the feasibility of H2 production, it is a variable to be
+        #   optimized. Higher price, lower risk on getting the energy needed, but also less feasibility (more costs).
+        #   From another perspective, the current method assumes buying energy from a buyer with 'fixed' prices,
+        #   (at least we consider perfect forcasting). Sometimes it might happen that prices are lower than this
+        #   because of cheap RES (PV / Wind) energy. In this case, it should be able to predict this and thus lower
+        #   its bidding price.
+        #
+        #   This dynamics has to be integrated.
+
+        # TODO
+        conversion_rate_ptg = 1
+        bid_quantity = opt_res.x[0] * conversion_rate_ptg
+
+        bid_price = self.electrolyzer_bid_price_strategy()
+
+        return bid_price, bid_quantity
 
     def cell_temp(self):
         # Calculate the electrolyzer temperature for the next time step.
@@ -375,3 +400,10 @@ class Electrolyzer(Agent):
         voltage_reversible = voltage_temperature + voltage_pressure
 
         return voltage_reversible
+
+    def electrolyzer_bid_price_strategy(self):
+        """ bid price on par with utility prices (the maximum)?
+            or bid price opportunistically low to grab some cheap RES deals?
+            is a probability function"""
+        bid_price = 10
+        return bid_price

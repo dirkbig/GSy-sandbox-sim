@@ -31,7 +31,7 @@ class ConfigurationMixin:
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
 
         """ Households basic configuration """
-        self.consumers = 2
+        self.consumers = 0
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
         self.prosumers_with_pv_and_ess = 1

@@ -3,7 +3,7 @@ import source.const as const
 from math import exp
 import warnings
 import logging
-
+from source.const import *
 """ 
 The battery model takes into account charging and discharging efficiencies. 
 Also the battery aging is considered according to:
@@ -27,7 +27,7 @@ class Battery(Agent):
         self.id = _unique_id
         self.model = model
         # Interval time [min].
-        self.interval_time = const.market_interval
+        self.interval_time = 15
 
         # Physical parameter
         # Capacity [kWh]
@@ -53,12 +53,8 @@ class Battery(Agent):
         # Track the temperature of the different time steps [K].
         self.temperature = []
 
-
-
-
     def pre_auction_round(self):
         pass
-
 
     def update_state(self, charging_energy, temperature=273.15+10):
         """
@@ -106,7 +102,6 @@ class Battery(Agent):
         self.time_in_use += self.interval_time / 60 / 24
         battery_log.info("Battery states updated. Capacity loss due to aging is {} kWh.".format(capacity_loss_rel))
 
-
     def get_charging_limit(self):
         # Calculates how much energy can max. be bought or distributed in the next time step.
         # Output: array [max. bought, max. distributed] in kWh.
@@ -121,7 +116,7 @@ class Battery(Agent):
         max_charge_c_rate = self.capacity_init * self.c_rate * self.interval_time / 60 / self.charge_eff
         max_bought = min(max_charge_stored, max_charge_c_rate)
 
-        return [max_bought, max_distributed]
+        return max_bought, max_distributed
 
     def get_capacity_loss_by_aging(self, voltage=None):
         """
@@ -167,5 +162,10 @@ if __name__ == "__main__":
             charge_rate *= -1
 
         if i_step % 100 == 0:
-            print("Step {}: Battery states updated. Stored energy {:2} kWh, Capacity of battery is {:.5} kWh. This temp: {}".format(
-                i_step, battery.stored_electricity, battery.capacity, this_temp))
+            print("Step {}: Battery states updated. Stored energy {:2} kWh, Capacity of battery is {:.5} kWh. "
+                  "This temp: {}".format(i_step, battery.stored_electricity, battery.capacity, this_temp))
+
+
+
+
+
