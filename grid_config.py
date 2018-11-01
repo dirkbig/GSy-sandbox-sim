@@ -8,30 +8,40 @@ class ConfigurationMixin:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
 
-        """ Simulation environment """
+        """ 
+            Simulation environment
+        """
         self.auction_type = 'pay_as_clear'
         self.num_days = 1
         self.market_interval = 15  # minutes
         self.num_steps = int(self.num_days * num_minutes_in_a_day / 15)
 
-        """ Market structure """
+        """ 
+            Market structure 
+        """
         self.pricing_rule = 'pac'
 
-        """ Electrolyzer """
+        """ 
+            Electrolyzer
+        """
         self.electrolyzer_presence = False
         self.cell_area = 1500
         self.n_cell = 140
         self.p = 1.5
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
 
-        """ Utility  """
+        """ 
+            Utility 
+        """
         self.utility_presence = True
         self.negative_pricing = False
         self.dynamical_pricing = False
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
 
-        """ Households basic configuration """
-        self.consumers = 0
+        """ 
+            Households basic configuration 
+        """
+        self.consumers = 1
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
         self.prosumers_with_pv_and_ess = 1

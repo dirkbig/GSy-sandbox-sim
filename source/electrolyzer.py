@@ -1,3 +1,5 @@
+from source.wallet import Wallet
+
 import math
 import warnings
 from mesa import Agent
@@ -16,6 +18,10 @@ class Electrolyzer(Agent):
 
         self.id = _unique_id
         self.model = model
+
+        """standard wallet object for electrolyzer"""
+        self.wallet = Wallet(_unique_id)
+
         # Simulation time [min].
         self.interval_time = 15
         self.current_step = 0
@@ -25,7 +31,7 @@ class Electrolyzer(Agent):
         # Track the used demand [kg].
         self.track_demand = []
 
-        """ Trading. """
+        """ Trading """
         self.trading_state = None
         self.bid = None
         self.offer = None
@@ -112,9 +118,9 @@ class Electrolyzer(Agent):
         self.update_power(new_power_val)
         # Update the stored mass hydrogen.
         self.update_storage()
-        # Get the new bid.
+
+        # Get the new bid
         electrolyzer_bid = self.update_bid()
-        #post bid
         self.model.auction.bid_list.append(electrolyzer_bid)
 
     def post_auction_round(self):
@@ -407,3 +413,15 @@ class Electrolyzer(Agent):
             is a probability function"""
         bid_price = 10
         return bid_price
+
+
+class FuelCell(object):
+    """ FuelCell device """
+
+    """ 
+        Electrolyzer produces hydrogen gas. This gas can either be sold 
+            - to fueling HydrogenCar objects 
+            - or used by a FuelCell object to produce electricity, to be sold on the energy market ]
+        This class models the FuelCell 
+    """
+    # TODO: the second half of the electrolyzer / fuel-cell story.  RLI is responsible for this.
