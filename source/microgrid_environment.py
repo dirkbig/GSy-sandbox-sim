@@ -10,7 +10,7 @@ from mesa import Model
 import random
 
 import logging
-env_log = logging.getLogger('microgrid_env')
+env_log = logging.getLogger('run_microgrid.microgrid_env')
 
 
 class MicroGrid(Model):
@@ -24,6 +24,7 @@ class MicroGrid(Model):
         self.agents = []
         self.electrolyzer = None
         self.utility = None
+
         self.entities_dict = {}
         """ load in data THIS HAS TO GO FIRST"""
 
@@ -40,8 +41,9 @@ class MicroGrid(Model):
             self.agents.append(agent)
 
         """ electrolyzer """
+        electrolyzer_id = 'electrolyzer'
         if self.data.electrolyzer_presence is True:
-            self.electrolyzer = Electrolyzer(i, self)
+            self.electrolyzer = Electrolyzer(electrolyzer_id, self)
 
         self.data_collector = DataCollector()
 
@@ -49,6 +51,8 @@ class MicroGrid(Model):
         """advances the model by one step"""
 
         """ pre-auction round """
+        self.utility.pre_auction_round()
+
         random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.pre_auction_round()
@@ -73,6 +77,7 @@ class MicroGrid(Model):
         if self.electrolyzer is not None:
             self.electrolyzer.post_auction_round()
 
+        """ Update the time """
         self.update_time()
 
     def update_time(self):

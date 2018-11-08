@@ -3,6 +3,7 @@ from source.wallet import Wallet
 import math
 import warnings
 from mesa import Agent
+from source.wallet import Wallet
 import source.const as const
 import logging
 import numpy as np
@@ -22,8 +23,13 @@ class Electrolyzer(Agent):
         """standard wallet object for electrolyzer"""
         self.wallet = Wallet(_unique_id)
 
+        """ H2 demand list. """
+        self.h2_demand = self.model.data.electrolyzer_list
+        # Track the used demand [kg].
+        self.track_demand = []
+
         # Simulation time [min].
-        self.interval_time = 15
+        self.interval_time = const.market_interval
         self.current_step = 0
 
         """ H2 demand list. """
@@ -32,11 +38,18 @@ class Electrolyzer(Agent):
         self.track_demand = []
 
         """ Trading """
+
+        # Different methods can be chosen for deriving the bidding of the electrolyzer. Options are 'linprog' and
+        # 'quadprog'. Quadprog by now seems to be the superior method in regard to result and computation time.
+        self.bidding_solver = "dummy"
+        self.wallet = Wallet(_unique_id)
         self.trading_state = None
+        # Bid in the format [price, quantity, self ID]
         self.bid = None
         self.offer = None
         self.sold_energy = None
         self.bought_energy = None
+        self.track_cost = 0
 
         # Max. power that can be requested (current model can at least use 179.71 kW)[kW].
         # self.p_max = 179
@@ -111,20 +124,22 @@ class Electrolyzer(Agent):
 
         electrolyzer_log.info("Electrolyzer object was generated.")
 
-    def pre_auction_round(self, new_power_val=0):
+    def pre_auction_round(self):
         # Update the current time step.
         self.current_step = self.model.step_count
         # Before the auction the physical states are renewed.
-        self.update_power(new_power_val)
-        # Update the stored mass hydrogen.
-        self.update_storage()
-
         # Get the new bid
         electrolyzer_bid = self.update_bid()
         self.model.auction.bid_list.append(electrolyzer_bid)
 
     def post_auction_round(self):
-        pass
+        # Before the auction the physical states are renewed.
+        self.update_power(self.bought_energy)
+        # Track the total costs [EUR].
+        self.track_cost += self.power * self.interval_time / 60 * \
+            self.model.data.utility_pricing_profile[self.current_step]
+        # Update the stored mass hydrogen.
+        self.update_storage()
 
     def update_storage(self):
         # Update the mass of the hydrogen stored.
@@ -145,14 +160,14 @@ class Electrolyzer(Agent):
             #mass_overload = self.stored_hydrogen - const.hrs_storage_size
 
     # Determine new measurement data for next step.
-    def update_power(self, new_power_value):
+    def update_power(self, bought_energy):
         # Update the power value within the physical limits of the electrolyzer.
         # Parameter:
-        #  new_power_value: Power value for the next time step [kW].
+        #  bought_energy: Power value for the next time step [kWh].
 
-        self.power = new_power_value
+        self.power = bought_energy / (self.interval_time / 60)
         # Update voltage, current, current density and power in an iterative process.
-        self.get_v_i()
+        self.update_voltage()
         # Check if the current density is above the max. allowed value.
         if self.cur_dens > self.cur_dens_max:
             warnings.warn("Electrolyzer bought more electricity than it can use.")
@@ -178,78 +193,217 @@ class Electrolyzer(Agent):
             self.power = self.voltage * self.current / 1000
 
         # Calculate the temperature.
-        self.temp = self.cell_temp()
+        self.temp = self.get_cell_temp()
 
     def update_bid(self):
-        # To derive the bid for this time step, a linear optimization (linprog) determines the optimal amount of
-        # hydrogen that should be produced depending on the electricity price and the demand for the next ?2 weeks?.
-        # This requires perfect foresight and in order to formulate a linear optimization problem, the temperature
-        # dependent electrolyzer efficiency is not taken into account.
-        #
-        # The optimization problem is formulated in the way:
-        # min  c * x
-        # s.t. A * x <= b
-        # x >= 0 and x < max. producible hydrogen
-        #
-        # Here, x is a vector with the amount of hydrogen produced each time step, c is the estimated cost function
-        # for each time step (EEX spot marked costs are used), A * x <= b is used to make sure that the storage never
-        # falls below the min. storage level (safety buffer).
+        # Define the number of steps the perfect foresight optimization should look in the future.
+        n_step = 14 * 96
 
-        # Number of time steps of the future used for the optimization.
-        n_step = 96*14
-        # Define the electricity costs [EUR/kWh].
-        c = self.model.data.utility_pricing_profile[self.current_step:self.current_step+n_step]
-        c = [int(x * 100000) for x in c]
-        # Define the inequality matrix (A) and vector (b) that make sure that at no time step the storage is below the
-        # wanted buffer value.
-        # The matrix A is supposed to sum up all hydrogen produced for each time step, therefore A is a lower triangular
-        # matrix with all entries being -1 (- because we want to make sure that the hydrogen amount does not fall below
-        # a certain amount, thus the <= must be turned in a >=, therefore A and b values are all set negative).
-        A = [[-1] * (i + 1) + [0] * (n_step - i - 1) for i in range(n_step)]
-        # The b value is the sum of the demand for each time step (- because see comment above).
-        b = self.h2_demand[self.current_step:self.current_step+n_step]
-        b = [-float(x) for x in b]
-        # Accumulate all demands over time.
-        b = np.cumsum(b).tolist()
-        # Now the usable hydrogen is added to all values of b except the last one. This allows stored hydrogen to be
-        # used but will force the optimization to have at least as much hydrogen stored at the end of the looked at time
-        # frame as there is now stored.
-        b = [int(x + self.stored_hydrogen - self.storage_buffer) for x in b]
-        # b[-1] -= self.stored_hydrogen - self.storage_buffer
-        # Define the bounds for the hydrogen produced.
-        x_bound = ((0, self.max_production_per_step),) * n_step
-        print(np.shape(x_bound))
-        print(np.shape(c))
-        print(np.shape(A))
-        print(np.shape(b))
+        if self.bidding_solver == "linprog":
+            """ Linear program """
 
-        # Do the optimization with linprog.
-        opt_res = lp(c, A, b, method="interior-point", bounds=x_bound)
-        # Return the optimal value for this time slot [kg]
-        print("Optimization success is {}".format(opt_res.success))
-        opt_res.x[0]
+            # To derive the bid for this time step, a linear optimization (linprog) determines the optimal amount of
+            # hydrogen that should be produced depending on the electricity price and the demand for the next ?2 weeks?.
+            # This requires perfect foresight and in order to formulate a linear optimization problem, the temperature
+            # dependent electrolyzer efficiency is not taken into account.
+            #
+            # The optimization problem is formulated in the way:
+            # min  c * x
+            # s.t. A * x <= b
+            # x >= 0 and x < max. producible hydrogen
+            #
+            # Here, x is a vector with the amount of hydrogen produced each time step, c is the estimated cost function
+            # never for each time step (EEX spot marked costs are used), A * x <= b is used to make sure that the
+            # storage falls below the min. storage level (safety buffer).
+            # Number of time steps of the future used for the optimization.
 
-        # TODO: how does this convert to a bid price / bid quantity?
-        # Quantity is calculating how much energy is needed for the optimal amount of hydrogen production
-        # Price determines the probability of actually buying the energy needed for optimal H2 production
-        #   Since energy buy-in price is involved in the feasibility of H2 production, it is a variable to be
-        #   optimized. Higher price, lower risk on getting the energy needed, but also less feasibility (more costs).
-        #   From another perspective, the current method assumes buying energy from a buyer with 'fixed' prices,
-        #   (at least we consider perfect forcasting). Sometimes it might happen that prices are lower than this
-        #   because of cheap RES (PV / Wind) energy. In this case, it should be able to predict this and thus lower
-        #   its bidding price.
-        #
-        #   This dynamics has to be integrated.
+            # Define the electricity costs [EUR/kWh].
+            c = self.model.data.utility_pricing_profile[self.current_step:self.current_step+n_step]
+            # Define the inequality matrix (A) and vector (b) that make sure that at no time step the storage is below
+            # the wanted buffer value.
+            # The matrix A is supposed to sum up all hydrogen produced for each time step, therefore A is a lower
+            # triangular matrix with all entries being -1 (- because we want to make sure that the hydrogen amount does
+            # not fall below a certain amount, thus the <= must be turned in a >=, therefore A and b values are all set
+            # negative).
+            A = [[-1] * (i + 1) + [0] * (n_step - i - 1) for i in range(n_step)]
+            # Append A by the negative of itself to set the boundaries that the storage cannot be more than full.
+            A_append = [[1] * (i + 1) + [0] * (n_step - i - 1) for i in range(n_step)]
+            A += A_append
+            # The b value is the sum of the demand for each time step (- because see comment above).
+            cumsum_h2_demand = self.h2_demand[self.current_step:self.current_step+n_step]
+            cumsum_h2_demand = [-float(x) for x in cumsum_h2_demand]
 
-        # TODO
-        conversion_rate_ptg = 1
-        bid_quantity = opt_res.x[0] * conversion_rate_ptg
+            # Accumulate all demands over time.
+            cumsum_h2_demand = np.cumsum(cumsum_h2_demand).tolist()
+            # Now the usable hydrogen is added to all values of b except the last one. This allows stored hydrogen to be
+            # used but will force the optimization to have at least as much hydrogen stored at the end of the looked at
+            # time frame as there is now stored.
+            b = [x + self.stored_hydrogen - self.storage_buffer for x in cumsum_h2_demand]
+            b_append = [-x + self.storage_size for x in b]
+            b[-1] -= self.stored_hydrogen - self.storage_buffer
+            b += b_append
+            # Define the bounds for the hydrogen produced.
+            x_bound = ((0, self.max_production_per_step),) * n_step
+            # Do the optimization with linprog.
+            opt_res = lp(c, A, b, method="interior-point", bounds=x_bound)
+            # Return the optimal value for this time slot [kg]
+            if opt_res.success:
+                opt_production = opt_res.x.tolist()
+            else:
+                # Case: Linprog couldn't derive optimal result, thus produce as much H2 as possible.
+                opt_production = [self.max_production_per_step]
+            print("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
+            electrolyzer_log.info("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
 
-        bid_price = self.electrolyzer_bid_price_strategy()
+        elif self.bidding_solver == "quadprog":
+            """ Quadratic program """
+            from cvxopt import matrix, solvers
+            # The optimization problem is formulated in the way:
+            # min  0.5 x^T * P * x + q^T * x
+            # s.t. G * x <= d
+            # x >= 0 and x < max. producible hydrogen
 
-        return bid_price, bid_quantity
+            # Define the electricity costs [EUR/kWh].
+            c = self.model.data.utility_pricing_profile[self.current_step:self.current_step+n_step]
+            # The quadratic matrix P is a diagonal matrix containing the values of c on the diagonal.
+            # Create an eye matrix with the size of c.
+            P = np.eye(len(c))
+            # Multiply c with the eye matrix and convert the matrix back to a list.
+            P = P * c
 
-    def cell_temp(self):
+            # q is a vector consisting of 1.5 * max_production_per_step / 0.4 * 2 * c. The formula is derived by the
+            # assumption, that the electrolyzer cell voltage rises linearly from 1.5 V when off to 1.9 V when on max.
+            # power. The costs are the energy needed multiplied by the energy costs, which can be boiled down to the
+            # form (w/o constants) C = (1.5 + 0.4 x / x_max) * x * c, where x_max is the max. H2 production per step.
+            # Hereof the quadratic formulation can be derived.
+            q = [1.5 * self.max_production_per_step / 0.4 * 2 * cost for cost in c]
+
+            # Define the inequality matrix (A) and vector (b) that make sure that at no time step the storage is below
+            # the wanted buffer value.
+            # The matrix A is supposed to sum up all hydrogen produced for each time step, therefore A is a lower
+            # triangular matrix with all entries being -1 (- because we want to make sure that the hydrogen amount does
+            # not fall below a certain amount, thus the <= must be turned in a >=, therefore A and b values are all set
+            # negative).
+            A = [[-1.0] * (i + 1) + [0.0] * (n_step - i - 1) for i in range(n_step)]
+            # Append A by the negative of itself to set the boundaries that the storage cannot be more than full.
+            A_append = [[1.0] * (i + 1) + [0.0] * (n_step - i - 1) for i in range(n_step)]
+            A += A_append
+            # The constraints that x can only be between 0 and max. production have to be inserted via the matrix A.
+            A += np.eye(n_step).tolist()
+            eye_neg = -np.eye(n_step)
+            A += eye_neg.tolist()
+
+            A = np.array(A).T.tolist()
+            # The b value is the sum of the demand for each time step (- because see comment above).
+            cumsum_h2_demand = self.h2_demand[self.current_step:self.current_step+n_step]
+            cumsum_h2_demand = [-float(x) for x in cumsum_h2_demand]
+
+            # Accumulate all demands over time.
+            cumsum_h2_demand = np.cumsum(cumsum_h2_demand).tolist()
+            # Now the usable hydrogen is added to all values of b except the last one. This allows stored hydrogen to be
+            # used but will force the optimization to have at least as much hydrogen stored at the end of the looked at
+            # time frame as there is now stored.
+            """ IDEA: Maybe the goal should be to have a filling level of half the storage at the end of the opt. """
+            b = [x + self.stored_hydrogen - self.storage_buffer for x in cumsum_h2_demand]
+            b_append = [-x + self.storage_size for x in b]
+            b[-1] -= self.stored_hydrogen - self.storage_buffer
+            b += b_append
+            # Set the x boundaries (0 <= x <= max. H2 production per step).
+            b += [self.max_production_per_step for _ in range(n_step)]
+            b += [0 for _ in range(n_step)]
+
+            # Convert all the lists needed to cvxopt matrix format.
+            P = matrix(P)
+            q = matrix(q)
+            G = matrix(A)
+            d = matrix(b)
+
+            # Silence the optimizer output.
+            solvers.options['show_progress'] = False
+            # Do the optimization with linprog.
+            opt_res = solvers.qp(P, q, G, d)
+            # Transform cvxopt matrix format to list.
+            if opt_res['status'] == 'optimal':
+                opt_production = np.array(opt_res['x']).tolist()
+                opt_production = [x[0] for x in opt_production]
+            else:
+                opt_production = [self.max_production_per_step]
+
+            # Return the optimal value for this time slot [kg]
+            print("Electrolyzer bidding - Optimization status is '{}'".format(opt_res['status']))
+            electrolyzer_log.info("Optimization status is '{}'".format(opt_res['status']))
+
+        elif self.bidding_solver == "dummy":
+            """ Return a dummy bid """
+            opt_production = [0.1]
+            c = [30]
+
+        else:
+            """ No valid solver """
+            raise ValueError('Electrolyzer: No valid solver name given.')
+
+        # self.plot_optimization_result(opt_production, cumsum_h2_demand, c)
+
+        # Return the power value needed for the optimized production and the price [kW, EUR/kWh]
+        charging_power = self.get_power_by_production(opt_production[0])
+        price = c[0]
+
+        if charging_power == 0:
+            # Case: Do not bid.
+            self.bid = None
+            self.trading_state = None
+        else:
+            # Case: Bid on energy.
+            self.bid = [price, charging_power, self.id]
+            self.trading_state = "buying"
+
+
+    def plot_optimization_result(self, h2_produced, cumsum_h2_demand, electricity_price):
+        import matplotlib.pyplot as plt
+        cumsum_h2_produced = np.cumsum(h2_produced).tolist()
+        """ Plot """
+        font = {'weight': 'bold', 'size': 18}
+        fig, (ax1, ax3) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [3.5, 1]})
+        # Plot 1.1
+        ax1.tick_params(axis='both', which='major', labelsize=font['size'])
+        ax1.step(list(range(len(h2_produced))),
+            np.array(cumsum_h2_produced) + np.array(cumsum_h2_demand) + self.stored_hydrogen, 'k')
+        ax1.set_ylabel("Storage filling level [kg]", fontsize=font['size'], fontweight=font['weight'])
+        # Plot 1.2
+        ax2 = ax1.twinx()
+        ax2.step(list(range(len(h2_produced))), electricity_price, color='r')
+        ax2.set_ylabel("Electricity price [EUR/kWh]", color='r', fontsize=font['size'], fontweight=font['weight'])
+        ax2.tick_params(axis='both', which='major', labelsize=font['size'])
+        # Plot 2
+        ax3.step(list(range(len(h2_produced))), h2_produced/self.max_production_per_step * 100, color='g')
+        ax3.set_ylabel("ELY utilization [%]", color='g', fontsize=font['size'], fontweight=font['weight'])
+        ax3.tick_params(axis='both', which='major', labelsize=font['size'])
+        ax3.set_xlabel("Step [-]", fontsize=font['size'], fontweight=font['weight'])
+        # Show the plot.
+        plt.show()
+
+    def get_power_by_production(self, h2_production):
+        # Calculate the power needed for a certain H2 production.
+
+        # If no hydrogen is supposed to be produced, the power is 0.
+        if h2_production == 0:
+            return 0
+
+        # Current needed for the H2 production [A].
+        current = h2_production / (self.interval_time * 60 * self.z_cell / (2 * self.faraday) * self.molarity / 1000)
+        # Current density [A/cm²].
+        cur_dens = current/self.area_cell
+        # Calculate the three components of the cell voltage [V].
+        v_rev = (self.ely_voltage_u_rev(self.temp))
+        v_act = (self.ely_voltage_u_act(cur_dens, self.temp))
+        v_ohm = (self.ely_voltage_u_ohm(cur_dens, self.temp))
+        # Total cell voltage [V].
+        cell_voltage = v_rev + v_act + v_ohm
+        # Total power of the electrolyzer [kW].
+        power = current * cell_voltage * self.z_cell / 1000
+        return power
+
+    def get_cell_temp(self):
         # Calculate the electrolyzer temperature for the next time step.
 
         # Check if current density is higher than the given density at the highest possible temperature. If so,
@@ -261,20 +415,24 @@ class Electrolyzer(Agent):
 
         # Save the temperature calculated one step before.
         temp_before = self.temp
-
         # Calculate the temperature to which the electrolyzer is heating up depending on the given current density.
         # Lin. interpolation
         temp_aim = self.temp_min + (self.temp_max - self.temp_min) * cur_dens_now / self.cur_dens_max_temp
-
         # Calculate the new temperature of the electrolyzer by Newtons law of cooling. The exponent (-t[s]/2310) was
         # parameterized such that the 98 % of the temperature change are reached after 2.5 hours.
         temp_new = temp_aim + (temp_before - temp_aim) * math.exp(-self.interval_time*60 / 2310)
-
-
         # Return the new electrolyzer temperature [K].
         return temp_new
 
-    def get_v_i(self):
+    def update_voltage(self):
+        # Update the voltage and current for a given power.
+        [voltage, current, cur_dens, power] = self.get_electricity_by_power(self.power)
+        self.voltage = voltage
+        self.current = current
+        self.cur_dens = cur_dens
+        self.power = power
+
+    def get_electricity_by_power(self, power):
         # The total electrolysis voltage consists out of three different voltage parts (u_act, u_ohm, u_ref).
         # If the current isn't given an iteration is needed to get the total voltage.
         # This is the tolerance within the el. power is allowed to differ as a result of the iteration.
@@ -283,48 +441,46 @@ class Electrolyzer(Agent):
         power_iteration = 0
         # Create a dummy for the voltage calculated within the iteration.
         voltage_iteration = 0
+        # The current temperature [K].
         this_temp = self.temp
-        # Calculate the current density through the chemical power to start the iteration.
+        # Estimate the current density through the chemical power to start the iteration [A/cm²].
         # P_H2 = P_elec * eta (self.power = P_elec)
-        cur_dens_iteration = (self.power * self.eta_ely * 2.0 * self.faraday) / (self.area_cell * self.z_cell *
+        cur_dens_iteration = (power * self.eta_ely * 2.0 * self.faraday) / (self.area_cell * self.z_cell *
                                                                                self.molarity * self.upp_heat_val)
-        # Calculate the start current.
+        # Calculate the current for the iteration start [A].
         current_iteration = cur_dens_iteration * self.area_cell
-
-        # Determine the power deviation between the power target and the power reach within the iteration.
-        power_deviation = abs(power_iteration - self.power)
-
+        # Determine the power deviation between the power target and the power reach within the iteration [kW].
+        power_deviation = abs(power_iteration - power)
         # Execute the iteration until the power deviation is within the relative error which means the deviation is
         # accepted.
         while power_deviation > relative_error:
-            # Calculate the voltage existing of three different parts.
+            # Calculate the voltage existing of three different parts [V].
             v_rev = (self.ely_voltage_u_rev(this_temp))
             v_act = (self.ely_voltage_u_act(cur_dens_iteration, this_temp))
             v_ohm = (self.ely_voltage_u_ohm(cur_dens_iteration, this_temp))
-            # Get the voltage for this iteration step.
+            # Get the voltage for this iteration step [V].
             voltage_iteration = (v_rev + v_act + v_ohm) * self.z_cell
-            # Get the power for this iteration step.
+            # Get the power for this iteration step [kW].
             power_iteration = voltage_iteration * current_iteration / 1000
-            # Get the current for this iteration step.
-            current_iteration = self.power / voltage_iteration * 1000
-            # Get the current density for this iteration step.
+            # Get the current for this iteration step [A].
+            current_iteration = power / voltage_iteration * 1000
+            # Get the current density for this iteration step [A/cm²].
             cur_dens_iteration = current_iteration / self.area_cell
+            # Calculate the new power deviation [kW].
+            power_deviation = abs(power_iteration - power)
 
-            # Calculate the new power deviation.
-            power_deviation = power_iteration - self.power
-            if power_deviation < 0:
-                power_deviation = power_deviation * (-1)
+        output = [voltage_iteration, current_iteration, cur_dens_iteration, power_iteration]
+        return output
 
-        # Save the final values.
-        self.voltage = voltage_iteration
-        self.current = current_iteration
-        self.cur_dens = cur_dens_iteration
-        self.power = power_iteration
+
 
     def ely_voltage_u_act(self, cur_dens, temp):
         # This voltage part describes the activity losses within the electolyser.
         # Source: 'Modeling an alkaline electrolysis cell through reduced-order and loss estimate approaches'
         # from Milewski et al. (2014)!
+        # Parameter:
+        #  cur_dens: Current density [A/cm²]
+        #  temp: Temperature [K]
 
         j0 = self.fitting_value_exchange_current_density
 
@@ -347,6 +503,9 @@ class Electrolyzer(Agent):
         # (resistanceElectrolyte) and other losses like the presence of bubbles (resistanceOther).
         # Source: 'Modeling an alkaline electrolysis cell through reduced-order and loss estimate approaches'
         # from Milewski et al. (2014)
+        # Parameter:
+        #  cur_dens: Current density [A/cm²]
+        #  temp: Temperature [K]
 
         electrolyte_thickness = self.fitting_value_electrolyte_thickness
 
@@ -379,6 +538,8 @@ class Electrolyzer(Agent):
         # from Milewski et al. (2014)
         # This calculations are valid in a temperature range from 0°C - 250°C, a pressure range from 1 bar - 200 bar and
         # a concentration range from 2 mol/kg - 18 mol/kg.
+        # Parameter:
+        #  temp: Temperature [K]
 
         # Coefficient 1 for the vapor pressure of the KOH solution.
         c1 = -0.0151 * self.molality_KOH - 1.6788e-03 * self.molarity_KOH ** 2 + 2.2588e-05 * self.molality_KOH ** 3
@@ -407,6 +568,7 @@ class Electrolyzer(Agent):
 
         return voltage_reversible
 
+
     def electrolyzer_bid_price_strategy(self):
         """ bid price on par with utility prices (the maximum)?
             or bid price opportunistically low to grab some cheap RES deals?
@@ -417,6 +579,8 @@ class Electrolyzer(Agent):
 
 class FuelCell(object):
     """ FuelCell device """
+
+
 
     """ 
         Electrolyzer produces hydrogen gas. This gas can either be sold 

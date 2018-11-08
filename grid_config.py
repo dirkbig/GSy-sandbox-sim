@@ -1,5 +1,5 @@
 import numpy as np
-from source.const import num_minutes_in_a_day
+import source.const as const
 
 """ Grid Configuration """
 
@@ -11,10 +11,10 @@ class ConfigurationMixin:
         """ 
             Simulation environment
         """
-        self.auction_type = 'pay_as_clear'
-        self.num_days = 1
-        self.market_interval = 15  # minutes
-        self.num_steps = int(self.num_days * num_minutes_in_a_day / 15)
+        self.auction_type = const.auction_type
+        self.num_days = const.num_steps * const.market_interval / 60 / 24
+        self.market_interval = const.market_interval  # minutes
+        self.num_steps = const.num_steps
 
         """ 
             Market structure 

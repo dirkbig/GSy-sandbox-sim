@@ -2,14 +2,14 @@ from mesa import Agent
 from source.wallet import Wallet
 
 import logging
-utility_log = logging.getLogger('utility grid')
+utility_log = logging.getLogger('run_microgrid.utility grid')
 
 
 class UtilityAgent(Agent):
     """ Utility agent is created by calling this function """
     def __init__(self, model):
         self.model = model
-        self.id = self.model.data.num_households + 111
+        self.id = 'utility'
         self.dynamical_pricing = False
 
         """load in utility energy price profile"""

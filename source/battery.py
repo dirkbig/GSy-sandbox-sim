@@ -3,7 +3,7 @@ import source.const as const
 from math import exp
 import warnings
 import logging
-from source.const import *
+
 """ 
 The battery model takes into account charging and discharging efficiencies. 
 Also the battery aging is considered according to:
@@ -17,7 +17,6 @@ Aging effects are converted to financial loss and taken into account for the bid
 
 battery_log = logging.getLogger("battery")
 
-
 class Battery(Agent):
     """ Battery agents are created through this class """
     def __init__(self, _unique_id, model):
@@ -27,7 +26,7 @@ class Battery(Agent):
         self.id = _unique_id
         self.model = model
         # Interval time [min].
-        self.interval_time = 15
+        self.interval_time = const.market_interval
 
         # Physical parameter
         # Capacity [kWh]
@@ -42,8 +41,8 @@ class Battery(Agent):
         self.c_rate = 1
         # Nominal battery cell voltage [V].
         self.cell_voltage = 3.6
-        # Nominal capacity of one single battery cell [Ah].
-        self.cell_capacity = 2.05
+        # Nominal (initial) capacity of one single battery cell [Ah].
+        self.cell_capacity_init = 2.05
         # Availability for discharge delta DOD (1 is 100% of capacity is available).
         self.delta_dod = 1
         # Time the battery is in use [d].
@@ -53,12 +52,17 @@ class Battery(Agent):
         # Track the temperature of the different time steps [K].
         self.temperature = []
 
+
+
+
     def pre_auction_round(self):
         pass
+
 
     def update_state(self, charging_energy, temperature=273.15+10):
         """
         Update the states of the battery (state of charge and max. capacity, which decreases due to aging).
+
         :param charging_energy: The amount of electricity received (pos) or distributed (neg) [kWh].
         :param temperature: The battery temperature [K]
         """
@@ -86,7 +90,7 @@ class Battery(Agent):
         else:
             throughput = 0
         # calculate total charge throughput Q
-        self.total_charge_throughput += self.cell_capacity * throughput
+        self.total_charge_throughput += self.cell_capacity_init * throughput
         # Update the capacity due to aging [kWh].
         capacity_loss_rel = self.get_capacity_loss_by_aging()
         self.capacity = (1 - capacity_loss_rel) * self.capacity_init
@@ -102,6 +106,7 @@ class Battery(Agent):
         self.time_in_use += self.interval_time / 60 / 24
         battery_log.info("Battery states updated. Capacity loss due to aging is {} kWh.".format(capacity_loss_rel))
 
+
     def get_charging_limit(self):
         # Calculates how much energy can max. be bought or distributed in the next time step.
         # Output: array [max. bought, max. distributed] in kWh.
@@ -116,16 +121,18 @@ class Battery(Agent):
         max_charge_c_rate = self.capacity_init * self.c_rate * self.interval_time / 60 / self.charge_eff
         max_bought = min(max_charge_stored, max_charge_c_rate)
 
-        return max_bought, max_distributed
+        return [max_bought, max_distributed]
 
     def get_capacity_loss_by_aging(self, voltage=None):
         """
         Get the amount of capacity lost due to operation (cycle aging) and time (calendar aging) [kWh].
+
         The model equations are implemented according to:
             A holistic aging model for Li(NiMnCo)O2 based 18650 lithium-ion batteries
             Johannes Schmalstieg, Stefan Käbitz, Madeleine Ecker, Dirk Uwe Sauer
             2014
             https://www.sciencedirect.com/science/article/abs/pii/S0378775314001876
+
         :param voltage: Cell voltage [V]
         :return capacity_loss: Loss of the battery capacity by aging in this time step [kWh]
         """
@@ -162,10 +169,6 @@ if __name__ == "__main__":
             charge_rate *= -1
 
         if i_step % 100 == 0:
-            print("Step {}: Battery states updated. Stored energy {:2} kWh, Capacity of battery is {:.5} kWh. "
-                  "This temp: {}".format(i_step, battery.stored_electricity, battery.capacity, this_temp))
-
-
-
-
+            print("Step {}: Battery states updated. Stored energy {:2} kWh, Capacity of battery is {:.5} kWh. This temp: {}".format(
+                i_step, battery.stored_electricity, battery.capacity, this_temp))
 

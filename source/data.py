@@ -3,8 +3,9 @@ from plots import *
 from grid_config import ConfigurationMixin
 import numpy as np
 
+
 import logging
-data_log = logging.getLogger('data')
+data_log = logging.getLogger('run_microgrid.data')
 
 # TODO: UNIX TO DATE
 
@@ -38,6 +39,7 @@ class Data(ConfigurationMixin, object):
             self.pv_gen_list = [3, None, 3, None]
             self.electrolyzer_list = [None, None, None, None]
             self.ess_list = [[0.5, 5], [0.5, 5], [0, 5], [0, 5]]
+
             assert len(self.load_list) == len(self.ess_list) == len(self.pv_gen_list)
 
         elif data_type == 'data_set_time_series':
@@ -52,7 +54,7 @@ class Data(ConfigurationMixin, object):
             assert len(self.pv_gen_array) == self.num_pv_panels
             assert len(self.ess_list) == self.num_households_with_ess
 
-            assert len(self.electrolyzer_list) == self.num_steps
+            # assert len(self.electrolyzer_list) == self.num_steps
 
             try:
                 assert len(self.load_array[0]) == self.num_steps
@@ -72,7 +74,7 @@ class Data(ConfigurationMixin, object):
 
         if self.utility_presence is True:
             self.utility_pricing_profile = self.get_utility_profile()
-            assert len(self.utility_pricing_profile) == self.num_steps
+            assert len(self.utility_pricing_profile) >= self.num_steps
             self.utility_pricing_profile = np.asarray(self.utility_pricing_profile)
 
             if self.negative_pricing is False:
@@ -129,17 +131,28 @@ class Data(ConfigurationMixin, object):
         return pv_gen_array
 
     def get_utility_profile(self):
-        """ loads in utility pricing profile """
-        utility_profile_dict = csv_read_utility_file(self.utility_profile, self.num_steps)
+        """ loads in utility pricing profile
+
+        electricity_price = csv_read_electricity_price()
+        # Return only the values (second column of the matrix) [EUR/kWh].
+        return [x[1] for x in electricity_price]
+        """
+        utility_profile_dict = csv_read_utility_file(self.utility_profile)
 
         # utility_profile_dict = utility_profile_dict[0::self.market_interval]
         return utility_profile_dict
 
     def get_electrolyzer_profiles(self):
-        """ loading in load profiles """
+        """ loading in load profiles
+
+        # loading in load profiles
+        h2_load = csv_read_load_h2()
+        # Return only the H2 load values of the matrix (second column) [kg].
+        return [x[1] for x in h2_load]
+        """
         electrolyzer_list = csv_read_electrolyzer_profile(self.fuel_station_load)
 
-        electrolyzer_list = electrolyzer_list[0:self.num_steps]
+        # electrolyzer_list = electrolyzer_list[0:self.num_steps]
         return electrolyzer_list
 
     def fill_in_classification_array(self):

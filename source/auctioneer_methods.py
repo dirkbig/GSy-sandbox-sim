@@ -1,17 +1,16 @@
 import logging
 import numpy as np
-method_logger = logging.getLogger('methods')
+method_logger = logging.getLogger('run_microgrid.methods')
 
 
 def check_demand_supply(sorted_bid_list_, sorted_offer_list_):
 
     if len(sorted_bid_list_) is not 0:
-        total_demand_ = sum(np.asfarray(sorted_bid_list_)[:, 1].astype(float))
+        total_demand_ = np.sum([x[0] for x in sorted_bid_list_])
     else:
         total_demand_ = 0
     if len(sorted_offer_list_) is not 0:
-
-        total_supply_ = sum(np.asarray(sorted_offer_list_)[:, 1].astype(float))
+        total_supply_ = np.sum([x[0] for x in sorted_offer_list_])
     else:
         total_supply_ = 0
 
@@ -97,8 +96,8 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
 
     # total_demand_ = sum(np.asfarray(sorted_bid_list_)[:, 1].astype(float))
     # [seller_id, buyer_id, trade_quantity, payment]
-    total_turnover_trade_pairs = sum(np.asarray(trade_pairs_pac_)[:, 3].astype(float))
 
+    total_turnover_trade_pairs = np.sum(x[3] for x in trade_pairs_pac_)
     assert matched_quantity == clearing_quantity
     assert total_turnover_trade_pairs - 0.01 <= total_turnover_ <= total_turnover_trade_pairs + 0.01
 

@@ -4,7 +4,7 @@ from source.wallet import Wallet
 from mesa import Agent
 import scipy.optimize as optimize
 import logging
-house_log = logging.getLogger('house')
+house_log = logging.getLogger('run_microgrid.house')
 
 
 class HouseholdAgent(Agent):
