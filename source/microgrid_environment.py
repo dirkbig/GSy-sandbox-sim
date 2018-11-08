@@ -51,7 +51,8 @@ class MicroGrid(Model):
         """advances the model by one step"""
 
         """ pre-auction round """
-        self.utility.pre_auction_round()
+        if self.utility is not None:
+            self.utility.pre_auction_round()
 
         random.shuffle(self.agents)
         for agent in self.agents[:]:

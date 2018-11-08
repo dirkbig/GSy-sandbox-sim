@@ -33,7 +33,7 @@ class ConfigurationMixin:
         """ 
             Utility 
         """
-        self.utility_presence = True
+        self.utility_presence = False
         self.negative_pricing = False
         self.dynamical_pricing = False
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
@@ -45,10 +45,8 @@ class ConfigurationMixin:
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
         self.prosumers_with_pv_and_ess = 1
-
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
-
         self.classification_array = []
 
         """ consumers"""

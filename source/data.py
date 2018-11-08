@@ -55,16 +55,15 @@ class Data(ConfigurationMixin, object):
             assert len(self.ess_list) == self.num_households_with_ess
 
             # assert len(self.electrolyzer_list) == self.num_steps
-
-            try:
-                assert len(self.load_array[0]) == self.num_steps
-            except IndexError:
-                pass
-
-            try:
-                assert len(self.pv_gen_array[0]) == self.num_steps
-            except IndexError:
-                pass
+            # try:
+            #     assert len(self.load_array[0]) == self.num_steps
+            # except IndexError:
+            #     pass
+            #
+            # try:
+            #     assert len(self.pv_gen_array[0]) == self.num_steps
+            # except IndexError:
+            #     pass
 
             self.agent_data_array = self.fill_in_classification_array()
 

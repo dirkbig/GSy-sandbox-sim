@@ -8,7 +8,7 @@ num_minutes_in_a_day = 1440
 initial_coins_household = 10000000000
 
 """ Simulation environment """
-num_steps = 10
+num_steps = 96
 auction_type = 'pay_as_clear'
 num_households = 100
 market_interval = 15  # minutes
@@ -18,7 +18,6 @@ market_interval = 15  # minutes
 """ ESS constants"""
 # initial_capacity = 0
 # max_size_ess = 10
-
 horizon = 24
 
 """ Electrolyzer constants """

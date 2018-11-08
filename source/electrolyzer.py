@@ -568,7 +568,6 @@ class Electrolyzer(Agent):
 
         return voltage_reversible
 
-
     def electrolyzer_bid_price_strategy(self):
         """ bid price on par with utility prices (the maximum)?
             or bid price opportunistically low to grab some cheap RES deals?
