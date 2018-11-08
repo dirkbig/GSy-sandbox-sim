@@ -10,7 +10,7 @@ from mesa import Model
 import random
 
 import logging
-env_log = logging.getLogger('microgrid_env')
+env_log = logging.getLogger('run_microgrid.microgrid_env')
 
 
 class MicroGrid(Model):
@@ -37,9 +37,9 @@ class MicroGrid(Model):
         """ create N agents """
         for i in range(self.data.num_households):
             agent = HouseholdAgent(i, self)
-            self.agents.append(agent)
 
         """ electrolyzer """
+        i = "electrolyzer"
         if self.data.electrolyzer_presence is True:
             self.electrolyzer = Electrolyzer(i, self)
 

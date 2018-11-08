@@ -3,9 +3,14 @@ import os
 import numpy as np
 
 import logging
-data_methods_log = logging.getLogger('data_methods')
+data_methods_log = logging.getLogger('run_microgrid.data_methods')
 
-path = "/Users/dirkvandenbiggelaar/gsy/pac/profiles"
+path = "./profiles"
+
+
+def csv_read_load_profile(num_households_):
+    data_dict = {}
+    data_directory = "data_load_profiles"
 
 
 def csv_read_load_file(num_households_with_load, household_loads_folder):
@@ -64,7 +69,7 @@ def csv_read_pv_output_file(num_pv_panels, pv_output_profile):
     return data_list
 
 
-def csv_read_utility_file(selected_utility_price_profile, num_steps):
+def csv_read_utility_file(selected_utility_price_profile):
     utility_data_dir = path + "/utility_price_profiles"
 
     if selected_utility_price_profile not in os.listdir(utility_data_dir):
@@ -81,8 +86,6 @@ def csv_read_utility_file(selected_utility_price_profile, num_steps):
                     price = float(row[-1])
                     data_array.append(price)
                     row_i += 1
-                    if row_i >= num_steps:
-                        break
 
     utility_data_array = data_array
     return utility_data_array
@@ -107,4 +110,45 @@ def csv_read_electrolyzer_profile(selected_electrolyzer_load_file):
     electrolyzer_load_profile = data_array
     return electrolyzer_load_profile
 
+
+    return data_dict
+
+
+def csv_read_load_h2():
+    # Read and return the H2 load profile for the fueling station (included in the electrolyzer class) [kg].
+    data_directory = "data_timeseries"
+    ts_name = "ts_h2load_classverysmall_kg_15min_2015.csv"
+    data_array = []
+    with open(data_directory + "/" + ts_name) as csv_file:
+        data_file = csv.reader(csv_file, delimiter=',')
+        for row in data_file:
+            data_array.append(row)
+
+    return data_array
+
+
+def csv_read_pv_profile():
+    # Read and return a PV generation profile for Berlin in 2015 [kW/kW_peak].
+    data_directory = "data_timeseries"
+    ts_name = "ts_pv_kWperkWinstalled_15min_2015.csv"
+    data_array = []
+    with open(data_directory + "/" + ts_name) as csv_file:
+        data_file = csv.reader(csv_file, delimiter=',')
+        for row in data_file:
+            data_array.append(row)
+
+    return data_array
+
+
+def csv_read_electricity_price():
+    # Read and return the intraday electricity price for the year 2015 in Germany [EUR/kWh].
+    data_directory = "data_timeseries"
+    ts_name = "ts_electricityintraday_EURperkWh_15min_2015.csv"
+    data_array = []
+    with open(data_directory + "/" + ts_name) as csv_file:
+        data_file = csv.reader(csv_file, delimiter=',')
+        for row in data_file:
+            data_array.append(row)
+
+    return data_array
 

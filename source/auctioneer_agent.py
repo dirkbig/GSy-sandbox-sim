@@ -5,7 +5,7 @@ from mesa import Agent
 import seaborn as sns
 
 sns.set()
-auction_log = logging.getLogger('auctioneer')
+auction_log = logging.getLogger('run_microgrid.auctioneer')
 
 
 class Auctioneer(Agent):

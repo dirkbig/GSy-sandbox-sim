@@ -1,5 +1,4 @@
 from source.wallet import Wallet
-
 import math
 import warnings
 from mesa import Agent
@@ -23,7 +22,8 @@ class Electrolyzer(Agent):
         self.wallet = Wallet(_unique_id)
 
         # Simulation time [min].
-        self.interval_time = 15
+
+        self.interval_time = const.market_interval
         self.current_step = 0
 
         """ H2 demand list. """
@@ -31,7 +31,7 @@ class Electrolyzer(Agent):
         # Track the used demand [kg].
         self.track_demand = []
 
-        """ Trading """
+        """ Trading. """
         self.trading_state = None
         self.bid = None
         self.offer = None
@@ -123,6 +123,7 @@ class Electrolyzer(Agent):
         electrolyzer_bid = self.update_bid()
         self.model.auction.bid_list.append(electrolyzer_bid)
 
+
     def post_auction_round(self):
         pass
 
@@ -143,6 +144,7 @@ class Electrolyzer(Agent):
         #elif self.stored_hydrogen > const.hrs_storage_size:
             # Case: the storage is more than full, thus iteratively the power has to be reduced
             #mass_overload = self.stored_hydrogen - const.hrs_storage_size
+
 
     # Determine new measurement data for next step.
     def update_power(self, new_power_value):
@@ -218,10 +220,6 @@ class Electrolyzer(Agent):
         # b[-1] -= self.stored_hydrogen - self.storage_buffer
         # Define the bounds for the hydrogen produced.
         x_bound = ((0, self.max_production_per_step),) * n_step
-        print(np.shape(x_bound))
-        print(np.shape(c))
-        print(np.shape(A))
-        print(np.shape(b))
 
         # Do the optimization with linprog.
         opt_res = lp(c, A, b, method="interior-point", bounds=x_bound)
@@ -248,6 +246,7 @@ class Electrolyzer(Agent):
         bid_price = self.electrolyzer_bid_price_strategy()
 
         return bid_price, bid_quantity
+
 
     def cell_temp(self):
         # Calculate the electrolyzer temperature for the next time step.
@@ -413,7 +412,6 @@ class Electrolyzer(Agent):
             is a probability function"""
         bid_price = 10
         return bid_price
-
 
 class FuelCell(object):
     """ FuelCell device """
