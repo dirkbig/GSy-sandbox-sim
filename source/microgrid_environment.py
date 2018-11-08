@@ -3,7 +3,6 @@ from source.utility_agent import UtilityAgent
 from source.household_agent import HouseholdAgent
 from source.electrolyzer import Electrolyzer
 from source.data import Data
-from source.const import *
 
 from mesa import Model
 import random
@@ -21,7 +20,6 @@ class MicroGrid(Model):
         """ initiation """
         self.step_count = 0
         self.agents = []
-        self.electrolyzer = None
 
         self.entities_dict = {}
         """ load in data THIS HAS TO GO FIRST"""
@@ -39,20 +37,17 @@ class MicroGrid(Model):
             self.agents.append(agent)
 
         """ electrolyzer """
-        self.electrolyzer = Electrolyzer(1, self)
+        self.agents.append(Electrolyzer(self.data.num_households, self))
 
     def sim_step(self):
         """advances the model by one step"""
 
         """ pre-auction round """
-
         self.utility.pre_auction_round()
 
         random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.pre_auction_round()
-
-        self.electrolyzer.pre_auction_round()
 
         """ auction round """
         self.auction.auction_round()
@@ -61,8 +56,8 @@ class MicroGrid(Model):
         random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.post_auction_round()
-        self.electrolyzer.post_auction_round()
 
+        """ Update the time """
         self.update_time()
 
     def update_time(self):

@@ -41,8 +41,8 @@ class Battery(Agent):
         self.c_rate = 1
         # Nominal battery cell voltage [V].
         self.cell_voltage = 3.6
-        # Nominal capacity of one single battery cell [Ah].
-        self.cell_capacity = 2.05
+        # Nominal (initial) capacity of one single battery cell [Ah].
+        self.cell_capacity_init = 2.05
         # Availability for discharge delta DOD (1 is 100% of capacity is available).
         self.delta_dod = 1
         # Time the battery is in use [d].
@@ -90,7 +90,7 @@ class Battery(Agent):
         else:
             throughput = 0
         # calculate total charge throughput Q
-        self.total_charge_throughput += self.cell_capacity * throughput
+        self.total_charge_throughput += self.cell_capacity_init * throughput
         # Update the capacity due to aging [kWh].
         capacity_loss_rel = self.get_capacity_loss_by_aging()
         self.capacity = (1 - capacity_loss_rel) * self.capacity_init

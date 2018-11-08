@@ -1,5 +1,4 @@
 from source import microgrid_environment
-from source.const import *
 
 import logging
 logging.basicConfig(level=logging.ERROR)

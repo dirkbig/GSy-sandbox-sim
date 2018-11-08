@@ -1,6 +1,7 @@
 import math
 import warnings
 from mesa import Agent
+from source.wallet import Wallet
 import source.const as const
 import logging
 import numpy as np
@@ -28,8 +29,10 @@ class Electrolyzer(Agent):
         """ Trading. """
         # Different methods can be chosen for deriving the bidding of the electrolyzer. Options are 'linprog' and
         # 'quadprog'. Quadprog by now seems to be the superior method in regard to result and computation time.
-        self.bidding_solver = "quadprog"
+        self.bidding_solver = "dummy"
+        self.wallet = Wallet(_unique_id)
         self.trading_state = None
+        # Bid in the format [price, quantity, self ID]
         self.bid = None
         self.offer = None
         self.sold_energy = None
@@ -109,21 +112,21 @@ class Electrolyzer(Agent):
 
         electrolyzer_log.info("Electrolyzer object was generated.")
 
-    def pre_auction_round(self, new_power_val=0):
+    def pre_auction_round(self):
         # Update the current time step.
         self.current_step = self.model.step_count
+
+        # Get the new bid.
+        self.update_bid()
+
+    def post_auction_round(self):
         # Before the auction the physical states are renewed.
-        self.update_power(new_power_val)
+        self.update_power(self.bought_energy)
         # Track the total costs [EUR].
         self.track_cost += self.power * self.interval_time / 60 * \
             self.model.data.utility_pricing_profile[self.current_step]
         # Update the stored mass hydrogen.
         self.update_storage()
-        # Get the new bid.
-        self.update_bid()
-
-    def post_auction_round(self):
-        pass
 
     def update_storage(self):
         # Update the mass of the hydrogen stored.
@@ -145,12 +148,12 @@ class Electrolyzer(Agent):
 
 
     # Determine new measurement data for next step.
-    def update_power(self, new_power_value):
+    def update_power(self, bought_energy):
         # Update the power value within the physical limits of the electrolyzer.
         # Parameter:
-        #  new_power_value: Power value for the next time step [kW].
+        #  bought_energy: Power value for the next time step [kWh].
 
-        self.power = new_power_value
+        self.power = bought_energy / (self.interval_time / 60)
         # Update voltage, current, current density and power in an iterative process.
         self.update_voltage()
         # Check if the current density is above the max. allowed value.
@@ -318,16 +321,30 @@ class Electrolyzer(Agent):
             print("Electrolyzer bidding - Optimization status is '{}'".format(opt_res['status']))
             electrolyzer_log.info("Optimization status is '{}'".format(opt_res['status']))
 
+        elif self.bidding_solver == "dummy":
+            """ Return a dummy bid """
+            opt_production = [0.1]
+            c = [30]
+
         else:
             """ No valid solver """
-            return None
+            raise ValueError('Electrolyzer: No valid solver name given.')
 
         # self.plot_optimization_result(opt_production, cumsum_h2_demand, c)
 
         # Return the power value needed for the optimized production and the price [kW, EUR/kWh]
         charging_power = self.get_power_by_production(opt_production[0])
         price = c[0]
-        return [charging_power, price]
+
+        if charging_power == 0:
+            # Case: Do not bid.
+            self.bid = None
+            self.trading_state = None
+        else:
+            # Case: Bid on energy.
+            self.bid = [price, charging_power, self.id]
+            self.trading_state = "buying"
+
 
     def plot_optimization_result(self, h2_produced, cumsum_h2_demand, electricity_price):
         import matplotlib.pyplot as plt
@@ -355,6 +372,10 @@ class Electrolyzer(Agent):
 
     def get_power_by_production(self, h2_production):
         # Calculate the power needed for a certain H2 production.
+
+        # If no hydrogen is supposed to be produced, the power is 0.
+        if h2_production == 0:
+            return 0
 
         # Current needed for the H2 production [A].
         current = h2_production / (self.interval_time * 60 * self.z_cell / (2 * self.faraday) * self.molarity / 1000)

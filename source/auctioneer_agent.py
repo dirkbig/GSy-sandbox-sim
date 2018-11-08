@@ -214,7 +214,8 @@ class Auctioneer(Agent):
             else:
                 num_passive += 1
         total_num = num_selling + num_buying + num_passive
-        assert total_num == self.model.data.num_households
+
+        # assert total_num == self.model.data.num_households
 
         # TODO: translate this to percentage of households actually capable of selling or buying...
         # of course pure consumers will never be able to trade energy...
