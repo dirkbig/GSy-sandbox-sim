@@ -167,14 +167,14 @@ class HouseholdAgent(Agent):
 
         if self.net_energy_in_simple_strategy > 0:
             self.trading_state = 'supplying'
-            price = 8
+            price = 10 + self.id
             quantity = self.net_energy_in_simple_strategy
             self.offer = [price, quantity, self.id]
             self.bid = None
 
         elif self.net_energy_in_simple_strategy < 0:
             self.trading_state = 'buying'
-            price = 20
+            price = 20 - self.id
             quantity = abs(self.net_energy_in_simple_strategy)
             self.bid = [price, quantity, self.id]
             self.offer = None
@@ -239,7 +239,6 @@ class HouseholdAgent(Agent):
 
         self.energy_trade_flux = sum(self.model.auction.who_gets_what_dict[self.id])
         self.net_energy_in = self.pv_production_on_step + self.load_on_step + self.energy_trade_flux
-        print(self.net_energy_in)
         """ update ESS and unmatched loads """
         if self.has_ess is True:
             self.overflow, self.deficit = self.ess.update_ess_state(self.net_energy_in)

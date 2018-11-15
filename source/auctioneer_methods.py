@@ -115,20 +115,25 @@ def pab_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     return clearing_quantity, total_turnover_, trade_pairs_pab_
 
 
-def clearing_quantity_calc(sorted_x_y_y_pairs_list):
+def clearing_quantity_calc(sorted_x_x_y_pairs_list):
     """ This can be used both for PaC as for PaB, returns clearing quantity and uniform clearing price"""
     clearing_quantity_ = None
     clearing_price_ = None
-
-    # now I make range(len(sorted_x_y_y_pairs_list)-1), -1 because of the forwards-step bug (see TODO_above)
     # TODO: make sure the steps are set from previous q (or 0) until announced quantity. It should be backwards.
-    for i in range(len(sorted_x_y_y_pairs_list) - 1):
-        """ if bid is still higher than offer, then save it as potential clearing quantity and next "losing?" bid
-            as clearing price"""
-        # TODO: this is very ugly... alas, everything around here is ugly
-        if sorted_x_y_y_pairs_list[i][1] < sorted_x_y_y_pairs_list[i][2]:
-            clearing_price_ = sorted_x_y_y_pairs_list[i][0]
-            clearing_quantity_ = sorted_x_y_y_pairs_list[i - 1][1]
+    # now I make range(len(sorted_x_y_y_pairs_list)-1), -1 because of the forwards-step bug (see TODO_above)
+
+    if [sorted_x_x_y_pairs_list[i][1] < sorted_x_x_y_pairs_list[i][2] for i in range(len(sorted_x_x_y_pairs_list) - 1)]:
+        clearing_quantity_ = sorted_x_x_y_pairs_list[-1][0]
+        clearing_price_ = sorted_x_x_y_pairs_list[-1][2]
+    # search for the first point in sorted_x_x_y_pairs_list where the bid price is lower than the offer price.
+    # this will be the point where clearing quantity depends on
+    for i in range(len(sorted_x_x_y_pairs_list) - 1):
+        # if bid is still higher than offer, then save it as potential clearing quantity and next "losing?" bid
+        # as clearing price
+        if sorted_x_x_y_pairs_list[i][1] < sorted_x_x_y_pairs_list[i][2]:
+            # clearing price is defined as the highest winning bid, sorted_x_x_y_pairs_list[i][1]
+            clearing_quantity_ = sorted_x_x_y_pairs_list[i - 1][0]
+            clearing_price_ = sorted_x_x_y_pairs_list[i][1]
             break
 
     return clearing_quantity_, clearing_price_

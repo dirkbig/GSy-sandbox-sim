@@ -5,21 +5,25 @@ import numpy as np
 import logging
 data_methods_log = logging.getLogger('run_microgrid.data_methods')
 
-path = "./profiles"
+os.chdir("..")
+path = "./source" + "/profiles"
+print(path)
 
-
-def csv_read_load_profile(num_households_):
-    data_dict = {}
-    data_directory = "data_load_profiles"
+# def csv_read_load_profile(num_households_):
+#     data_dict = {}
+#     data_directory = "data_load_profiles"
+#
 
 
 def csv_read_load_file(num_households_with_load, household_loads_folder):
     data_list = []
     data_directory = path + '/data_load_profiles/' + household_loads_folder
-
-    if household_loads_folder not in os.listdir(path + '/data_load_profiles'):
-        data_methods_log.warning("pv file '%s' not found" % household_loads_folder)
-        exit()
+    try:
+        if household_loads_folder not in os.listdir(path + '/data_load_profiles'):
+            data_methods_log.warning("pv file '%s' not found" % household_loads_folder)
+            exit()
+    except FileNotFoundError:
+        data_methods_log.error("File  not Found: change path")
 
     i = 0
     for profile in os.listdir(data_directory):

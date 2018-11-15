@@ -28,7 +28,7 @@ class MicroGrid(Model):
         self.entities_dict = {}
 
         """ create the auction platform"""
-        self.auction = Auctioneer(self.data.auction_type, self)
+        self.auction = Auctioneer(self.data.pricing_rule, self)
 
         """ create the utility grid"""
         if self.data.utility_presence is True:

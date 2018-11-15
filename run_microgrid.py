@@ -9,6 +9,12 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 grid_log.addHandler(fh)
 
+trade_deals_list_per_step = {}
+
+
+def extract_data():
+    trade_deals_list_per_step[microgrid.step_count] = microgrid.auction.trade_pairs
+
 
 def create_microgrid():
     """create microgrid"""
@@ -20,7 +26,7 @@ def create_microgrid():
 def step_microgrid():
     microgrid.sim_step()
     grid_log.info('Step %d' % microgrid.step_count)
-
+    extract_data()
 
 microgrid = create_microgrid()
 
@@ -30,4 +36,7 @@ for step in range(microgrid.data.num_steps):
 
 assert microgrid.step_count == microgrid.data.num_steps
 microgrid.data.plots()
+
+
+print(trade_deals_list_per_step)
 

@@ -52,7 +52,6 @@ class Auctioneer(Agent):
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
             self.execute_auction(sorted_x_y_y_pairs_list)
             self.clearing_of_market()
-
             """ clear lists for later use in next step """
             self.bid_list = []
             self.offer_list = []
@@ -62,7 +61,6 @@ class Auctioneer(Agent):
             """ clear lists for later use in next step """
             self.bid_list = []
             self.offer_list = []
-
             auction_log.warning("no trade at this step")
             return
 
@@ -91,7 +89,6 @@ class Auctioneer(Agent):
 
         if self.snapshot_plot:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
-
         # TODO: save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards
 
     def sorting(self):
@@ -102,9 +99,9 @@ class Auctioneer(Agent):
         # source of the bug is at the sorting algorithm, should allow a clearing also when supply completely falls
         # BELOW demand curve
 
-        # sort on price, not quantity, so price_point[1]
-        sorted_bid_list = sorted(self.bid_list, key=lambda price_point: price_point[0], reverse=True)
-        sorted_offer_list = sorted(self.offer_list, key=lambda price_point: price_point[0])
+        # sort on price, not quantity, so location[0]
+        sorted_bid_list = sorted(self.bid_list, key=lambda location: location[0], reverse=True)
+        sorted_offer_list = sorted(self.offer_list, key=lambda location: location[0])
 
         if self.model.utility is not None:
             """ append (in a clever, semi-aesthetic way) the utility offer to the offer list according to the 
@@ -113,74 +110,97 @@ class Auctioneer(Agent):
 
         # creation of aggregate supply/demand points
         aggregate_quantity_points = []
-        x_y_y_pairs_list = []
+
+        aggregate_quantity_points_bid = []
+        aggregate_quantity_points_offer = []
+
+        x_x_y_pairs_list = []
         x_bid_pairs_list = []
         x_supply_pairs_list = []
 
+        """ appending bid quantities to aggregate demand and supply curve, effort to make curves overlap """
         prev = 0
         for i in range(len(sorted_bid_list)):
-            aggregate_quantity_points.append(sorted_bid_list[i][0])
-            aggregate_quantity_points[i] += prev
-            prev = aggregate_quantity_points[i]
+            # append bid quantity to aggregate demand/supply curve;
+            # first create x-axis of curve
+            aggregate_quantity_points_bid.append(sorted_bid_list[i][1])
+            # move on this x-axis of curve for next item to be appended
+            aggregate_quantity_points_bid[i] += prev
+            prev = aggregate_quantity_points_bid[i]
+            # append bid item to main bid curve: [x-axis location, bid price, offer quantity, buyer id, seller id]
+            x_bid_pairs_list.append([aggregate_quantity_points_bid[i],
+                                     sorted_bid_list[i][0], None,
+                                     sorted_bid_list[i][2], None])
 
-            x_bid_pairs_list.append([aggregate_quantity_points[i], sorted_bid_list[i][1], None,
-                                    sorted_bid_list[i][2], None])
+        """ appending offer quantities to aggregate demand and supply curve, effort to make curves overlap """
         prev = 0
         for j in range(len(sorted_offer_list)):
-            aggregate_quantity_points.append(sorted_offer_list[j][0])
-            aggregate_quantity_points[len(sorted_bid_list) + j] += prev
-            prev = aggregate_quantity_points[len(sorted_bid_list) + j]
-
-            x_supply_pairs_list.append([aggregate_quantity_points[len(sorted_bid_list) + j], None, sorted_offer_list[j][1],
+            # append offer quantity to aggregate demand/supply curve
+            aggregate_quantity_points.append(sorted_offer_list[j][1])
+            aggregate_quantity_points_offer.append(sorted_offer_list[j][1])
+            # move on this x-axis of curve for next item to be appended
+            aggregate_quantity_points_offer[j] += prev
+            prev = aggregate_quantity_points_offer[j]
+            # append offer item to main bid curve: [x-axis location, bid quantity, offer price, buyer id, seller id]
+            x_supply_pairs_list.append([aggregate_quantity_points_offer[j],
+                                        None, sorted_offer_list[j][0],
                                         None, sorted_offer_list[j][2]])
 
-        x_y_y_pairs_list.extend(x_bid_pairs_list)
-        x_y_y_pairs_list.extend(x_supply_pairs_list)
+        x_x_y_pairs_list.extend(x_bid_pairs_list)
+        x_x_y_pairs_list.extend(x_supply_pairs_list)
 
         """sorted_x_y_y_pairs_list[agents][quantity_point, bid_price, offer_price]"""
-        sorted_x_y_y_pairs_list = sorted(x_y_y_pairs_list, key=lambda l: l[0])
+        sorted_x_x_y_pairs_list = sorted(x_x_y_pairs_list, key=lambda l: l[0])
 
         # stupid comprehension proxy begins here...
         bid_list_proxy = []
         offer_list_proxy = []
-        for i in range(len(sorted_x_y_y_pairs_list)):
-            bid_list_proxy.append(sorted_x_y_y_pairs_list[i][1])
-            offer_list_proxy.append(sorted_x_y_y_pairs_list[i][2])
+        for i in range(len(sorted_x_x_y_pairs_list)):
+            bid_list_proxy.append(sorted_x_x_y_pairs_list[i][1])
+            offer_list_proxy.append(sorted_x_x_y_pairs_list[i][2])
         # stupid comprehension proxy stops here...
 
-        for i in range(len(sorted_x_y_y_pairs_list)):
+        # the sorted_x_x_y_pairs_list contains all bids and offers ordered by trade volume on x-axis
+        # now, bids are linked to offers, searching for the next offer to be linked to it previous bid
+        for quantity in range(len(sorted_x_x_y_pairs_list)):
             j = 1
-            _offer_list_proxy = offer_list_proxy[i:]
-            if not all(v is None for v in _offer_list_proxy):
-                while sorted_x_y_y_pairs_list[i][2] is None:
-                    if sorted_x_y_y_pairs_list[i+j][2] is not None:
-                        sorted_x_y_y_pairs_list[i][2] = sorted_x_y_y_pairs_list[i+j][2]
+            _offer_list_proxy = offer_list_proxy[quantity:]
+            # this check "if offer_price_proxy is not empty" is very redundant
+            if not all(offer_price is None for offer_price in _offer_list_proxy):
+                # find next offer in line: run through sorted_x_x_y_pairs_list
+                # starting from current quantity
+                while sorted_x_x_y_pairs_list[quantity][2] is None:
+                    # if current selected quantity block is an offer
+                    if sorted_x_x_y_pairs_list[quantity+j][2] is not None:
+                        # then the current selected quantity (which is a bid) is linked to this offer
+                        # since sorted_x_x_y_pairs_list is sorted on
+                        sorted_x_x_y_pairs_list[quantity][2] = sorted_x_x_y_pairs_list[quantity+j][2]
                     else:
                         j += 1
             else:
                 break
 
-        for i in range(len(sorted_x_y_y_pairs_list)):
+        for i in range(len(sorted_x_x_y_pairs_list)):
             j = 1
             _bid_list_proxy = bid_list_proxy[i:]
 
             if not all(v is None for v in _bid_list_proxy):
-                while sorted_x_y_y_pairs_list[i][1] is None:
-                    if sorted_x_y_y_pairs_list[i+j][1] is not None:
-                        sorted_x_y_y_pairs_list[i][1] = sorted_x_y_y_pairs_list[i+j][1]
+                while sorted_x_x_y_pairs_list[i][1] is None:
+                    if sorted_x_x_y_pairs_list[i+j][1] is not None:
+                        sorted_x_x_y_pairs_list[i][1] = sorted_x_x_y_pairs_list[i+j][1]
                     else:
                         j += 1
             else:
                 break
 
         """filter out None values and save as quantity/price series for plotting"""
-        for i in range(len(sorted_x_y_y_pairs_list)):
-            if sorted_x_y_y_pairs_list[i][1] is None:
-                sorted_x_y_y_pairs_list[i][1] = 0
-            if sorted_x_y_y_pairs_list[i][2] is None:
-                sorted_x_y_y_pairs_list[i][2] = 0
+        for i in range(len(sorted_x_x_y_pairs_list)):
+            if sorted_x_x_y_pairs_list[i][1] is None:
+                sorted_x_x_y_pairs_list[i][1] = 0
+            if sorted_x_x_y_pairs_list[i][2] is None:
+                sorted_x_x_y_pairs_list[i][2] = 0
 
-        return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
+        return sorted_bid_list, sorted_offer_list, sorted_x_x_y_pairs_list
 
     def clearing_of_market(self):
         """clears market """
@@ -210,7 +230,6 @@ class Auctioneer(Agent):
                 self.who_gets_what_dict[id_buyer].append(trade_quantity)
                 self.model.agents[id_buyer].wallet.settle_payment(turnover)
 
-
         else:
             auction_log.warning("no trade at this step")
 
@@ -236,7 +255,6 @@ class Auctioneer(Agent):
         self.percentage_sellers = num_selling / total_num
         self.percentage_buyers = num_buying / total_num
         self.percentage_passive = num_passive / total_num
-
 
     def append_utility_offer(self, sorted_bid_list, sorted_offer_list):
         """ function is only called when an Utility is present, it supplements the offer list of auctioneer
