@@ -153,6 +153,7 @@ class Auctioneer(Agent):
         """sorted_x_y_y_pairs_list[agents][quantity_point, bid_price, offer_price]"""
         sorted_x_y_y_pairs_list = sorted(x_y_y_pairs_list, key=lambda l: l[0])
 
+        print(sorted_x_y_y_pairs_list)
         # stupid comprehension proxy begins here...
         bid_list_proxy = []
         offer_list_proxy = []
@@ -163,37 +164,43 @@ class Auctioneer(Agent):
 
         # the sorted_x_x_y_pairs_list contains all bids and offers ordered by trade volume on x-axis
         # now, bids are linked to offers, searching for the next offer to be linked to it previous bid
-        for quantity in range(len(sorted_x_y_y_pairs_list)):
+        for segment in range(len(sorted_x_y_y_pairs_list)):
             j = 1
-            _offer_list_proxy = offer_list_proxy[quantity:]
-            # this check "if offer_price_proxy is not empty" is very redundant
+            _offer_list_proxy = offer_list_proxy[segment:]
+            # this check "if offer_price_proxy is not empty", is pretty redundant
             if not all(offer_price is None for offer_price in _offer_list_proxy):
                 # find next offer in line: run through sorted_x_x_y_pairs_list
                 # starting from current quantity
-                while sorted_x_y_y_pairs_list[quantity][2] is None:
+                while sorted_x_y_y_pairs_list[segment][2] is None:
                     # if current selected quantity block is an offer
-                    if sorted_x_y_y_pairs_list[quantity+j][2] is not None:
+                    if sorted_x_y_y_pairs_list[segment+j][2] is not None:
                         # then the current selected quantity (which is a bid) is linked to this offer
                         # since sorted_x_x_y_pairs_list is sorted on
-                        sorted_x_y_y_pairs_list[quantity][2] = sorted_x_y_y_pairs_list[quantity+j][2]
+                        sorted_x_y_y_pairs_list[segment][2] = sorted_x_y_y_pairs_list[segment+j][2]
+                        sorted_x_y_y_pairs_list[segment][4] = sorted_x_y_y_pairs_list[segment+j][4]
                     else:
                         j += 1
             else:
                 break
 
-        for i in range(len(sorted_x_y_y_pairs_list)):
+        print(sorted_x_y_y_pairs_list)
+        for segment in range(len(sorted_x_y_y_pairs_list)):
             j = 1
-            _bid_list_proxy = bid_list_proxy[i:]
-
+            _bid_list_proxy = bid_list_proxy[segment:]
+            # this check "if bid_price_proxy is not empty", is pretty redundant
             if not all(v is None for v in _bid_list_proxy):
-                while sorted_x_y_y_pairs_list[i][1] is None:
-                    if sorted_x_y_y_pairs_list[i+j][1] is not None:
-                        sorted_x_y_y_pairs_list[i][1] = sorted_x_y_y_pairs_list[i+j][1]
+                #
+                while sorted_x_y_y_pairs_list[segment][1] is None:
+                    if sorted_x_y_y_pairs_list[segment+j][1] is not None:
+                        sorted_x_y_y_pairs_list[segment][1] = sorted_x_y_y_pairs_list[segment+j][1]
+                        sorted_x_y_y_pairs_list[segment][3] = sorted_x_y_y_pairs_list[segment+j][3]
+
                     else:
                         j += 1
             else:
                 break
 
+        print(sorted_x_y_y_pairs_list)
 
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 

@@ -103,13 +103,28 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pac_
 
 
-def pab_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
+def pab_pricing(sorted_x_y_y_pairs_list, sorted_bid_list, sorted_offer_list):
     """ trade matching according pay-as-bid pricing rule """
-
-    clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list_)
+    clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list)
     trade_pairs_pab_ = None
     total_turnover_ = None
+    trade_pairs = []
+    executed_segment = [segment for segment in sorted_x_y_y_pairs_list if segment[0] < clearing_quantity]
+    print(executed_segment)
     """ this function should return a pairing of bids and offers for determined prices"""
+    prev_segment_quantity = 0
+    for segment in executed_segment:
+        buyer_price = segment[1]
+        seller_price = segment[2]
+        buyer_id = segment[3]
+        seller_id = segment[4]
+        trade_quantity = segment[0]
+        prev_segment_quantity += trade_quantity
+        trade_payment = trade_quantity * buyer_price
+
+        trade_pair = [seller_id, buyer_id, trade_quantity, trade_payment]
+        trade_pairs.append(trade_pair)
+    # [seller_id, buyer_id, trade_quantity, payment]
 
     return clearing_quantity, total_turnover_, trade_pairs_pab_
 
@@ -120,9 +135,14 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
     clearing_price_ = None
 
     """ filter out None values and remove these points for they don't add information """
-    for i in range(len(sorted_x_y_y_pairs_list)):
-        if sorted_x_y_y_pairs_list[i][1] is None or sorted_x_y_y_pairs_list[i][2] is None:
-            sorted_x_y_y_pairs_list.remove(sorted_x_y_y_pairs_list[i])
+    # for i in range(len(sorted_x_y_y_pairs_list)):
+    #     if sorted_x_y_y_pairs_list[-i][1] is None or sorted_x_y_y_pairs_list[-i][2] is None:
+    #
+
+    sorted_x_y_y_pairs_list = [segment for segment in sorted_x_y_y_pairs_list if segment[1] is not None
+                               and segment[2] is not None]
+
+    print(sorted_x_y_y_pairs_list)
 
     # now I make range(len(sorted_x_y_y_pairs_list)-1), -1 because of the forwards-step bug (see TODO_above)
     # if all offers are affordable to bids, i.e all offers are lower price than bids, the market should
