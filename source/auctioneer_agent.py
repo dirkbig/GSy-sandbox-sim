@@ -35,27 +35,23 @@ class Auctioneer(Agent):
         self.percentage_buyers = None
         self.percentage_passive = None
 
+        self.who_gets_what_dict = None
+
     def auction_round(self):
         """check whether all agents have submitted their bids"""
         self.user_participation()
 
-        print("bid list", self.bid_list)
-        print("offer list", self.offer_list)
-
-        # total_bid =
-        # total_offer =
-
         """ resets the acquired energy for all households """
+        self.who_gets_what_dict = {}
         for agent in self.model.agents[:]:
-            self.model.agents[agent.id].sold_energy = 0
-            self.model.agents[agent.id].bought_energy = 0
+            self.who_gets_what_dict[agent.id] = []
 
         if self.offer_list != [] and self.bid_list != [] or (self.model.utility is not None and self.bid_list != []):
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of
                 prosumers or utility grid) """
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
             self.execute_auction(sorted_x_y_y_pairs_list)
-            self.clearing_of_market(self.trade_pairs)
+            self.clearing_of_market()
 
             """ clear lists for later use in next step """
             self.bid_list = []
@@ -96,8 +92,6 @@ class Auctioneer(Agent):
         if self.snapshot_plot:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
 
-        print('trade pairs', self.trade_pairs)
-
         # TODO: save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards
 
     def sorting(self):
@@ -109,9 +103,6 @@ class Auctioneer(Agent):
         # BELOW demand curve
 
         # sort on price, not quantity, so price_point[1]
-        # print("offers", self.offer_list)
-        # print("bids", self.bid_list)
-
         sorted_bid_list = sorted(self.bid_list, key=lambda price_point: price_point[0], reverse=True)
         sorted_offer_list = sorted(self.offer_list, key=lambda price_point: price_point[0])
 
@@ -191,32 +182,35 @@ class Auctioneer(Agent):
 
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 
-    def clearing_of_market(self, trade_pairs):
+    def clearing_of_market(self):
         """clears market """
+
+        """ resets the acquired energy for all households """
         for agent in self.model.agents[:]:
-            self.model.agents[agent.id].sold_energy = 0
-            self.model.agents[agent.id].bought_energy = 0
+            self.model.agents[agent.id].energy_trade_flux = 0
 
         """ listing of all offers/bids selected for trade """
-        if trade_pairs is not None:
-            for trade in range(len(trade_pairs)):
-                # data structure: [seller_id, buyer_id, trade_quantity, payment]
-                id_seller = trade_pairs[trade][0]
-                id_buyer = trade_pairs[trade][1]
-                trade_quantity = trade_pairs[trade][2]
-                payment = trade_pairs[trade][3]
+        if self.trade_pairs is not None:
+            for trade in range(len(self.trade_pairs)):
+                # data structure: [seller_id, buyer_id, trade_quantity, turnover]
+                id_seller = self.trade_pairs[trade][0]
+                id_buyer = self.trade_pairs[trade][1]
+                trade_quantity = self.trade_pairs[trade][2]
+                turnover = self.trade_pairs[trade][3]
 
-                """ execute trade buy calling household agent's wallet settlement """
-                if id_seller is 'utility':
-                    """ seller was Utility """
-                    self.model.utility.sold_energy = trade_quantity
-                    self.model.utility.wallet.settle_revenue(payment)
-                else:
-                    self.model.agents[id_seller].sold_energy = trade_quantity
-                    self.model.agents[id_seller].wallet.settle_revenue(payment)
+                # """ execute trade buy calling household agent's wallet settlement """
+                # if id_seller is 'utility':
+                #     """ seller was utility """
+                #     self.who_gets_what_dict[id_seller].append(-trade_quantity)
+                #     self.model.utility.wallet.settle_revenue(turnover)
+                # else:
+                self.who_gets_what_dict[id_seller].append(-trade_quantity)
+                self.model.agents[id_seller].wallet.settle_revenue(turnover)
 
-                self.model.agents[id_buyer].bought_energy = trade_quantity
-                self.model.agents[id_buyer].wallet.settle_payment(payment)
+                self.who_gets_what_dict[id_buyer].append(trade_quantity)
+                self.model.agents[id_buyer].wallet.settle_payment(turnover)
+
+
         else:
             auction_log.warning("no trade at this step")
 
@@ -243,13 +237,10 @@ class Auctioneer(Agent):
         self.percentage_buyers = num_buying / total_num
         self.percentage_passive = num_passive / total_num
 
-        # print(self.percentage_sellers, self.percentage_buyers, self.percentage_passive)
 
     def append_utility_offer(self, sorted_bid_list, sorted_offer_list):
         """ function is only called when an Utility is present, it supplements the offer list of auctioneer
             with an 'infinite' supply of energy up to the necessary amount to cover all demand, bought or not """
-        print(sorted_bid_list)
-        print(sorted_offer_list)
 
         bid_total = sum(np.asarray(sorted_bid_list)[:, 1])
         try:
@@ -277,9 +268,6 @@ class Auctioneer(Agent):
                     if bid_total > total_offer_below_mmr:
                         utility_quantity = bid_total - total_offer_below_mmr
                         sorted_offer_list.insert(offer + 1, [self.utility_market_maker_rate, utility_quantity, utility_id])
-
-        print(sorted_bid_list)
-        print(sorted_offer_list)
 
         sorted_bid_list = sorted(sorted_bid_list, key=lambda price_point: price_point[0], reverse=True)
         sorted_offer_list = sorted(sorted_offer_list, key=lambda price_point: price_point[0])

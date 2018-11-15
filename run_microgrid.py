@@ -1,7 +1,7 @@
 from source import microgrid_environment
 
 import logging
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.WARNING)
 grid_log = logging.getLogger('run_microgrid')
 
 fh = logging.FileHandler('pac_log.txt')

@@ -19,6 +19,7 @@ class ConfigurationMixin:
         """ 
             Market structure 
         """
+        # TODO: this is already defined in const.py
         self.pricing_rule = 'pac'
 
         """ 
@@ -41,10 +42,10 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 1
+        self.consumers = 3
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 1
+        self.prosumers_with_pv_and_ess = 2
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []
@@ -81,8 +82,8 @@ class ConfigurationMixin:
             ESS data
         """
         self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
-        max_capacity_list = np.full(self.num_households_with_ess, 1)
-        initial_capacity_list = np.full(self.num_households_with_ess, 0.3)
+        max_capacity_list = np.full(self.num_households_with_ess, 10)
+        initial_capacity_list = np.full(self.num_households_with_ess, 0.6)
         self.ess_characteristics_list = []
 
         for battery in range(self.num_households_with_ess):

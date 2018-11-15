@@ -68,9 +68,11 @@ class HouseholdAgent(Agent):
         self.trading_state = None
         self.bid = None
         self.offer = None
-        self.sold_energy = 0
-        self.bought_energy = 0
+        self.energy_trade_flux = 0
         self.net_energy_in = None
+        self.overflow = None
+        self.deficit = None
+
         self.net_energy_in_simple_strategy = 0
 
     def utility_function(self, params):
@@ -134,7 +136,9 @@ class HouseholdAgent(Agent):
             self.trading_state = 'supplying'
             """ bid approach, using utility function"""
             price, quantity = self.price_point_optimization()
-            self.offer = [price, quantity, self.id]
+            self.ess.max_in, self.ess.max_out = self.ess.get_charging_limit()
+            # respects discharging limit constraints
+            self.offer = [price, min(self.ess.max_out, quantity), self.id]
             self.bid = None
 
         elif self.ess.surplus < 0:
@@ -142,7 +146,8 @@ class HouseholdAgent(Agent):
             """ offer approach using utility function """
             price, quantity = self.price_point_optimization()
             price += price + 100
-            self.bid = [price, quantity, self.id]
+            # respects charging limit constraints
+            self.bid = [price, min(self.ess.max_in, quantity), self.id]
             self.offer = None
         else:
             self.trading_state = 'passive'
@@ -150,9 +155,10 @@ class HouseholdAgent(Agent):
             self.offer = None
 
     def simple_strategy(self):
-        """ household makes simple bid or offer depending on the netto energy going in our out of the house """
+        """ household makes simple bid or offer depending on the net energy going in our out of the house """
         self.state_update_from_devices()
 
+        """ Determine net energy going building up inside household """
         if self.has_ess is True:
             self.ess.ess_demand_calc(self.model.step_count)
             self.net_energy_in_simple_strategy = self.ess.surplus
@@ -230,29 +236,24 @@ class HouseholdAgent(Agent):
 
     def post_auction_round(self):
         """ after auctioneer gives clearing signal and """
-        self.net_energy_in = self.pv_production_on_step + self.load_on_step + self.bought_energy - self.sold_energy
 
-        """ unmatched loads? """
+        self.energy_trade_flux = sum(self.model.auction.who_gets_what_dict[self.id])
+        self.net_energy_in = self.pv_production_on_step + self.load_on_step + self.energy_trade_flux
+        print(self.net_energy_in)
+        """ update ESS and unmatched loads """
         if self.has_ess is True:
-            overflow, deficit = self.ess.update_ess_state(self.net_energy_in)
+            self.overflow, self.deficit = self.ess.update_ess_state(self.net_energy_in)
         else:
             if self.net_energy_in > 0:
-                overflow = abs(self.net_energy_in)
-                deficit = 0
-            elif self.net_energy_in <= 0:
-                overflow = 0
-                deficit = abs(self.net_energy_in)
-
-        # if overflow != 0 or deficit != 0:
-        #     print("bleh")
-        #     pass
+                self.overflow = abs(self.net_energy_in)
+                self.deficit = 0
+            else:
+                self.overflow = 0
+                self.deficit = abs(self.net_energy_in)
 
         """ data logging """
-        self.data.overflow_over_time[self.id][self.model.step_count] = overflow
-        self.data.deficit_over_time[self.id][self.model.step_count] = deficit
-
-        print('overflow agent', self.id, overflow)
-        print('deficit agent', self.id, deficit)
+        self.data.overflow_over_time[self.id][self.model.step_count] = self.overflow
+        self.data.deficit_over_time[self.id][self.model.step_count] = self.deficit
 
     def announce_bid_and_offers(self):
         """ announces bid to auction agent by appending to bid list """
@@ -260,6 +261,7 @@ class HouseholdAgent(Agent):
 
         if self.trading_state == 'supplying':
             self.model.auction.offer_list.append(self.offer)
+
         elif self.trading_state == 'buying':
             self.model.auction.bid_list.append(self.bid)
 

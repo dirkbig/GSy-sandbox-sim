@@ -18,11 +18,8 @@ class Wallet(object):
             payment_success = False
             wallet_log.warning("payment tx failed, agent %d", self.id)
 
-        return payment_success
-
     def settle_revenue(self, payment):
         self.coin_balance += payment
         payment_success = True
         wallet_log.info("revenue tx was successful, agent %d", self.id)
 
-        return payment_success

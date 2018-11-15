@@ -26,7 +26,6 @@ class MicroGrid(Model):
         self.utility = None
 
         self.entities_dict = {}
-        """ load in data THIS HAS TO GO FIRST"""
 
         """ create the auction platform"""
         self.auction = Auctioneer(self.data.auction_type, self)
@@ -68,7 +67,6 @@ class MicroGrid(Model):
         self.auction.auction_round()
 
         """ post-auction round """
-        random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.post_auction_round()
 
