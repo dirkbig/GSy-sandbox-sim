@@ -109,23 +109,30 @@ def pab_pricing(sorted_x_y_y_pairs_list, sorted_bid_list, sorted_offer_list):
     trade_pairs_pab_ = None
     total_turnover_ = None
     trade_pairs = []
+    # filter only on executed segments that have no Non types (meaning) bid/offer but not offer/bid
     executed_segment = [segment for segment in sorted_x_y_y_pairs_list if segment[0] < clearing_quantity]
     print(executed_segment)
+
     """ this function should return a pairing of bids and offers for determined prices"""
+    # TODO: TEST
     prev_segment_quantity = 0
     for segment in executed_segment:
+        # reading out values from the executed trade segments
+        trade_quantity = segment[0]
         buyer_price = segment[1]
         seller_price = segment[2]
         buyer_id = segment[3]
         seller_id = segment[4]
-        trade_quantity = segment[0]
-        prev_segment_quantity += trade_quantity
-        trade_payment = trade_quantity * buyer_price
 
+        prev_segment_quantity = trade_quantity
+        trade_payment = trade_quantity * buyer_price
         trade_pair = [seller_id, buyer_id, trade_quantity, trade_payment]
         trade_pairs.append(trade_pair)
     # [seller_id, buyer_id, trade_quantity, payment]
+    # TODO: lump together trade deals between trade couples
 
+    print(trade_pairs)
+    # TODO: TEST
     return clearing_quantity, total_turnover_, trade_pairs_pab_
 
 
