@@ -1,13 +1,19 @@
 from source import microgrid_environment
 
 import logging
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.WARNING)
 grid_log = logging.getLogger('run_microgrid')
 
 fh = logging.FileHandler('pac_log.txt')
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
 grid_log.addHandler(fh)
+
+trade_deals_list_per_step = {}
+
+
+def extract_data():
+    trade_deals_list_per_step[microgrid.step_count] = microgrid.auction.trade_pairs
 
 
 def create_microgrid():
@@ -20,11 +26,9 @@ def create_microgrid():
 def step_microgrid():
     microgrid.sim_step()
     grid_log.info('Step %d' % microgrid.step_count)
-
+    extract_data()
 
 microgrid = create_microgrid()
-
-# TODO: model this for a 24h simulation in a for-loop using 24h profiles
 
 for step in range(microgrid.data.num_steps):
     print("step", microgrid.step_count)
@@ -32,4 +36,7 @@ for step in range(microgrid.data.num_steps):
 
 assert microgrid.step_count == microgrid.data.num_steps
 microgrid.data.plots()
+
+
+print(trade_deals_list_per_step)
 

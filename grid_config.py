@@ -8,21 +8,50 @@ class ConfigurationMixin:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
 
-        """ Simulation environment """
-        self.auction_type = const.auction_type
+        """ 
+            Simulation environment
+        """
         self.num_days = const.num_steps * const.market_interval / 60 / 24
         self.market_interval = const.market_interval  # minutes
+
+        # time
+        self.start = 0
         self.num_steps = const.num_steps
 
-        """ Households basic configuration """
-        self.consumers = 3
+        """ 
+            Market structure 
+        """
+        # TODO: this is already defined in const.py
+        self.pricing_rule = 'pac'  # or 'pab'
+
+        """ 
+            Electrolyzer
+        """
+        self.electrolyzer_presence = False
+
+        self.cell_area = 1500
+        self.n_cell = 140
+        self.p = 1.5
+        self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
+
+        """ 
+            Utility 
+        """
+        self.utility_presence = False
+
+        self.negative_pricing = False
+        self.dynamical_pricing = False
+        self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
+
+        """ 
+            Households basic configuration 
+        """
+        self.consumers = 2
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 0
-
+        self.prosumers_with_pv_and_ess = 1
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
-
         self.classification_array = []
 
         """ consumers"""
@@ -41,27 +70,24 @@ class ConfigurationMixin:
         for agent in range(self.prosumers_with_pv_and_ess):
             self.classification_array.append([True, True, True])
 
-        """ Electrolyzer """
-        self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
-
-        """ Utility presence """
-        self.utility_presence = True
-        self.negative_pricing = True
-        self.dynamical_pricing = False
-        self.utility_profile = 'ts_intradayPlusEeg_EURperkWh_15min_2015.csv'
-
-        """ Household loads """
-        self.household_loads_folder = 'household_load_profiles_SMART'
+        """ 
+            Load data
+        """
+        self.household_loads_folder = 'household_load_profiles_htw'
         self.num_households_with_consumption = self.num_households
 
-        """ PV """
+        """ 
+            PV data
+        """
         self.num_pv_panels = self.prosumers_with_only_pv + self.prosumers_with_pv_and_ess
         self.pv_output_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
 
-        """ ESS """
+        """    
+            ESS data
+        """
         self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
-        max_capacity_list = np.full(self.num_households_with_ess, 3)
-        initial_capacity_list = np.full(self.num_households_with_ess, 3)
+        max_capacity_list = np.full(self.num_households_with_ess, 10)
+        initial_capacity_list = np.full(self.num_households_with_ess, 1)
         self.ess_characteristics_list = []
 
         for battery in range(self.num_households_with_ess):
@@ -69,8 +95,6 @@ class ConfigurationMixin:
             initial_soc = initial_capacity_list[battery]
             self.ess_characteristics_list.append([initial_soc, max_capacity])
         self.total_ess_capacity = sum(max_capacity_list)
-
-        print(self.ess_characteristics_list)
 
 
 if __name__ == "__main__":

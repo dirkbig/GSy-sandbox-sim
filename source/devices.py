@@ -1,5 +1,8 @@
+from math import exp
 from source.const import *
 from source.devices_methods import *
+import source.const as const
+
 import logging
 device_log = logging.getLogger('run_microgrid.device')
 
@@ -32,6 +35,29 @@ class ESS(object):
         self.production_horizon = 0
         self.load_horizon = 0
 
+        """ physics """
+        # Charging and discharging efficiency (0 -> 0 %, 1 -> 100 %).
+        self.charge_eff = 0.98
+        self.discharge_eff = 0.98
+        # C rate (how much of capacity can be charged/discharged per hour, 1 -> 100 %).
+        self.c_rate = 1
+        # Nominal battery cell voltage [V].
+        self.cell_voltage = 3.6
+        # Nominal capacity of one single battery cell [Ah].
+        self.cell_capacity = 2.05
+        # Availability for discharge delta DOD (1 is 100% of capacity is available).
+        self.delta_dod = 0.01
+        # Time the battery is in use [d].
+        self.time_in_use = 0
+        # Total charge throughput Q [Ah].
+        self.total_charge_throughput = 0
+        # Track the temperature of the different time steps [K].
+        self.temperature = []
+
+        # charging limits
+        self.max_in = None
+        self.max_out = None
+
     def update_from_household_devices(self):
         """ ask an update from all devices within the information sphere
             (this is of course, all devices within the same house """
@@ -51,42 +77,149 @@ class ESS(object):
         self.agent.soc_actual = self.soc_actual
         return
 
+    """ battery model """
+    def get_charging_limit(self):
+
+        if constraints_setting is 'on':
+            # Calculates how much energy can max. be bought or distributed in the next time step.
+            # Output: array [max. bought, max. distributed] in kWh.
+
+            # Calculate the two limits for discharging: 1. stored energy, 2. C-rate limit [kWh].
+            max_discharge_stored = self.soc_actual * self.discharge_eff
+            max_discharge_c_rate = self.max_capacity * self.c_rate \
+                                   * self.agent.data.market_interval / 60 * self.discharge_eff
+            # Max. amount of energy that can be distributed for the next step [kWh].
+            max_sold = min(max_discharge_stored, max_discharge_c_rate)
+
+            max_charge_stored = (self.max_capacity - self.soc_actual) / self.charge_eff
+            max_charge_c_rate = self.max_capacity * self.c_rate * self.agent.data.market_interval / 60 / self.charge_eff
+            max_bought = min(max_charge_stored, max_charge_c_rate)
+            print(max_bought, max_sold)
+        else:
+            # relaxing of constraints gimmick
+            max_bought = 10000
+            max_sold = 10000
+
+        return max_bought, max_sold
+
+    def get_capacity_loss_by_aging(self, voltage=None):
+        """
+        Get the amount of capacity lost due to operation (cycle aging) and time (calendar aging) [kWh].
+        The model equations are implemented according to:
+            A holistic aging model for Li(NiMnCo)O2 based 18650 lithium-ion batteries
+            Johannes Schmalstieg, Stefan Käbitz, Madeleine Ecker, Dirk Uwe Sauer
+            2014
+            https://www.sciencedirect.com/science/article/abs/pii/S0378775314001876
+        :param voltage: Cell voltage [V]
+        :return capacity_loss: Loss of the battery capacity by aging in this time step [kWh]
+        """
+
+        # In case the cell voltage was not set, use the cell voltage parameter.
+        if voltage is None:
+            voltage = self.cell_voltage
+
+        # Calculate the average temperature [K]
+        avg_temperature = sum(self.temperature) / len(self.temperature)
+        # Value considering the aging by calendar.
+        alpha = (7.543 * voltage - 23.75) * 10**6 * exp(-6976/avg_temperature)
+        capacity_loss_aging = alpha * self.time_in_use ** 0.75
+        # Value to consider the aging by cycle
+        beta = 7.348 * 10**-3 * (voltage - 3.667)**2 + 7.6 * 10**-4 + 4.081 * 10**-3 * self.delta_dod
+        capacity_loss_charge = beta * self.total_charge_throughput**0.5
+        # Calculate the relative capacity loss (1 being 100 %).
+        capacity_loss_rel = capacity_loss_aging + capacity_loss_charge
+        # Return relative capacity loss (1 is 100% loss).
+        return capacity_loss_rel
+
+    @staticmethod
+    def get_ess_temperature(self, temperature=273.15+10):
+        """ here ESS temperature model can go """
+        # TODO: add this physics
+        return temperature
+
     def update_ess_state(self, energy_influx):
         """ every time something goes in (or out) of the ESS, call this function with the energy influx as parameter """
+
+        """ independent charging limits check 
+            should be done at bidding strategy as well
+        """
+        temperature = self.get_ess_temperature(self)
+        self.temperature.append(temperature)
+        [max_charge, max_discharge] = self.get_charging_limit()
+
+        if energy_influx < -max_discharge:
+            device_log.warning("Discharge below the level physically possible tried")
+            energy_influx = -max_discharge
+        elif energy_influx > max_charge:
+            device_log.warning("Charge above the level physically possible tried")
+            energy_influx = max_charge
+
         storage_space_left = self.max_capacity - self.soc_actual
         local_overflow = 0
         local_deficit = 0
-        assert 0 <= self.soc_actual <= self.max_capacity
-        assert storage_space_left >= 0
 
-        if 0 < energy_influx < storage_space_left:
-            self.soc_actual += energy_influx
-            local_overflow = 0
-        elif energy_influx > storage_space_left > 0:
+        try:
+            assert 0 <= self.soc_actual <= self.max_capacity
+            assert storage_space_left >= 0
+        except AssertionError:
+            device_log.error("SOC is higher than max capacity of ESS, or negative")
+
+        # Update the state of charge.
+        if 0 < energy_influx * self.charge_eff < storage_space_left:
+            """ charging without overflow """
+            abs_throughput = energy_influx * self.discharge_eff
+            rel_throughput = abs_throughput / self.max_capacity
+            self.soc_actual += abs_throughput
+
+        elif energy_influx * self.charge_eff > storage_space_left > 0:
+            """ charging with overflow """
+            abs_throughput = storage_space_left
+            rel_throughput = abs_throughput / self.max_capacity
             self.soc_actual = self.max_capacity
-            local_overflow = energy_influx - storage_space_left
-        elif energy_influx < 0 < self.soc_actual + energy_influx:
-            self.soc_actual += energy_influx
-            local_deficit = 0
-        elif energy_influx < 0 and self.soc_actual + energy_influx < 0:
-            self.soc_actual = 0
-            local_deficit = energy_influx - self.soc_actual
 
-        assert 0 <= self.soc_actual <= self.max_capacity
+            local_overflow = abs(energy_influx) - storage_space_left
+
+        elif energy_influx * self.discharge_eff < 0 < self.soc_actual + energy_influx:
+            """ discharging without depletion """
+            abs_throughput = energy_influx * self.discharge_eff
+            rel_throughput = abs_throughput / self.max_capacity
+            self.soc_actual += abs_throughput
+
+        elif energy_influx * self.discharge_eff < 0 and self.soc_actual + \
+                energy_influx * self.discharge_eff < 0:
+            """ discharging with depletion """
+            abs_throughput = self.soc_actual
+            rel_throughput = abs_throughput / self.max_capacity
+            self.soc_actual = 0
+            local_deficit = abs(energy_influx) - self.soc_actual
+        else:
+            rel_throughput = 0
+
+        try:
+            assert 0 <= self.soc_actual <= self.max_capacity
+            assert local_overflow == 0 or local_deficit == 0
+        except AssertionError:
+            device_log.error("SOC is higher than max capacity of ESS, or ESS builds up deficits/overflows")
+
+        """ Aging of battery """
+        # calculate total charge throughput Q
+        self.total_charge_throughput += abs(self.cell_capacity * rel_throughput)
+        # Update the capacity due to aging [kWh].
+        capacity_loss_rel = self.get_capacity_loss_by_aging()
+        self.max_capacity = (1 - capacity_loss_rel) * self.max_capacity
+
+        if self.soc_actual > self.max_capacity:
+            self.soc_actual = self.max_capacity
+
+        # Update the time the battery was used [d].
+        self.time_in_use += self.agent.data.market_interval / 60 / 24
+        device_log.info("Battery states updated. Capacity loss due to aging is {} kWh.".format(capacity_loss_rel))
 
         self.agent.soc_actual = self.soc_actual
         self.agent.data.soc_list_over_time[self.agent.id][self.agent.model.step_count] = self.soc_actual
-        self.agent.data.deficit_over_time[self.agent.id][self.agent.model.step_count] = local_deficit
-        self.agent.data.overflow_over_time[self.agent.id][self.agent.model.step_count] = local_overflow
+        return local_overflow, local_deficit
 
-    @staticmethod
-    def ess_physics(self):
-        """ model any interesting physics applicable"""
-        # TODO: RLI ESS model
-        # such as conversion efficiency, depth of charge efficiency
-        """ depth of charge """
-        pass
-
+    """ needed for storage strategy """
     def ess_demand_calc(self, current_step):
         """calculates the demand expresses by a household's ESS"""
         total_supply_from_devices = self.update_from_household_devices()
@@ -108,7 +241,7 @@ class ESS(object):
         """ 'Estimate' the coming X hours of load and production forecast """
 
         if self.agent.has_load is True:
-            max_horizon = min(len(self.agent.pv_data), count + horizon)
+            max_horizon = min(len(self.agent.load_data), count + horizon)
             self.load_horizon = self.agent.load_data[count:count + max_horizon]
         else:
             self.load_horizon = [0]
@@ -123,7 +256,6 @@ class ESS(object):
         if self.soc_preferred < self.min_capacity:
             self.soc_preferred = self.min_capacity
 
-        print('soc_preferred', self.soc_preferred)
         return
 
 
@@ -183,7 +315,5 @@ class FuelCell(object):
         This class models the FuelCell 
     """
     # TODO: the second half of the electrolyzer / fuel-cell story.  RLI is responsible for this.
-
-
 
 
