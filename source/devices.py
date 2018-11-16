@@ -1,6 +1,8 @@
 from math import exp
 from source.const import *
 from source.devices_methods import *
+import source.const as const
+
 import logging
 device_log = logging.getLogger('run_microgrid.device')
 
@@ -35,8 +37,8 @@ class ESS(object):
 
         """ physics """
         # Charging and discharging efficiency (0 -> 0 %, 1 -> 100 %).
-        self.charge_eff = 0.95
-        self.discharge_eff = 0.95
+        self.charge_eff = 0.98
+        self.discharge_eff = 0.98
         # C rate (how much of capacity can be charged/discharged per hour, 1 -> 100 %).
         self.c_rate = 1
         # Nominal battery cell voltage [V].
@@ -52,12 +54,14 @@ class ESS(object):
         # Track the temperature of the different time steps [K].
         self.temperature = []
 
+        # charging limits
+        self.max_in = None
+        self.max_out = None
+
     def update_from_household_devices(self):
-        """ In case of some master-slave relation between normal devices and ESS,
-            ask an update from all devices within the 'information sphere'
-            (this is of course, all devices within the same house). Called by
-            smart_ess_strategy.
-        """
+        """ ask an update from all devices within the information sphere
+            (this is of course, all devices within the same house """
+
         current_step = self.agent.model.step_count
         device_log.info('devices list of household %d:' % self.agent.id, self.agent.devices)
 
@@ -73,22 +77,30 @@ class ESS(object):
         self.agent.soc_actual = self.soc_actual
         return
 
+    """ battery model """
     def get_charging_limit(self):
-        # Calculates how much energy can max. be bought or distributed in the next time step.
-        # Output: array [max. bought, max. distributed] in kWh.
 
-        # Calculate the two limits for discharging: 1. stored energy, 2. C-rate limit [kWh].
-        max_discharge_stored = self.soc_actual * self.discharge_eff
-        max_discharge_c_rate = self.initial_capacity * self.c_rate \
-                               * self.agent.data.market_interval / 60 * self.discharge_eff
-        # Max. amount of energy that can be distributed for the next step [kWh].
-        max_distributed = min(max_discharge_stored, max_discharge_c_rate)
+        if constraints_setting is 'on':
+            # Calculates how much energy can max. be bought or distributed in the next time step.
+            # Output: array [max. bought, max. distributed] in kWh.
 
-        max_charge_stored = (self.max_capacity - self.soc_actual) / self.charge_eff
-        max_charge_c_rate = self.initial_capacity * self.c_rate * self.agent.data.market_interval / 60 / self.charge_eff
-        max_bought = min(max_charge_stored, max_charge_c_rate)
+            # Calculate the two limits for discharging: 1. stored energy, 2. C-rate limit [kWh].
+            max_discharge_stored = self.soc_actual * self.discharge_eff
+            max_discharge_c_rate = self.max_capacity * self.c_rate \
+                                   * self.agent.data.market_interval / 60 * self.discharge_eff
+            # Max. amount of energy that can be distributed for the next step [kWh].
+            max_sold = min(max_discharge_stored, max_discharge_c_rate)
 
-        return max_bought, max_distributed
+            max_charge_stored = (self.max_capacity - self.soc_actual) / self.charge_eff
+            max_charge_c_rate = self.max_capacity * self.c_rate * self.agent.data.market_interval / 60 / self.charge_eff
+            max_bought = min(max_charge_stored, max_charge_c_rate)
+            print(max_bought, max_sold)
+        else:
+            # relaxing of constraints gimmick
+            max_bought = 10000
+            max_sold = 10000
+
+        return max_bought, max_sold
 
     def get_capacity_loss_by_aging(self, voltage=None):
         """
@@ -119,6 +131,7 @@ class ESS(object):
         # Return relative capacity loss (1 is 100% loss).
         return capacity_loss_rel
 
+    @staticmethod
     def get_ess_temperature(self, temperature=273.15+10):
         """ here ESS temperature model can go """
         # TODO: add this physics
@@ -130,14 +143,15 @@ class ESS(object):
         """ independent charging limits check 
             should be done at bidding strategy as well
         """
-        temperature = self.get_ess_temperature()
+        temperature = self.get_ess_temperature(self)
         self.temperature.append(temperature)
         [max_charge, max_discharge] = self.get_charging_limit()
+
         if energy_influx < -max_discharge:
-            device_log.warning("Discharge below the level physically possible tried.")
+            device_log.warning("Discharge below the level physically possible tried")
             energy_influx = -max_discharge
         elif energy_influx > max_charge:
-            device_log.warning("Charge above the level physically possible tried.")
+            device_log.warning("Charge above the level physically possible tried")
             energy_influx = max_charge
 
         storage_space_left = self.max_capacity - self.soc_actual
@@ -185,7 +199,7 @@ class ESS(object):
             assert 0 <= self.soc_actual <= self.max_capacity
             assert local_overflow == 0 or local_deficit == 0
         except AssertionError:
-            device_log.error("SOC is higher than max capacity of ESS, or build up of deficits/overflows")
+            device_log.error("SOC is higher than max capacity of ESS, or ESS builds up deficits/overflows")
 
         """ Aging of battery """
         # calculate total charge throughput Q
@@ -200,12 +214,12 @@ class ESS(object):
         # Update the time the battery was used [d].
         self.time_in_use += self.agent.data.market_interval / 60 / 24
         device_log.info("Battery states updated. Capacity loss due to aging is {} kWh.".format(capacity_loss_rel))
-        print("Battery states updated. Capacity loss due to aging is {} kWh, capacity is now {} kWh.".format(
-            capacity_loss_rel, self.max_capacity))
+
         self.agent.soc_actual = self.soc_actual
         self.agent.data.soc_list_over_time[self.agent.id][self.agent.model.step_count] = self.soc_actual
         return local_overflow, local_deficit
 
+    """ needed for storage strategy """
     def ess_demand_calc(self, current_step):
         """calculates the demand expresses by a household's ESS"""
         total_supply_from_devices = self.update_from_household_devices()
@@ -242,7 +256,6 @@ class ESS(object):
         if self.soc_preferred < self.min_capacity:
             self.soc_preferred = self.min_capacity
 
-        print('soc_preferred', self.soc_preferred)
         return
 
 
@@ -302,4 +315,5 @@ class FuelCell(object):
         This class models the FuelCell 
     """
     # TODO: the second half of the electrolyzer / fuel-cell story.  RLI is responsible for this.
+
 

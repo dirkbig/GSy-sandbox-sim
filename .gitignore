@@ -4,10 +4,11 @@ __pycache__/
 # Exclude the virtual environment.
 venv*
 # Exclude compilation data
-__pycache__*
-
+*__pycache__*
+*pytest_cache*
 
 .DS_Store
 source/.DS_Store
 profiles/.DS_Store
 
+*.txt

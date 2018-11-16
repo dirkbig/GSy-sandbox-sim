@@ -19,53 +19,33 @@ class Data(ConfigurationMixin, object):
         if data_type == 'random_1_step':
             """ check whether the market platform can complete a full run, using random numbers of simplicity
                 -> do not use for testing, since input is all random, just for bug finding"""
-
-            self.load_list = 1.8*np.random.rand(self.num_households)
+            self.load_list = np.random.rand(self.num_households)
             self.pv_gen_list = np.random.rand(self.num_households)
             self.ess_list = [[np.random.randint(0, 1) for _ in range(2)] for _ in range(self.num_households)]
             self.electrolyzer_list = [None for _ in range(self.num_households)]
             assert len(self.load_list) == len(self.ess_list) == len(self.pv_gen_list)
-
-            self.agent_data_array = [self.load_list, self.pv_gen_list, self.ess_list]
-
-            print(self.agent_data_array)
-
-            self.agent_data_array = np.asarray(self.agent_data_array)
+            self.agent_data_array = np.asarray([self.load_list, self.pv_gen_list, self.ess_list])
 
         elif data_type == 'custom_load_profiles':
             """ create simple (non random) test-profiles, currently also 1 step only
                 -> use for testing of simply grids and hypotheses, check whether strategies are behaving"""
             self.load_list = [0, 0, 100, 10]
             self.pv_gen_list = [3, None, 3, None]
-            self.electrolyzer_list = [None, None, None, None]
             self.ess_list = [[0.5, 5], [0.5, 5], [0, 5], [0, 5]]
+            self.electrolyzer_list = [None, None, None, None]
 
             assert len(self.load_list) == len(self.ess_list) == len(self.pv_gen_list)
+            self.agent_data_array = np.asarray([self.load_list, self.pv_gen_list, self.ess_list])
 
         elif data_type == 'data_set_time_series':
             """ run model with real data, check if the strategies are performing, and for research results """
             self.load_array = self.get_load_profiles()
             self.pv_gen_array = self.get_pv_gen_profiles()
             self.ess_list = self.ess_characteristics_list
-
             self.electrolyzer_list = self.get_electrolyzer_profiles()
-
             assert len(self.load_array) == self.num_households
             assert len(self.pv_gen_array) == self.num_pv_panels
             assert len(self.ess_list) == self.num_households_with_ess
-
-            # assert len(self.electrolyzer_list) == self.num_steps
-
-            try:
-                assert len(self.load_array[0]) == self.num_steps
-            except IndexError:
-                pass
-
-            try:
-                assert len(self.pv_gen_array[0]) == self.num_steps
-            except IndexError:
-                pass
-
             self.agent_data_array = self.fill_in_classification_array()
 
         else:
@@ -80,8 +60,6 @@ class Data(ConfigurationMixin, object):
             if self.negative_pricing is False:
                 self.utility_pricing_profile[self.utility_pricing_profile < 0] = 0
 
-        """ DATA LOGGING """
-
         """ SOC and unmatched loads and generation in grid """
         self.soc_list_over_time = np.zeros([self.num_households, self.num_steps])
         self.deficit_over_time = np.zeros([self.num_households, self.num_steps])
@@ -94,18 +72,22 @@ class Data(ConfigurationMixin, object):
 
     def get_load_profiles(self):
         """ loading in load profiles """
-        load_list = csv_read_load_file(self.num_households, self.household_loads_folder)
 
-        test = True
+        test = False
         if test is True:
             load_list = np.ones([self.num_households, self.num_steps]) * 0.01
             return load_list
 
+        load_list = csv_read_load_file(self.num_households, self.household_loads_folder)
+
         """ load is in minutes, now convert to intervals """
-        for i in range(len(load_list)):
-            load_list[i] = load_list[i][0::self.market_interval]
-            # TODO: add all consumption within 15 step interval to i interval element, instead of (naive) sampling
-            assert len(load_list[i]) == self.num_steps
+        # TODO: add all consumption within 15 step interval to i interval element, instead of (naive) sampling
+        # for i in range(len(load_list)):
+        #     load_list[i] = load_list[i][0::self.market_interval]
+        #
+
+        load_list = self.slice_from_to(load_list)
+        assert [len(load_list[i]) == self.num_steps for i in range(len(load_list))]
 
         """ manual tuning of data can happen here """
         load_array = np.array(load_list)
@@ -117,7 +99,8 @@ class Data(ConfigurationMixin, object):
                 load_array[i] = load_array[i] / max_element
                 print(max_element)
 
-        load_array = load_array * 0.5
+        """ manual tuning of data can happen here"""
+
         return load_array
 
     def get_pv_gen_profiles(self):
@@ -126,8 +109,11 @@ class Data(ConfigurationMixin, object):
         pv_gen_list = csv_read_pv_output_file(self.num_pv_panels, self.pv_output_profile)
         pv_gen_array = np.array(pv_gen_list)
 
+        pv_gen_array = self.slice_from_to(pv_gen_array)
+        assert [len(pv_gen_array[i]) == self.num_steps for i in range(len(pv_gen_array))]
+
         """ manual tuning of data can happen here"""
-        pv_gen_array = pv_gen_array * 1
+        pv_gen_array = pv_gen_array*4
         return pv_gen_array
 
     def get_utility_profile(self):
@@ -138,6 +124,9 @@ class Data(ConfigurationMixin, object):
         return [x[1] for x in electricity_price]
         """
         utility_profile_dict = csv_read_utility_file(self.utility_profile)
+        utility_profile_dict = self.slice_from_to(utility_profile_dict)
+        # assert [len(utility_profile_dict[i]) == self.num_steps for i in range(len(utility_profile_dict))]
+
 
         # utility_profile_dict = utility_profile_dict[0::self.market_interval]
         return utility_profile_dict
@@ -151,8 +140,9 @@ class Data(ConfigurationMixin, object):
         return [x[1] for x in h2_load]
         """
         electrolyzer_list = csv_read_electrolyzer_profile(self.fuel_station_load)
+        electrolyzer_list = self.slice_from_to(electrolyzer_list)
+        assert len(electrolyzer_list) == self.num_steps
 
-        # electrolyzer_list = electrolyzer_list[0:self.num_steps]
         return electrolyzer_list
 
     def fill_in_classification_array(self):
@@ -183,8 +173,19 @@ class Data(ConfigurationMixin, object):
 
         return agent_data_array
 
+    def slice_from_to(self, file):
+        try:
+            for profile in range(len(file)):
+                file[profile] = file[profile][self.start:self.start + self.num_steps]
+        except TypeError:
+            print(type(file))
+            assert type(file) is list
+            file = file[self.start:self.start + self.num_steps]
+        return file
+
 
 if __name__ == "__main__":
+    path = os.chdir("..")
     data = Data()
     print('fuel station load: ', data.fuel_station_load)
     print('utility prices data: ', data.utility_profile)
