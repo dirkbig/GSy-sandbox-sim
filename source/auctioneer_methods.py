@@ -25,12 +25,12 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     """ trade matching according pay-as-clear pricing rule """
     clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list_)
     """ some checks """
-    trade_pairs_pac_ = None
-    total_turnover_ = None
+    trade_pairs_pac_ = []
+    total_turnover_ = 0
 
-    if clearing_quantity is None or clearing_price is None:
+    if clearing_quantity is None:
         method_logger.warning("No clearing quantity or price was found")
-        return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pac_
+        return clearing_quantity, clearing_price, None, None
 
     total_turnover_ = clearing_quantity * clearing_price
     assert total_turnover_ >= 0 and clearing_quantity >= 0
@@ -110,36 +110,38 @@ def pab_pricing(sorted_x_y_y_pairs_list, sorted_bid_list, sorted_offer_list):
     """ trade matching according pay-as-bid pricing rule """
     clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list)
 
-    trade_pairs_pab_ = None
-    total_turnover_ = None
+    trade_pairs_pab_ = []
+    total_turnover_ = 0
 
-    if clearing_quantity and clearing_price is None:
-        return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pab_
+    if clearing_quantity is None:
+        return clearing_quantity, clearing_price, None, None
 
     # filter only on executed segments that have no Non types (meaning) bid/offer but not offer/bid
-    executed_segment = [segment for segment in sorted_x_y_y_pairs_list if segment[0] <= clearing_quantity
-                        and segment[0] is not None]
-
+    # first check if None, if not, check whether under clearing quantity
+    executed_segment = [segment for segment in sorted_x_y_y_pairs_list if segment[0] is not None
+                        and segment[0] <= clearing_quantity]
     """ this function should return a pairing of bids and offers for determined prices"""
-    # TODO: TEST
     trade_pairs = []
     prev_segment_quantity = 0
     for segment in executed_segment:
         # reading out values from the executed trade segments
-        trade_quantity = segment[0]
+        trade_quantity = segment[0] - prev_segment_quantity
+
         buyer_price = segment[1]
         seller_price = segment[2]
         buyer_id = segment[3]
         seller_id = segment[4]
 
-        prev_segment_quantity = trade_quantity
+        """ Open to market design matching algorithm """
         trade_payment = trade_quantity * buyer_price
+        # set up trade pairs
         trade_pair = [seller_id, buyer_id, trade_quantity, trade_payment]
-        trade_pairs.append(trade_pair)
-    # [seller_id, buyer_id, trade_quantity, payment]
-    # TODO: lump together trade deals between trade couples
+        trade_pairs_pab_.append(trade_pair)
+        # finalise
+        total_turnover_ += trade_payment
+        prev_segment_quantity = trade_quantity
 
-    # TODO: TEST
+    # lumping together reduces transparency since prices per trade deal are different, so this is omitted here
     return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pab_
 
 

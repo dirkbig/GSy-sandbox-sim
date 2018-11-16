@@ -6,24 +6,22 @@ mock_model = MicroGrid()
 mock_auctioneer = Auctioneer(mock_id, mock_model)
 mock_auctioneer.model.utility = None
 
-execution = 'complete'
-# execution = 'partial'
-# execution = 'none'
-
 execution_list = ['complete', 'partial', 'none']
 
-def run_test(_execution):
 
-    if execution == 'complete':
+def run_test(_execution='partial'):
+
+    if _execution == 'complete':
         mock_auctioneer.bid_list = [
             [54, 1, 'buyer 1'],
+            [542, 2, 'buyer 1'],
             [53, 2, 'buyer 2'],
             [53, 2, 'buyer 3']
         ]
 
         # [offer price, quantity, id]
         mock_auctioneer.offer_list = [
-            [39, 6, 'seller 1'],
+            [39, 10, 'seller 1'],
             [51, 1, 'seller 2']
         ]
         # assert all bids are higher than highest offer
@@ -32,7 +30,7 @@ def run_test(_execution):
         except AssertionError:
             exit("This bid / offer config will not result in a auction that is completely is executed")
 
-    if execution == 'partial':
+    if _execution == 'partial':
         mock_auctioneer.bid_list = [
             [54, 1, 'buyer 1'],
             [53, 2, 'buyer 2'],
@@ -52,9 +50,10 @@ def run_test(_execution):
         except AssertionError:
             exit("This bid / offer config will not result in a auction that is partially is executed")
 
-    if execution == 'none':
+    if _execution == 'none':
         mock_auctioneer.bid_list = [
             [30, 1, 'buyer 1'],
+            [30.2, 2, 'buyer 1'],
             [31, 2, 'buyer 2'],
             [32, 2, 'buyer 3']
         ]
@@ -78,28 +77,35 @@ def run_test(_execution):
                     sorted_bid_list,
                     sorted_offer_list)
 
+    print("EXECUTION SET UP:", _execution)
+    print(' ')
     print('PAY AS CLEAR')
     print('clearing_quantity ', clearing_quantity)
     print('clearing_price ', clearing_price)
     print('total_turnover ', total_turnover)
     print('trade_pairs ', trade_pairs)
     print(' ')
+
     """ PAB pricing test"""
     clearing_quantity, clearing_price, total_turnover, trade_pairs =\
         pab_pricing(sorted_x_x_y_pairs_list,
                     sorted_bid_list,
                     sorted_offer_list)
+
     print('PAY AS BID')
     print('clearing_quantity ', clearing_quantity)
     print('clearing_price ', clearing_price)
     print('total_turnover ', total_turnover)
     print('trade_pairs ', trade_pairs)
+    print('-----------------')
 
+# execution = 'complete'
+# execution = 'partial'
+# execution = 'none'
 
-run_test('none')
+run_test('complete')
 
-
-for execution in execution_list:
-    run_test(execution)
+# for execution in execution_list:
+#     run_test(execution)
 
 
