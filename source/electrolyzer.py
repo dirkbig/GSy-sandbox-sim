@@ -567,9 +567,3 @@ class Electrolyzer(Agent):
 
         return voltage_reversible
 
-
-
-
-
-
-

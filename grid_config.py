@@ -16,6 +16,7 @@ class ConfigurationMixin:
 
         # time
         self.start = 0
+
         self.num_steps = const.num_steps
 
         """ 

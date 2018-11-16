@@ -16,6 +16,7 @@ print(path)
 #
 
 
+
 def csv_read_load_file(num_households_with_load, household_loads_folder):
     data_list = []
     data_directory = path + '/data_load_profiles/' + household_loads_folder

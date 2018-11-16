@@ -37,11 +37,11 @@ class MicroGrid(Model):
         """ create N agents """
         for i in range(self.data.num_households):
             agent = HouseholdAgent(i, self)
-            self.agents.append(agent)
 
         id = i
 
         """ electrolyzer """
+        i = "electrolyzer"
         if self.data.electrolyzer_presence is True:
             self.agents.append(Electrolyzer(id, self))
             id += 1
