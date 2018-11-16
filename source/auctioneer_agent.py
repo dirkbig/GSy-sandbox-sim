@@ -87,6 +87,10 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
+        print('bids', self.sorted_bid_list)
+        print('offers', self.sorted_offer_list)
+
+        print('trade_pairs', self.trade_pairs)
         if self.snapshot_plot:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
         # TODO: save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards

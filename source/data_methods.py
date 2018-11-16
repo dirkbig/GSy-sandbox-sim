@@ -5,7 +5,6 @@ import numpy as np
 import logging
 data_methods_log = logging.getLogger('run_microgrid.data_methods')
 
-os.chdir("..")
 path = "./source" + "/profiles"
 print(path)
 
