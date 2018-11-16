@@ -153,7 +153,6 @@ class Auctioneer(Agent):
         """sorted_x_y_y_pairs_list[agents][quantity_point, bid_price, offer_price]"""
         sorted_x_y_y_pairs_list = sorted(x_y_y_pairs_list, key=lambda l: l[0])
 
-        print(sorted_x_y_y_pairs_list)
         # stupid comprehension proxy begins here...
         bid_list_proxy = []
         offer_list_proxy = []
@@ -183,7 +182,6 @@ class Auctioneer(Agent):
             else:
                 break
 
-        print(sorted_x_y_y_pairs_list)
         for segment in range(len(sorted_x_y_y_pairs_list)):
             j = 1
             _bid_list_proxy = bid_list_proxy[segment:]
@@ -200,7 +198,6 @@ class Auctioneer(Agent):
             else:
                 break
 
-        print(sorted_x_y_y_pairs_list)
 
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 

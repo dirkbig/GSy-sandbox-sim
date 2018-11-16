@@ -25,9 +25,12 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     """ trade matching according pay-as-clear pricing rule """
     clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list_)
     """ some checks """
+    trade_pairs_pac_ = None
+    total_turnover_ = None
+
     if clearing_quantity is None or clearing_price is None:
         method_logger.warning("No clearing quantity or price was found")
-        return clearing_quantity, clearing_price, None, None
+        return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pac_
 
     total_turnover_ = clearing_quantity * clearing_price
     assert total_turnover_ >= 0 and clearing_quantity >= 0
@@ -106,15 +109,20 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
 def pab_pricing(sorted_x_y_y_pairs_list, sorted_bid_list, sorted_offer_list):
     """ trade matching according pay-as-bid pricing rule """
     clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list)
+
     trade_pairs_pab_ = None
     total_turnover_ = None
-    trade_pairs = []
+
+    if clearing_quantity and clearing_price is None:
+        return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pab_
+
     # filter only on executed segments that have no Non types (meaning) bid/offer but not offer/bid
-    executed_segment = [segment for segment in sorted_x_y_y_pairs_list if segment[0] < clearing_quantity]
-    print(executed_segment)
+    executed_segment = [segment for segment in sorted_x_y_y_pairs_list if segment[0] <= clearing_quantity
+                        and segment[0] is not None]
 
     """ this function should return a pairing of bids and offers for determined prices"""
     # TODO: TEST
+    trade_pairs = []
     prev_segment_quantity = 0
     for segment in executed_segment:
         # reading out values from the executed trade segments
@@ -131,9 +139,8 @@ def pab_pricing(sorted_x_y_y_pairs_list, sorted_bid_list, sorted_offer_list):
     # [seller_id, buyer_id, trade_quantity, payment]
     # TODO: lump together trade deals between trade couples
 
-    print(trade_pairs)
     # TODO: TEST
-    return clearing_quantity, total_turnover_, trade_pairs_pab_
+    return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pab_
 
 
 def clearing_quantity_calc(sorted_x_y_y_pairs_list):
@@ -149,7 +156,6 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
     sorted_x_y_y_pairs_list = [segment for segment in sorted_x_y_y_pairs_list if segment[1] is not None
                                and segment[2] is not None]
 
-    print(sorted_x_y_y_pairs_list)
 
     # now I make range(len(sorted_x_y_y_pairs_list)-1), -1 because of the forwards-step bug (see TODO_above)
     # if all offers are affordable to bids, i.e all offers are lower price than bids, the market should
@@ -160,13 +166,13 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
         clearing_quantity_ = sorted_x_y_y_pairs_list[-1][0]
         # highest winning bid is simply last price point of aggregate demand curve
         clearing_price_ = sorted_x_y_y_pairs_list[-1][1]
-        print('fully executed')
+        method_logger.info('fully executed')
 
     # execute nothing: all bids prices are lower than offer prices
     elif all(sorted_x_y_y_pairs_list[i][1] < sorted_x_y_y_pairs_list[i][2] for i in range(len(sorted_x_y_y_pairs_list))):
         clearing_quantity_ = None
         clearing_price_ = None
-        print('nothing executed')
+        method_logger.info('nothing executed')
 
     # execute partially: some bids prices are lower than some offer prices
     else:
@@ -179,7 +185,7 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
                 # clearing price is defined as the highest winning bid, sorted_x_x_y_pairs_list[i][1]
                 clearing_quantity_ = sorted_x_y_y_pairs_list[i - 1][0]
                 clearing_price_ = sorted_x_y_y_pairs_list[i - 1][1]
-                print('partially executed')
+                method_logger.info('partially executed')
                 break
 
     return clearing_quantity_, clearing_price_
