@@ -5,7 +5,8 @@ import numpy as np
 import logging
 data_methods_log = logging.getLogger('run_microgrid.data_methods')
 
-os.chdir("..")
+# WHY IS THE DIRECTORY PATH CHANGED HERE? THIS LED TO AN ERROR. WITHOUT THIS IT IS WORKING FOR ME (FROM MARLON)
+# os.chdir("..")
 path = "./source" + "/profiles"
 print(path)
 

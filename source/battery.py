@@ -1,5 +1,6 @@
 from mesa import Agent
 import source.const as const
+from source.wallet import Wallet
 from math import exp
 import warnings
 import logging
@@ -27,6 +28,18 @@ class Battery(Agent):
         self.model = model
         # Interval time [min].
         self.interval_time = const.market_interval
+        self.current_step = 0
+
+        """ Trading. """
+        self.bidding_solver = "dummy"
+        self.wallet = Wallet(_unique_id)
+        self.trading_state = None
+        # Bid in the format [price, quantity, self ID]
+        self.bid = None
+        self.offer = None
+        self.sold_energy = None
+        self.bought_energy = None
+
 
         # Physical parameter
         # Capacity [kWh]
@@ -56,8 +69,164 @@ class Battery(Agent):
 
 
     def pre_auction_round(self):
+        # Update the current time step.
+        self.current_step = self.model.step_count
+
+        self.update_bid()
+
+    def post_auction_round(self):
         pass
 
+    def update_bid(self):
+        # Define the number of steps the perfect foresight optimization should look in the future.
+        n_step = 5
+
+        if self.bidding_solver == 'linprog':
+            """ Linear program """
+            # To derive the bid for this time step, a linear optimization (linprog) determines the optimal amount of
+            # electricity that should be stored or sold. The basis of the optimization is the grid electricity price and
+            # the storage charging and discharging efficiency.
+            #
+            # The optimization problem is formulated in the way:
+            # min  c * x
+            # s.t. A * x <= b
+            # x >= 0 and x < max. producible hydrogen
+            #
+            # Here, x is a vector with the amount of electricity charged and another set of x for the values of
+            # discharged energy, c is the estimated cost function for each time step (EEX spot marked costs are used),
+            # A * x <= b is used to make sure that the storage never goes below empty or above full.
+            # Number of time steps of the future used for the optimization.
+            #
+            # NOTE: Charging and discharging for each time step are two separated x values and they are referring to the
+            # energy bought or sold to the energy system. Hereby charging values are positive and discharging values are
+            # negative
+            # e.g. for 3 time steps the x vector looks like this:
+            # x = [x_1, x_2, x_3, x_4, x_5, x_6]
+            # The indices 1-3 are for charging (>= 0), the indices 4-6 are for discharging (<= 0).
+
+            from cvxopt import matrix, solvers
+            import numpy as np
+
+            # To be able to account for charging and discharging efficiencies, there are separated x values for charging
+            # and discharging. The cost values are set accordingly.
+            electricity_cost = self.model.data.utility_pricing_profile[self.current_step:self.current_step+n_step]
+            c_charge = electricity_cost[:] / self.charge_eff
+            c_discharge = electricity_cost[:] * self.discharge_eff
+            c = np.concatenate((c_charge, c_discharge))
+
+            # Using the inequality constraints first to make sure that the battery is never below empty or above full.
+            # Further it is made sure that charging speeds are not violated. A little example for three time steps
+            # forecast would look like this:
+            #
+            #               A           *x <=        b
+            #
+            #       [ C  0  0  0  0  0]       [Capacity_init - SoC_init]  \
+            #       [ C  C  0  D  0  0]       [Capacity_init - SoC_init]   |-> 1. Ensure storage is never above full
+            #       [ C  C  C  D  D  0]       [Capacity_init - SoC_init]  /
+            #       [ 0  0  0 -D  0  0]       [SoC_init]   |-> 2. Ensure storage is never below empty
+            #       [-C  0  0 -D -D  0]       [SoC_init]   |-> 2. Ensure storage is never below empty
+            #       [-C -C -C -D -D -D]       [0]          |-> 3. Ensure storage SoC at the end is not below SoC_init
+            #       [ C  0  0  0  0  0]       [C*cap_init*interval_time/60min]  \
+            #       [ 0  C  0  0  0  0]       [C*cap_init*interval_time/60min]   |-> 4. Ensure C rate charging
+            #       [ 0  0  C  0  0  0]       [C*cap_init*interval_time/60min]  /           not violated
+            #       [ 0  0  0 -D  0  0] *x <= [C*cap_init*interval_time/60min]  \
+            #       [ 0  0  0  0 -D  0]       [C*cap_init*interval_time/60min]   |-> 5. Ensure C rate discharging
+            #       [ 0  0  0  0  0 -D]       [C*cap_init*interval_time/60min]  /           not violated
+            #       [-C  0  0  0  0  0]       [0]  \
+            #       [ 0 -C  0  0  0  0]       [0]   |-> 6. Ensure charging value not below 0
+            #       [ 0  0 -C  0  0  0]       [0]  /
+            #       [ 0  0  0  D  0  0]       [0]  \
+            #       [ 0  0  0  0  D  0]       [0]   |-> 7. Ensure discharging value not above 0
+            #       [ 0  0  0  0  0  D]       [0]  /
+            #
+            #   C: Factor charging efficiency = self.charge_eff
+            #   D: Factor discharging efficiency = 1 / self.discharge_eff
+            #   x: Vector of charging and discharging for each time step (in this example 3 time steps):
+            #      x = [charge_ts1, charge_ts2, charge_ts3, discharge_ts1, discharge_ts2, discharge_ts3]
+
+            C = self.charge_eff
+            D = 1 / self.discharge_eff
+
+            # OK, so let's start and define A.
+            # 1. First ensure that the storage is never above full.
+            A = [[C] * (i + 1) + [0.0] * (n_step - i - 1) + [D] * i + [0.0] * (n_step - i)
+                 for i in range(n_step)]
+            # 2. Then ensure that the storage is never below empty.
+            A += [[-C] * i + [0.0] * (n_step - i) + [-D] * (i + 1) + [0.0] * (n_step - i - 1)
+                  for i in range(n_step-1)]
+            # 3. Then ensure that the state of charge at the end of the simulation is not below the initial SoC.
+            A += [[-C] * n_step + [-D] * n_step]
+            # 4. Then ensure that charging speed doesn't violate the c-rate constraint.
+            A += [[0.0] * i + [C] + [0.0] * (2 * n_step - i - 1) for i in range(n_step)]
+            # 5. Then ensure that discharging speed doesn't violate the c-rate constraint.
+            A += [[0.0] * (n_step + i) + [-D] + [0.0] * (n_step - i - 1) for i in range(n_step)]
+            # 6. Then ensure that charging cannot be negative.
+            A += [[0.0] * i + [-C] + [0.0] * (2 * n_step - i - 1) for i in range(n_step)]
+            # 7. Finally ensure that discharging cannot be positive.
+            A += [[0.0] * (n_step + i) + [D] + [0.0] * (n_step - i - 1) for i in range(n_step)]
+
+            # Now b can be defined.
+            # 1.
+            b = [self.capacity_init - self.stored_electricity] * n_step
+            # 2.
+            b += [self.stored_electricity] * (n_step - 1)
+            # 3.
+            b += [0]
+            # 4. & 5.
+            b += [self.c_rate * self.capacity_init * self.interval_time / 60] * n_step * 2
+            # 6. & 7.
+            b += [0] * n_step * 2
+
+            # Starting the optimization process.
+            # First bring c, A and b to the matrix format of the package cvxopt.
+            A = matrix(np.array(A).T.tolist())
+            b = matrix(b)
+            c = matrix(c)
+            # Silence the optimizer output.
+            solvers.options['show_progress'] = False
+            # Execute the optimization.
+            sol = solvers.lp(c, A, b)
+            print('Optimization finished: ')
+            # Add up charging and discharging to get the actual charging.
+            res = []
+            for i in range(n_step):
+                res.append(sol['x'][i] + sol['x'][i + n_step])
+
+            print(res)
+            # Return the power value needed for the optimized production and the price [kW, EUR/kWh]
+
+        elif self.bidding_solver == 'dummy':
+            res = [10]
+            c = [0.1]
+
+
+        charging_power = res[0]
+        price = c[0]
+
+        if charging_power == 0:
+            # Case: Do not bid.
+            self.bid = None
+            self.offer = None
+            self.trading_state = None
+        elif charging_power > 0:
+            # Case: Bid on energy.
+            self.bid = [price, charging_power, self.id]
+            self.offer = None
+            self.trading_state = "buying"
+        else:
+            # Case: Sell energy.
+            self.bid = None
+            self.offer = [price, charging_power, self.id]
+            self.trading_state = "supplying"
+
+    def announce_bid(self):
+        # If the electrolyzer is bidding on electricity, the bid is added to the bidding list.
+        battery_log.info('Battery bidding state is {}'.format(self.trading_state))
+
+        if self.trading_state == 'buying':
+            self.model.auction.bid_list.append(self.bid)
+        elif self.trading_state == "supplying":
+            self.model.auction.offer_list.append(self.offer)
 
     def update_state(self, charging_energy, temperature=273.15+10):
         """

@@ -3,8 +3,8 @@ from source.auctioneer_agent import Auctioneer
 from source.utility_agent import UtilityAgent
 from source.household_agent import HouseholdAgent
 from source.electrolyzer import Electrolyzer
+from source.battery import Battery
 from source.data import Data
-from source.const import *
 
 from mesa import Model
 import random
@@ -39,10 +39,16 @@ class MicroGrid(Model):
             agent = HouseholdAgent(i, self)
             self.agents.append(agent)
 
+        id = i
+
         """ electrolyzer """
-        electrolyzer_id = 'electrolyzer'
         if self.data.electrolyzer_presence is True:
-            self.electrolyzer = Electrolyzer(electrolyzer_id, self)
+            self.agents.append(Electrolyzer(id, self))
+            id += 1
+
+        if self.data.battery_presence is True:
+            self.agents.append(Battery(id, self))
+            id += 1
 
         self.data_collector = DataCollector()
 

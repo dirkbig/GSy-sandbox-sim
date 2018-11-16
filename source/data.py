@@ -124,7 +124,7 @@ class Data(ConfigurationMixin, object):
         """
         utility_profile_dict = csv_read_utility_file(self.utility_profile)
         utility_profile_dict = self.slice_from_to(utility_profile_dict)
-        assert [len(utility_profile_dict[i]) == self.num_steps for i in range(len(utility_profile_dict))]
+        # assert [len(utility_profile_dict[i]) == self.num_steps for i in range(len(utility_profile_dict))]
 
         # utility_profile_dict = utility_profile_dict[0::self.market_interval]
         return utility_profile_dict
