@@ -165,6 +165,14 @@ class HouseholdAgent(Agent):
         else:
             self.net_energy_in_simple_strategy = self.pv_production_on_step - abs(self.load_on_step)
 
+        # if self.has_ess is True:
+        #
+        #     min_percentage = 0.1
+        #     self.available_surplus = max(self.ess.max_capacity*min_percentage, self.soc_actual)
+        #     self.ess.ess_demand_calc(self.model.step_count)
+        # else:
+        #     self.net_energy_in_simple_strategy = self.pv_production_on_step - abs(self.load_on_step)
+        #
         if self.net_energy_in_simple_strategy > 0:
             self.trading_state = 'supplying'
             price = 10 + self.id
@@ -174,7 +182,7 @@ class HouseholdAgent(Agent):
 
         elif self.net_energy_in_simple_strategy < 0:
             self.trading_state = 'buying'
-            price = 20 - self.id
+            price = 25 - self.id
             quantity = abs(self.net_energy_in_simple_strategy)
             self.bid = [price, quantity, self.id]
             self.offer = None

@@ -67,6 +67,7 @@ class ESS(object):
 
         total_supply_from_devices = 0
         for device in self.agent.devices:
+            # don't call ESS for update, ESS gives back its current SOC
             if device != 'ESS':
                 total_supply_from_devices += self.agent.devices[device].uniform_call_to_device(current_step)
 
