@@ -5933,3 +5933,16 @@
 2018-11-16 15:24:53,006 - run_microgrid.auctioneer - WARNING - no trade at this step
 2018-11-16 15:24:53,007 - run_microgrid.auctioneer - WARNING - no trade at this step
 2018-11-16 15:24:53,007 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,033 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,035 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,037 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,039 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,042 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,044 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,044 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,045 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,045 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,045 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,046 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,046 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-11-16 15:27:58,047 - run_microgrid.auctioneer - WARNING - no trade at this step

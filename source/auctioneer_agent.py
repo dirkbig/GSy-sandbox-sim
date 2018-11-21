@@ -16,6 +16,7 @@ class Auctioneer(Agent):
         self.model = model
 
         self.snapshot_plot = False
+        self.snapshot_plot_interval = 10
         self.id = _unique_id
         self.pricing_rule = self.model.data.pricing_rule
         self.aggregate_demand_curve = []
@@ -91,7 +92,7 @@ class Auctioneer(Agent):
         print('offers', self.sorted_offer_list)
 
         print('trade_pairs', self.trade_pairs)
-        if self.snapshot_plot:
+        if self.snapshot_plot is True and self.model.step_count % self.snapshot_plot_interval == 0:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
         # TODO: save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards
 
@@ -221,14 +222,14 @@ class Auctioneer(Agent):
                 trade_quantity = self.trade_pairs[trade][2]
                 turnover = self.trade_pairs[trade][3]
 
-                # """ execute trade buy calling household agent's wallet settlement """
-                # if id_seller is 'utility':
-                #     """ seller was utility """
-                #     self.who_gets_what_dict[id_seller].append(-trade_quantity)
-                #     self.model.utility.wallet.settle_revenue(turnover)
-                # else:
-                self.who_gets_what_dict[id_seller].append(-trade_quantity)
-                self.model.agents[id_seller].wallet.settle_revenue(turnover)
+                """ execute trade buy calling household agent's wallet settlement """
+                if id_seller is 'utility':
+                    """ seller was utility """
+                    self.who_gets_what_dict[id_seller].append(-trade_quantity)
+                    self.model.utility.wallet.settle_revenue(turnover)
+                else:
+                    self.who_gets_what_dict[id_seller].append(-trade_quantity)
+                    self.model.agents[id_seller].wallet.settle_revenue(turnover)
 
                 self.who_gets_what_dict[id_buyer].append(trade_quantity)
                 self.model.agents[id_buyer].wallet.settle_payment(turnover)
@@ -260,19 +261,20 @@ class Auctioneer(Agent):
         self.percentage_passive = num_passive / total_num
 
     def append_utility_offer(self, sorted_bid_list, sorted_offer_list):
-        """ function is only called when an Utility is present, it supplements the offer list of auctioneer
+        """ function is only called when an utility is present, it supplements the offer list of auctioneer
             with an 'infinite' supply of energy up to the necessary amount to cover all demand, bought or not """
 
         bid_total = sum(np.asarray(sorted_bid_list)[:, 1])
+
         try:
             prosumer_offer_total = sum(np.asarray(sorted_offer_list)[:, 1])
         except IndexError:
             prosumer_offer_total = 0
+            auction_log.info("no prosumers in the grid supplying energy")
 
         """ Append utility"""
-        utility_id = 'utility'
         total_offer_below_mmr = 0
-
+        utility_id = self.model.utility.id
         if len(sorted_offer_list) is 0:
             utility_quantity = bid_total
             sorted_offer_list.insert(0, [self.utility_market_maker_rate, utility_quantity, utility_id])
@@ -290,7 +292,16 @@ class Auctioneer(Agent):
                         utility_quantity = bid_total - total_offer_below_mmr
                         sorted_offer_list.insert(offer + 1, [self.utility_market_maker_rate, utility_quantity, utility_id])
 
+                    else:
+                        auction_log.info("no utility import into community needed at this step")
+
         sorted_bid_list = sorted(sorted_bid_list, key=lambda price_point: price_point[0], reverse=True)
         sorted_offer_list = sorted(sorted_offer_list, key=lambda price_point: price_point[0])
+
+        """ append utility ot who_gets_what dictionary """
+        self.who_gets_what_dict[utility_id] = []
+
+        print("bid", sorted_bid_list)
+        print("offers", sorted_offer_list)
 
         return sorted_bid_list, sorted_offer_list

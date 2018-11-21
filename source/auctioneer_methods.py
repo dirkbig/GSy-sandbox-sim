@@ -57,6 +57,9 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
         trade_payment = trade_quantity * clearing_price
         # set up trade pairs
         trade_pair = [seller_id, buyer_id, trade_quantity, trade_payment]
+        if trade_pair[1] is None or trade_pair[2] == 0:
+            continue
+
         trade_pairs_pac_.append(trade_pair)
         # finalise
         total_turnover_internally += trade_payment
@@ -75,6 +78,11 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
             pass
         else:
             assert total_turnover_internally == total_turnover_
+
+    for trade in trade_pairs_pac_:
+        if any(element is None for element in trade):
+            print('weird stuff is happening')
+            exit('weird stuff is happening')
 
     method_logger.info('finished matching winning bids and offers')
     return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pac_

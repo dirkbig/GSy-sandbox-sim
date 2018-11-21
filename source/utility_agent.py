@@ -30,7 +30,7 @@ class UtilityAgent(Agent):
 
         else:
             """ constant priced energy supply """
-            price = 10
+            price = 18
             quantity = 1000
             # TODO: quantity should just saturate the market... so supply should be linked to unsaturated demand
             # otherwise it will become a messy plot
