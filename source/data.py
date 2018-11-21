@@ -33,6 +33,7 @@ class Data(ConfigurationMixin, object):
             self.pv_gen_list = [3, None, 3, None]
             self.ess_list = [[0.5, 5], [0.5, 5], [0, 5], [0, 5]]
             self.electrolyzer_list = [None, None, None, None]
+
             assert len(self.load_list) == len(self.ess_list) == len(self.pv_gen_list)
             self.agent_data_array = np.asarray([self.load_list, self.pv_gen_list, self.ess_list])
 
@@ -125,6 +126,7 @@ class Data(ConfigurationMixin, object):
         utility_profile_dict = csv_read_utility_file(self.utility_profile)
         utility_profile_dict = self.slice_from_to(utility_profile_dict)
         assert len(utility_profile_dict) == self.num_steps
+
 
         # utility_profile_dict = utility_profile_dict[0::self.market_interval]
         return utility_profile_dict

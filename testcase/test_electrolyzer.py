@@ -37,16 +37,11 @@ def run():
         ely.pre_auction_round(opt_res_linprog[i_timestep])
 
         print("Time step {:3.0f}; Time passed {:5.0f} min; Ely power {:6.2f} kW; Voltage {:6.2f} V; Ely cur. {:6.2f}"
+
               " A; Cur. density {:.4f} A/cm²; Stored mass {:6.2f} kg; Demand {:4.2f} kg; Demand not met {:4.2f} kg, "
               "Temp: {:.2f}".format(i_timestep, i_timestep*const.market_interval, ely.power, ely.voltage, ely.current,
                 ely.cur_dens, ely.stored_hydrogen, ely.track_demand[-1], ely.demand_not_fulfilled, ely.temp))
 
     print("Total costs are {} EUR.".format(ely.track_cost))
     print("\nTest finished.")
-
-
-
-
-
-
 

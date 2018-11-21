@@ -5,6 +5,8 @@ import numpy as np
 import logging
 data_methods_log = logging.getLogger('run_microgrid.data_methods')
 
+# WHY IS THE DIRECTORY PATH CHANGED HERE? THIS LED TO AN ERROR. WITHOUT THIS IT IS WORKING FOR ME (FROM MARLON)
+# os.chdir("..")
 path = "./source" + "/profiles"
 print(path)
 
@@ -12,6 +14,7 @@ print(path)
 #     data_dict = {}
 #     data_directory = "data_load_profiles"
 #
+
 
 
 def csv_read_load_file(num_households_with_load, household_loads_folder):

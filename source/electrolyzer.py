@@ -1,5 +1,3 @@
-from source.wallet import Wallet
-
 import math
 import warnings
 from mesa import Agent
@@ -19,15 +17,6 @@ class Electrolyzer(Agent):
 
         self.id = _unique_id
         self.model = model
-
-        """standard wallet object for electrolyzer"""
-        self.wallet = Wallet(_unique_id)
-
-        """ H2 demand list. """
-        self.h2_demand = self.model.data.electrolyzer_list
-        # Track the used demand [kg].
-        self.track_demand = []
-
         # Simulation time [min].
         self.interval_time = const.market_interval
         self.current_step = 0
@@ -37,8 +26,7 @@ class Electrolyzer(Agent):
         # Track the used demand [kg].
         self.track_demand = []
 
-        """ Trading """
-
+        """ Trading. """
         # Different methods can be chosen for deriving the bidding of the electrolyzer. Options are 'linprog' and
         # 'quadprog'. Quadprog by now seems to be the superior method in regard to result and computation time.
         self.bidding_solver = "dummy"
@@ -127,17 +115,17 @@ class Electrolyzer(Agent):
     def pre_auction_round(self):
         # Update the current time step.
         self.current_step = self.model.step_count
-        # Before the auction the physical states are renewed.
-        # Get the new bid
-        electrolyzer_bid = self.update_bid()
-        self.model.auction.bid_list.append(electrolyzer_bid)
+
+        # Get the new bid.
+        self.update_bid()
+        self.announce_bid()
 
     def post_auction_round(self):
         # Before the auction the physical states are renewed.
         self.update_power(self.bought_energy)
         # Track the total costs [EUR].
-        self.track_cost += self.power * self.interval_time / 60 * \
-            self.model.data.utility_pricing_profile[self.current_step]
+        # self.track_cost += self.power * self.interval_time / 60 * \
+        #     self.model.data.utility_pricing_profile[self.current_step]
         # Update the stored mass hydrogen.
         self.update_storage()
 
@@ -159,11 +147,15 @@ class Electrolyzer(Agent):
             # Case: the storage is more than full, thus iteratively the power has to be reduced
             #mass_overload = self.stored_hydrogen - const.hrs_storage_size
 
+
     # Determine new measurement data for next step.
     def update_power(self, bought_energy):
         # Update the power value within the physical limits of the electrolyzer.
         # Parameter:
         #  bought_energy: Power value for the next time step [kWh].
+
+        if bought_energy is None:
+            return
 
         self.power = bought_energy / (self.interval_time / 60)
         # Update voltage, current, current density and power in an iterative process.
@@ -213,8 +205,8 @@ class Electrolyzer(Agent):
             # x >= 0 and x < max. producible hydrogen
             #
             # Here, x is a vector with the amount of hydrogen produced each time step, c is the estimated cost function
-            # never for each time step (EEX spot marked costs are used), A * x <= b is used to make sure that the
-            # storage falls below the min. storage level (safety buffer).
+            # for each time step (EEX spot marked costs are used), A * x <= b is used to make sure that the storage
+            # never falls below the min. storage level (safety buffer).
             # Number of time steps of the future used for the optimization.
 
             # Define the electricity costs [EUR/kWh].
@@ -356,6 +348,13 @@ class Electrolyzer(Agent):
             # Case: Bid on energy.
             self.bid = [price, charging_power, self.id]
             self.trading_state = "buying"
+
+    def announce_bid(self):
+        # If the electrolyzer is bidding on electricity, the bid is added to the bidding list.
+        electrolyzer_log.info('Electrolyzer bidding state is {}'.format(self.trading_state))
+
+        if self.trading_state == 'buying':
+            self.model.auction.bid_list.append(self.bid)
 
 
     def plot_optimization_result(self, h2_produced, cumsum_h2_demand, electricity_price):
@@ -568,23 +567,3 @@ class Electrolyzer(Agent):
 
         return voltage_reversible
 
-    def electrolyzer_bid_price_strategy(self):
-        """ bid price on par with utility prices (the maximum)?
-            or bid price opportunistically low to grab some cheap RES deals?
-            is a probability function"""
-        bid_price = 10
-        return bid_price
-
-
-class FuelCell(object):
-    """ FuelCell device """
-
-
-
-    """ 
-        Electrolyzer produces hydrogen gas. This gas can either be sold 
-            - to fueling HydrogenCar objects 
-            - or used by a FuelCell object to produce electricity, to be sold on the energy market ]
-        This class models the FuelCell 
-    """
-    # TODO: the second half of the electrolyzer / fuel-cell story.  RLI is responsible for this.
