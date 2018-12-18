@@ -21,9 +21,7 @@ class MicroGrid(Model):
 
         """ initiation """
         self.step_count = 0
-        self.agents = []
-        self.electrolyzer = None
-        self.utility = None
+        self.agents = {}
 
         self.entities_dict = {}
 
@@ -32,54 +30,52 @@ class MicroGrid(Model):
 
         """ create the utility grid"""
         if self.data.utility_presence is True:
-            self.utility = UtilityAgent(self)
+            # self.utility = UtilityAgent(self)
+            utility_id = "Utility"
+            self.agents[utility_id] = UtilityAgent(utility_id, self)
 
         """ create N agents """
-        for i in range(self.data.num_households):
-            self.agents.append(HouseholdAgent(i, self))
-        # Save the id number for further agents.
-        id = i
+        for id in range(self.data.num_households):
+            # self.agents.append(HouseholdAgent(i, self))
+            house_id = "House_" + str(id)
+            self.agents[house_id] = HouseholdAgent(id, self)
 
-        """ electrolyzer """
+        """ Electrolyzer """
         if self.data.electrolyzer_presence is True:
-            self.agents.append(Electrolyzer(id, self))
-            id += 1
+            electrolyzer_id = 'Electrolyzer'
+            # self.agents.append(Electrolyzer(id, self))
+            self.agents[electrolyzer_id] = Electrolyzer(electrolyzer_id, self)
 
         if self.data.battery_presence is True:
-            self.agents.append(Battery(id, self))
-            id += 1
+            battery_id = 'CommercialBattery'
+            # self.agents.append(Battery(id, self))
+            self.agents[battery_id] = Battery(battery_id, self)
 
         self.data_collector = DataCollector()
+
+        print(self.agents)
 
     def sim_step(self):
         """advances the model by one step"""
 
         """ pre-auction round """
-        if self.utility is not None:
-            self.utility.pre_auction_round()
+        # if self.data.utility_presence is True:
+        #     self.agents["Utility"].pre_auction_round()
 
-        random.shuffle(self.agents)
-        for agent in self.agents[:]:
-            agent.pre_auction_round()
+        for agent_id in self.agents:
+            self.agents[agent_id].pre_auction_round()
+            print(agent_id)
 
-        if self.utility is not None:
-            self.utility.pre_auction_round()
-
-        if self.electrolyzer is not None:
-            self.electrolyzer.pre_auction_round()
+        # if self.data.electrolyzer_presence is True:
+        #     self.agents['Electrolyzer'].pre_auction_round()
 
         """ auction round """
         self.auction.auction_round()
 
         """ post-auction round """
-        for agent in self.agents[:]:
-            agent.post_auction_round()
-
-        if self.utility is not None:
-            self.utility.post_auction_round()
-
-        if self.electrolyzer is not None:
-            self.electrolyzer.post_auction_round()
+        for agent_id in self.agents:
+            self.agents[agent_id].post_auction_round()
+            print(agent_id)
 
         """ Update the time """
         self.update_time()

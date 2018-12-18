@@ -36,9 +36,9 @@ class ConfigurationMixin:
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
 
         """
-            Battery
+            Commercial battery
         """
-        self.battery_presence = True
+        self.battery_presence = False
 
 
         """ 

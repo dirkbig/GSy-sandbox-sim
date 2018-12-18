@@ -7,10 +7,12 @@ utility_log = logging.getLogger('run_microgrid.utility grid')
 
 class UtilityAgent(Agent):
     """ Utility agent is created by calling this function """
-    def __init__(self, model):
-        self.model = model
-        self.id = 'utility'
+    def __init__(self, _unique_id, model):
+        super().__init__(_unique_id, self)
 
+        self.model = model
+        self.trading_state = 'undefined'
+        self.id = _unique_id
         self.dynamical_pricing = False
 
         """load in utility energy price profile"""

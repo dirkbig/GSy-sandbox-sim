@@ -221,14 +221,14 @@ class HouseholdAgent(Agent):
 
         if self.net_energy_in_simple_strategy > 0:
             self.trading_state = 'supplying'
-            price = self.id
+            price = 0  # marginal cost of zero
             quantity = self.net_energy_in_simple_strategy
             self.offers = [[price, quantity, self.id]]
             self.bids = None
 
         elif self.net_energy_in_simple_strategy < 0:
             self.trading_state = 'buying'
-            price = 25 - self.id
+            price = self.model.auction.utility_market_maker_rate
             quantity = abs(self.net_energy_in_simple_strategy)
             self.bids = [[price, quantity, self.id]]
             self.offers = None
