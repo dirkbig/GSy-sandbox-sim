@@ -108,7 +108,6 @@ class Auctioneer(Agent):
 
         # sort on price, not quantity, so location[0]
         np.array(self.bid_list)
-
         if len(np.array(self.bid_list).shape) == 1:
             self.bid_list = [self.bid_list]
             assert len(np.array(self.bid_list).shape) == 2
@@ -120,6 +119,7 @@ class Auctioneer(Agent):
         sorted_bid_list = sorted(self.bid_list, key=lambda location: location[0], reverse=True)
         sorted_offer_list = sorted(self.offer_list, key=lambda location: location[0])
 
+        print(sorted_bid_list)
         if self.model.utility is not None:
             """ append (in a clever, semi-aesthetic way) the utility offer to the offer list according to the 
                 utility_market_maker_rate """

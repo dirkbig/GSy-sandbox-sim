@@ -98,7 +98,8 @@ class Data(ConfigurationMixin, object):
                 load_array[i] = load_array[i] / max_element
                 print(max_element)
 
-        """ manual tuning of data can happen here"""
+        """ manual tuning of data can happen here """
+        load_array = load_array*2
 
         return load_array
 
@@ -112,7 +113,7 @@ class Data(ConfigurationMixin, object):
         assert [len(pv_gen_array[i]) == self.num_steps for i in range(len(pv_gen_array))]
 
         """ manual tuning of data can happen here"""
-        pv_gen_array = pv_gen_array*4
+        pv_gen_array = pv_gen_array*3
         return pv_gen_array
 
     def get_utility_profile(self):

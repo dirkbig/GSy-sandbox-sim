@@ -148,6 +148,7 @@ class HouseholdAgent(Agent):
             elif self.trading_state is 'buying':
                 price = mmr - (mmr - base)/total_trade_volume**risk_parameter * volume**risk_parameter
 
+            assert price <= mmr
             discrete_bid_curve.append([price, volume - volume_prev])
             volume_prev = volume
 
@@ -169,7 +170,8 @@ class HouseholdAgent(Agent):
 
             """ bid approach, using utility function: only 1 bid """
             # discrete_offer_list = self.price_point_optimization()
-            """ bid approach, using discrete offer curve: multiple bids """
+            """ bid approach, using discrete offer curve: multiple bids
+                constrained by lower and higher bounds"""
             mmr = self.model.auction.utility_market_maker_rate
             base = 0
             # a offers for every kWh seems, fair, and 5 as a minimum number of bids)
@@ -186,16 +188,18 @@ class HouseholdAgent(Agent):
             """ bid approach, using utility function: only 1 bid """
             # price, quantity = self.price_point_optimization()
             # price += price + 100
-            """ bid approach, using discrete offer curve: multiple bids """
+            """ bid approach, using discrete offer curve: multiple bids
+                constrained by lower and higher bounds"""
             mmr = self.model.auction.utility_market_maker_rate
             base = 0
             # a bid for every kWh seems, fair, and 5 as a minimum number of bids)
             number_of_bids = max(5, int(self.ess.surplus))
 
-            discrete_bid_list = self.battery_price_curve(mmr, base, self.ess.surplus, number_of_bids)
+            discrete_bid_list = self.battery_price_curve(mmr, base, abs(self.ess.surplus), number_of_bids)
             self.bids = []
             for bid in discrete_bid_list:
-                self.bids.append([bid[0], bid[1], self.id])
+                if bid[0] is not 0:
+                    self.bids.append([bid[0], bid[1], self.id])
             self.offers = None
 
         else:
@@ -219,14 +223,14 @@ class HouseholdAgent(Agent):
             self.trading_state = 'supplying'
             price = self.id
             quantity = self.net_energy_in_simple_strategy
-            self.offers = [price, quantity, self.id]
+            self.offers = [[price, quantity, self.id]]
             self.bids = None
 
         elif self.net_energy_in_simple_strategy < 0:
             self.trading_state = 'buying'
             price = 25 - self.id
             quantity = abs(self.net_energy_in_simple_strategy)
-            self.bids = [price, quantity, self.id]
+            self.bids = [[price, quantity, self.id]]
             self.offers = None
         else:
             self.trading_state = 'passive'
