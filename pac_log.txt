@@ -5946,3 +5946,428 @@
 2018-11-16 15:27:58,046 - run_microgrid.auctioneer - WARNING - no trade at this step
 2018-11-16 15:27:58,046 - run_microgrid.auctioneer - WARNING - no trade at this step
 2018-11-16 15:27:58,047 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:35,037 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:38,974 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:39,543 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:40,353 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:40,966 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:41,137 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:41,317 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:41,495 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:41,664 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:41,836 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:41,998 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:42,169 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:42,329 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:42,499 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:42,663 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:42,827 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:42,986 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:43,147 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:43,306 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:43,464 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:43,631 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:43,791 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:43,954 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:44,114 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:44,272 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:44,429 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:44,578 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:44,755 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:44,902 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:45,066 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:45,236 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:45,386 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:45,547 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:45,715 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:45,872 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:46,028 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:11:46,176 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,129 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,130 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,130 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,131 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,131 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,137 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,137 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,137 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,138 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,142 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,142 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,142 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,142 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,142 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,142 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,143 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,143 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,143 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,143 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,143 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,143 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,144 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,144 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,144 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,144 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,144 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,145 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,145 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,145 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,145 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,145 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,145 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,146 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,146 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,146 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,146 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,146 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,146 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,147 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,147 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,147 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,147 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,147 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,147 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,148 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,148 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,148 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,148 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,148 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,149 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,149 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,149 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:44:46,149 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:07,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:07,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:07,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:07,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:07,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,123 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,124 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,124 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,124 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,129 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,129 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,129 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,129 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,130 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,130 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,131 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,131 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,131 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,131 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,131 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,132 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,132 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,132 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,132 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,132 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,132 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,133 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,133 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,133 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,133 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,134 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,134 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,134 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,134 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,134 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,135 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,135 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,135 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,135 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,135 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,135 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,136 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,136 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,136 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,136 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,136 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,137 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,137 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,137 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,137 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,137 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,138 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:45:12,138 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:04,704 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:04,704 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:04,705 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:04,705 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:04,705 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,237 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,238 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,238 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,238 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,246 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,247 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,247 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,247 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,247 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,248 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,248 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,248 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,248 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,248 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,249 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,250 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,250 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,250 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,250 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,250 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,251 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,251 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,251 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,251 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,252 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,252 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,252 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,252 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,253 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,253 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,253 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,253 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,253 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,254 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,254 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,254 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,254 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,254 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,254 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,255 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,255 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,255 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:46:06,255 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:12,464 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,196 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,200 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,201 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,202 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,202 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,204 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,204 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,206 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,206 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,208 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,209 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,211 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,211 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,214 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,215 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,215 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,216 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,218 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,218 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,219 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,219 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:17,221 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:17,222 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:20,541 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:20,541 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:20,547 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:20,547 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:20,560 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:20,560 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:20,561 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:20,561 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:20,563 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:20,564 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:20,565 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:20,565 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,441 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:24,441 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,443 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:24,443 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,444 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:24,445 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,453 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:24,453 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,458 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:24,458 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,459 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:48:24,459 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,460 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,460 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,461 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,462 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,462 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,463 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,463 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,464 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,465 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,465 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,466 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,467 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,467 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,468 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:48:24,469 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:30,152 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:31,911 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:31,912 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:31,912 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:31,913 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:31,913 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:31,918 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:31,918 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:31,925 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:31,925 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:31,926 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:31,926 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:31,928 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:31,928 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:31,931 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:31,931 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:31,932 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:31,932 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:33,120 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:33,121 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:33,126 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:33,126 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:33,128 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:33,128 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:33,129 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:33,129 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:33,138 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:33,138 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:33,140 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:33,140 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:33,143 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:33,143 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:33,145 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,970 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,978 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,978 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,980 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,980 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,984 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,984 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,985 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,985 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,987 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,987 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,988 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,988 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,989 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,989 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,989 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,990 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,991 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,992 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,992 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,993 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,994 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:34,994 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,995 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,996 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,997 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,997 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,998 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,998 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:34,999 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:35,000 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:51,419 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:51,421 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:51,423 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:51,423 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:51,428 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:51,429 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:52,892 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:52,892 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:52,895 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:52,895 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:52,897 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:52,897 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:52,899 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:52,899 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:54,405 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:54,405 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:54,407 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:54,407 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:54,413 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:54,413 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:54,414 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:54,414 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:54,415 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:54,415 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:57,258 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:57,258 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:57,260 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:57,260 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:57,261 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:57,261 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:57,262 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:57,262 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:57,263 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:57,263 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:57,266 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:59,138 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:59,140 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:59,140 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:59,141 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:59,141 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:59,143 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:59,143 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:59,146 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:59,146 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:59,147 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:59,147 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:50:59,149 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 16:50:59,149 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,674 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,677 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,678 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,678 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,679 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,680 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,681 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,681 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,682 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,683 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,683 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,684 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,685 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,685 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,686 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,687 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,687 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 16:51:02,688 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:42,534 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:44,844 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:44,848 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:44,849 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:44,849 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:44,850 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:44,850 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:44,851 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:44,852 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:44,852 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:44,855 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:44,855 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:44,857 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:44,857 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:44,858 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:46,307 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:46,309 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:46,309 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:46,311 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:46,311 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:46,312 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:46,312 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:46,318 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:46,318 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:46,319 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-14 17:03:46,319 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-14 17:03:46,320 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-15 17:29:51,332 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-15 17:29:51,337 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-15 17:29:51,338 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-15 17:29:51,344 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-15 17:29:51,344 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-15 17:29:51,349 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-15 17:29:51,349 - run_microgrid.auctioneer - WARNING - no trade at this step
+2018-12-15 17:29:51,352 - run_microgrid.methods - WARNING - No clearing quantity or price was found
+2018-12-15 17:29:51,353 - run_microgrid.auctioneer - WARNING - no trade at this step

@@ -4,6 +4,8 @@ from source.wallet import Wallet
 from mesa import Agent
 import scipy.optimize as optimize
 import logging
+import numpy as np
+
 house_log = logging.getLogger('run_microgrid.house')
 
 
@@ -59,15 +61,16 @@ class HouseholdAgent(Agent):
         """ trading """
         if self.has_ess is True:
             self.selected_strategy = 'smart_ess_strategy'
+
         if self.has_ess is False:
             self.selected_strategy = 'simple_strategy'
 
         """ overrides all strategies for a no-trade paradigm """
-        self.selected_strategy = 'simple_strategy'
+        # self.selected_strategy = 'simple_strategy'
 
         self.trading_state = None
-        self.bid = None
-        self.offer = None
+        self.bids = None
+        self.offers = None
         self.energy_trade_flux = 0
         self.net_energy_in = None
         self.overflow = None
@@ -124,35 +127,81 @@ class HouseholdAgent(Agent):
 
         return price, quantity
 
+    def battery_price_curve(self, mmr, base, total_trade_volume, number_of_bids):
+
+        increment = total_trade_volume/number_of_bids
+        bid_range = np.arange(0, total_trade_volume, increment)
+
+        # risk parameter in case of selling:
+        #   high: risk averse, battery really wants to sell and not be a price pusher
+        #   low: greedy, battery wants to be a price pusher.
+        risk_parameter = 2  # for now. Could be depending on personal behaviour or trade volume.
+        # clamp between 0.2 and 4, which is kind of the limits for such a parameter.
+        clamp = lambda value, minn, maxn: max(min(maxn, value), minn)
+        risk_parameter = clamp(risk_parameter, 0.2, 4)
+
+        discrete_bid_curve = []
+        volume_prev = 0
+        for volume in bid_range:
+            if self.trading_state is 'supplying':
+                price = (mmr - base)/total_trade_volume**risk_parameter * volume**risk_parameter + base
+            elif self.trading_state is 'buying':
+                price = mmr - (mmr - base)/total_trade_volume**risk_parameter * volume**risk_parameter
+
+            discrete_bid_curve.append([price, volume - volume_prev])
+            volume_prev = volume
+
+        return discrete_bid_curve
+
     def smart_ess_strategy(self):
         """ smart ESS strategy, calls:
                 -> ess_demand_calc: decides whether buying or selling, and how much;
                     -> price_point_optimization: decides on what quantity and for what price;
                         -> utility_function: governs the trade-off that the optimization optimizes.
         """
+        self.ess.max_in, self.ess.max_out = self.ess.get_charging_limit()
         self.ess.ess_demand_calc(self.model.step_count)
 
         if self.ess.surplus > 0:
             self.trading_state = 'supplying'
-            """ bid approach, using utility function"""
-            price, quantity = self.price_point_optimization()
-            self.ess.max_in, self.ess.max_out = self.ess.get_charging_limit()
             # respects discharging limit constraints
-            self.offer = [price, min(self.ess.max_out, quantity), self.id]
-            self.bid = None
+            self.ess.surplus = min(self.ess.surplus, self.ess.max_out)
+
+            """ bid approach, using utility function: only 1 bid """
+            # discrete_offer_list = self.price_point_optimization()
+            """ bid approach, using discrete offer curve: multiple bids """
+            mmr = self.model.auction.utility_market_maker_rate
+            base = 0
+            # a offers for every kWh seems, fair, and 5 as a minimum number of bids)
+            number_of_offers = max(5, int(self.ess.surplus))
+            discrete_offer_list = self.battery_price_curve(mmr, base, self.ess.surplus, number_of_offers)
+            self.offers = []
+            for offer in discrete_offer_list:
+                if offer[0] is not 0:
+                    self.offers.append([offer[0], offer[1], self.id])
+            self.bids = None
 
         elif self.ess.surplus < 0:
             self.trading_state = 'buying'
-            """ offer approach using utility function """
-            price, quantity = self.price_point_optimization()
-            price += price + 100
-            # respects charging limit constraints
-            self.bid = [price, min(self.ess.max_in, quantity), self.id]
-            self.offer = None
+            """ bid approach, using utility function: only 1 bid """
+            # price, quantity = self.price_point_optimization()
+            # price += price + 100
+            """ bid approach, using discrete offer curve: multiple bids """
+            mmr = self.model.auction.utility_market_maker_rate
+            base = 0
+            # a bid for every kWh seems, fair, and 5 as a minimum number of bids)
+            number_of_bids = max(5, int(self.ess.surplus))
+
+            discrete_bid_list = self.battery_price_curve(mmr, base, self.ess.surplus, number_of_bids)
+            self.bids = []
+            for bid in discrete_bid_list:
+                self.bids.append([bid[0], bid[1], self.id])
+            self.offers = None
+
         else:
             self.trading_state = 'passive'
-            self.bid = None
-            self.offer = None
+            self.bids = None
+            self.offers = None
 
     def simple_strategy(self):
         """ household makes simple bid or offer depending on the net energy going in our out of the house """
@@ -161,35 +210,28 @@ class HouseholdAgent(Agent):
         """ Determine net energy going building up inside household """
         if self.has_ess is True:
             self.ess.ess_demand_calc(self.model.step_count)
+            self.ess.surplus = self.soc_actual
             self.net_energy_in_simple_strategy = self.ess.surplus
         else:
             self.net_energy_in_simple_strategy = self.pv_production_on_step - abs(self.load_on_step)
 
-        # if self.has_ess is True:
-        #
-        #     min_percentage = 0.1
-        #     self.available_surplus = max(self.ess.max_capacity*min_percentage, self.soc_actual)
-        #     self.ess.ess_demand_calc(self.model.step_count)
-        # else:
-        #     self.net_energy_in_simple_strategy = self.pv_production_on_step - abs(self.load_on_step)
-        #
         if self.net_energy_in_simple_strategy > 0:
             self.trading_state = 'supplying'
-            price = 10 + self.id
+            price = self.id
             quantity = self.net_energy_in_simple_strategy
-            self.offer = [price, quantity, self.id]
-            self.bid = None
+            self.offers = [price, quantity, self.id]
+            self.bids = None
 
         elif self.net_energy_in_simple_strategy < 0:
             self.trading_state = 'buying'
             price = 25 - self.id
             quantity = abs(self.net_energy_in_simple_strategy)
-            self.bid = [price, quantity, self.id]
-            self.offer = None
+            self.bids = [price, quantity, self.id]
+            self.offers = None
         else:
             self.trading_state = 'passive'
-            self.bid = None
-            self.offer = None
+            self.bids = None
+            self.offers = None
 
         ''' PV  first supplies to ESS
                 then supplies to market'''
@@ -226,8 +268,7 @@ class HouseholdAgent(Agent):
         for device in self.devices:
             self.devices[device].uniform_call_to_device(self.model.step_count)
 
-        """ 
-            STRATEGIES 
+        """ STRATEGIES 
             how to come up with price-quantity points on the auction platform 
         """
         if self.has_ess is True and self.selected_strategy == 'smart_ess_strategy':
@@ -237,8 +278,8 @@ class HouseholdAgent(Agent):
             self.simple_strategy()
 
         elif self.selected_strategy == 'no_trade':
-            self.offer = None
-            self.bid = None
+            self.offers = None
+            self.bids = None
 
         self.announce_bid_and_offers()
 
@@ -267,9 +308,11 @@ class HouseholdAgent(Agent):
         house_log.info('house%d is %s', self.id, self.trading_state)
 
         if self.trading_state == 'supplying':
-            self.model.auction.offer_list.append(self.offer)
+            for offer in self.offers:
+                self.model.auction.offer_list.append(offer)
 
         elif self.trading_state == 'buying':
-            self.model.auction.bid_list.append(self.bid)
+            for bid in self.bids:
+                self.model.auction.bid_list.append(bid)
 
 

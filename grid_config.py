@@ -28,7 +28,6 @@ class ConfigurationMixin:
             Electrolyzer
         """
         self.electrolyzer_presence = False
-
         self.cell_area = 1500
         self.n_cell = 140
         self.p = 1.5
@@ -37,7 +36,7 @@ class ConfigurationMixin:
         """ 
             Utility 
         """
-        self.utility_presence = True
+        self.utility_presence = False
 
         self.negative_pricing = False
         self.dynamical_pricing = False
@@ -46,10 +45,11 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 14
+        self.consumers = 40
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 3
+        self.prosumers_with_pv_and_ess = 1
+
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []

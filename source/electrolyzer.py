@@ -472,8 +472,6 @@ class Electrolyzer(Agent):
         output = [voltage_iteration, current_iteration, cur_dens_iteration, power_iteration]
         return output
 
-
-
     def ely_voltage_u_act(self, cur_dens, temp):
         # This voltage part describes the activity losses within the electolyser.
         # Source: 'Modeling an alkaline electrolysis cell through reduced-order and loss estimate approaches'

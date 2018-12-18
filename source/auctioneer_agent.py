@@ -15,8 +15,9 @@ class Auctioneer(Agent):
         auction_log.info('auction of type %s created', _unique_id)
         self.model = model
 
-        self.snapshot_plot = False
-        self.snapshot_plot_interval = 10
+        self.snapshot_plot = True
+        self.snapshot_plot_interval = 15
+
         self.id = _unique_id
         self.pricing_rule = self.model.data.pricing_rule
         self.aggregate_demand_curve = []
@@ -24,7 +25,7 @@ class Auctioneer(Agent):
 
         self.bid_list = []
         self.offer_list = []
-        self.utility_market_maker_rate = None
+        self.utility_market_maker_rate = 10
 
         self.sorted_bid_list = None
         self.sorted_offer_list = None
@@ -47,7 +48,8 @@ class Auctioneer(Agent):
         for agent in self.model.agents[:]:
             self.who_gets_what_dict[agent.id] = []
 
-        if self.offer_list != [] and self.bid_list != [] or (self.model.utility is not None and self.bid_list != []):
+        if len(self.offer_list) is not 0 and len(self.bid_list) is not 0 \
+                or (self.model.utility is not None and len(self.bid_list) is not 0):
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of
                 prosumers or utility grid) """
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
@@ -105,6 +107,16 @@ class Auctioneer(Agent):
         # BELOW demand curve
 
         # sort on price, not quantity, so location[0]
+        np.array(self.bid_list)
+
+        if len(np.array(self.bid_list).shape) == 1:
+            self.bid_list = [self.bid_list]
+            assert len(np.array(self.bid_list).shape) == 2
+
+        if len(np.array(self.offer_list).shape) == 1:
+            self.offer_list = [self.offer_list]
+            assert len(np.array(self.offer_list).shape) == 2
+
         sorted_bid_list = sorted(self.bid_list, key=lambda location: location[0], reverse=True)
         sorted_offer_list = sorted(self.offer_list, key=lambda location: location[0])
 
