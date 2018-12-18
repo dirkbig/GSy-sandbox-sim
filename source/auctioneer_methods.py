@@ -6,6 +6,7 @@ method_logger = logging.getLogger('run_microgrid.methods')
 def check_demand_supply(sorted_bid_list_, sorted_offer_list_):
 
     if len(sorted_bid_list_) is not 0:
+
         total_demand_ = np.sum([x[0] for x in sorted_bid_list_])
     else:
         total_demand_ = 0

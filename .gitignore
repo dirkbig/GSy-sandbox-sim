@@ -1,5 +1,6 @@
 # Exclude PyCharm settings.
-.idea*
+.idea/
+__pycache__/
 # Exclude the virtual environment.
 venv*
 # Exclude compilation data
@@ -9,3 +10,5 @@ venv*
 .DS_Store
 source/.DS_Store
 profiles/.DS_Store
+
+*.txt

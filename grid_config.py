@@ -16,6 +16,7 @@ class ConfigurationMixin:
 
         # time
         self.start = 0
+
         self.num_steps = const.num_steps
 
         """ 
@@ -31,12 +32,19 @@ class ConfigurationMixin:
         self.cell_area = 1500
         self.n_cell = 140
         self.p = 1.5
+        self.electrolyzer_presence = True
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
+
+        """
+            Battery
+        """
+        self.battery_presence = True
+
 
         """ 
             Utility 
         """
-        self.utility_presence = False
+        self.utility_presence = True
 
         self.negative_pricing = False
         self.dynamical_pricing = False
@@ -45,11 +53,10 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 4
+        self.consumers = 14
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 5
-
+        self.prosumers_with_pv_and_ess = 3
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []

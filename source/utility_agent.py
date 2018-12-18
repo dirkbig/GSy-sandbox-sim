@@ -10,6 +10,7 @@ class UtilityAgent(Agent):
     def __init__(self, model):
         self.model = model
         self.id = 'utility'
+
         self.dynamical_pricing = False
 
         """load in utility energy price profile"""
