@@ -49,7 +49,7 @@ class Auctioneer(Agent):
             self.who_gets_what_dict[agent_id] = []
 
         if len(self.offer_list) is not 0 and len(self.bid_list) is not 0 \
-                or (self.model.utility is not None and len(self.bid_list) is not 0):
+                or (self.model.agents['Utility'] is not None and len(self.bid_list) is not 0):
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of
                 prosumers or utility grid) """
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
@@ -221,8 +221,8 @@ class Auctioneer(Agent):
         """clears market """
 
         """ resets the acquired energy for all households """
-        for agent in self.model.agents[:]:
-            self.model.agents[agent.id].energy_trade_flux = 0
+        for agent_id in self.model.agents:
+            self.model.agents[agent_id].energy_trade_flux = 0
 
         """ listing of all offers/bids selected for trade """
         if self.trade_pairs is not None:
@@ -234,10 +234,10 @@ class Auctioneer(Agent):
                 turnover = self.trade_pairs[trade][3]
 
                 """ execute trade buy calling household agent's wallet settlement """
-                if id_seller is 'utility':
+                if id_seller is 'Utility':
                     """ seller was utility """
                     self.who_gets_what_dict[id_seller].append(-trade_quantity)
-                    self.model.utility.wallet.settle_revenue(turnover)
+                    self.model.agents['Utility'].wallet.settle_revenue(turnover)
                 else:
                     self.who_gets_what_dict[id_seller].append(-trade_quantity)
                     self.model.agents[id_seller].wallet.settle_revenue(turnover)
