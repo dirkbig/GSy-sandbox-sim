@@ -11,7 +11,7 @@ class UtilityAgent(Agent):
         self.model = model
         self.id = 'utility'
 
-        self.dynamical_pricing = False
+        self.dynamical_pricing = True
 
         """load in utility energy price profile"""
         self.price_profile = self.model.data.utility_pricing_profile

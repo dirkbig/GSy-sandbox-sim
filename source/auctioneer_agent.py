@@ -88,10 +88,10 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
-        print('bids', self.sorted_bid_list)
-        print('offers', self.sorted_offer_list)
+        print('bids [price, quantity, id]:', self.sorted_bid_list)
+        print('offers [price, quantity, id]', self.sorted_offer_list)
 
-        print('trade_pairs', self.trade_pairs)
+        print('trade_pairs [id_seller, id_buyer, quantity, price*quantity]:', self.trade_pairs)
         if self.snapshot_plot is True and self.model.step_count % self.snapshot_plot_interval == 0:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
         # TODO: save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards
@@ -133,7 +133,8 @@ class Auctioneer(Agent):
             # move on this x-axis of curve for next item to be appended
             aggregate_quantity_points_bid[i] += prev
             prev = aggregate_quantity_points_bid[i]
-            # append bid item to main bid curve: [x-axis location, bid price, offer quantity, buyer id, seller id]
+            # append bid item to main bid curve:
+            # [x-axis location (bid quantity), bid price, offer quantity, buyer id, seller id]
             x_bid_pairs_list.append([aggregate_quantity_points_bid[i],
                                      sorted_bid_list[i][0], None,
                                      sorted_bid_list[i][2], None])
@@ -147,7 +148,8 @@ class Auctioneer(Agent):
             # move on this x-axis of curve for next item to be appended
             aggregate_quantity_points_offer[j] += prev
             prev = aggregate_quantity_points_offer[j]
-            # append offer item to main bid curve: [x-axis location, bid quantity, offer price, buyer id, seller id]
+            # append offer item to main bid curve:
+            # [x-axis location (supply quantity), bid quantity, offer price, buyer id, seller id]
             x_supply_pairs_list.append([aggregate_quantity_points_offer[j],
                                         None, sorted_offer_list[j][0],
                                         None, sorted_offer_list[j][2]])
@@ -202,7 +204,6 @@ class Auctioneer(Agent):
                         j += 1
             else:
                 break
-
 
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 
@@ -266,16 +267,17 @@ class Auctioneer(Agent):
 
         bid_total = sum(np.asarray(sorted_bid_list)[:, 1])
 
-        try:
-            prosumer_offer_total = sum(np.asarray(sorted_offer_list)[:, 1])
-        except IndexError:
-            prosumer_offer_total = 0
-            auction_log.info("no prosumers in the grid supplying energy")
+        #try:
+        #    prosumer_offer_total = sum(np.asarray(sorted_offer_list)[:, 1])
+        #except IndexError:
+        #    prosumer_offer_total = 0
+        #    auction_log.info("no prosumers in the grid supplying energy")
 
         """ Append utility"""
         total_offer_below_mmr = 0
         utility_id = self.model.utility.id
         if len(sorted_offer_list) is 0:
+            auction_log.info("no prosumers in the grid supplying energy")
             utility_quantity = bid_total
             sorted_offer_list.insert(0, [self.utility_market_maker_rate, utility_quantity, utility_id])
 
@@ -301,7 +303,7 @@ class Auctioneer(Agent):
         """ append utility ot who_gets_what dictionary """
         self.who_gets_what_dict[utility_id] = []
 
-        print("bid", sorted_bid_list)
-        print("offers", sorted_offer_list)
+        # print("bid", sorted_bid_list)
+        # print("offers", sorted_offer_list)
 
         return sorted_bid_list, sorted_offer_list

@@ -15,9 +15,9 @@ env_log = logging.getLogger('run_microgrid.microgrid_env')
 
 class MicroGrid(Model):
     """ Agents are created in this environment that runs the simulation"""
-    def __init__(self):
+    def __init__(self,  run_configuration=None):
 
-        self.data = Data()
+        self.data = Data(run_configuration)
 
         """ initiation """
         self.step_count = 0
@@ -35,19 +35,20 @@ class MicroGrid(Model):
             self.utility = UtilityAgent(self)
 
         """ create N agents """
+        last_id = -1
         for i in range(self.data.num_households):
             self.agents.append(HouseholdAgent(i, self))
-        # Save the id number for further agents.
-        id = i
+            # Save the id number for further agents.
+            last_id = i
 
         """ electrolyzer """
         if self.data.electrolyzer_presence is True:
-            self.agents.append(Electrolyzer(id, self))
-            id += 1
+            last_id += 1
+            self.agents.append(Electrolyzer(last_id, self))
 
         if self.data.battery_presence is True:
-            self.agents.append(Battery(id, self))
-            id += 1
+            last_id += 1
+            self.agents.append(Battery(last_id, self))
 
         self.data_collector = DataCollector()
 
@@ -55,18 +56,12 @@ class MicroGrid(Model):
         """advances the model by one step"""
 
         """ pre-auction round """
-        if self.utility is not None:
-            self.utility.pre_auction_round()
-
         random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.pre_auction_round()
 
         if self.utility is not None:
             self.utility.pre_auction_round()
-
-        if self.electrolyzer is not None:
-            self.electrolyzer.pre_auction_round()
 
         """ auction round """
         self.auction.auction_round()
@@ -77,9 +72,6 @@ class MicroGrid(Model):
 
         if self.utility is not None:
             self.utility.post_auction_round()
-
-        if self.electrolyzer is not None:
-            self.electrolyzer.post_auction_round()
 
         """ Update the time """
         self.update_time()

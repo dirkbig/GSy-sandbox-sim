@@ -8,14 +8,12 @@ data_methods_log = logging.getLogger('run_microgrid.data_methods')
 # WHY IS THE DIRECTORY PATH CHANGED HERE? THIS LED TO AN ERROR. WITHOUT THIS IT IS WORKING FOR ME (FROM MARLON)
 # os.chdir("..")
 path = "./source" + "/profiles"
-print(path)
+#print(path)
 
 # def csv_read_load_profile(num_households_):
 #     data_dict = {}
 #     data_directory = "data_load_profiles"
 #
-
-
 
 def csv_read_load_file(num_households_with_load, household_loads_folder):
     data_list = []
@@ -27,8 +25,14 @@ def csv_read_load_file(num_households_with_load, household_loads_folder):
     except FileNotFoundError:
         data_methods_log.error("File  not Found: change path")
 
-    i = 0
-    for profile in os.listdir(data_directory):
+    # Get a list with all available load profiles in the folder.
+    load_profiles = os.listdir(data_directory)
+    # Check if there are enough load profiles, if not, throw an error.
+    if len(load_profiles) < num_households_with_load:
+        raise ValueError("There are less household load profiles than there are households with loads!")
+    # Only use as many load profiles as there are households.
+    load_profiles = load_profiles[:num_households_with_load]
+    for profile in load_profiles:
         data_array = []
         if profile.endswith(".csv"):
             with open(data_directory + '/' + profile) as csv_file:
@@ -38,9 +42,6 @@ def csv_read_load_file(num_households_with_load, household_loads_folder):
                         row[1] = 0
                     data_array.append(float(row[-1]))
         data_list.append(data_array)
-        i += 1
-        if i == num_households_with_load:
-            break
 
     return data_list
 

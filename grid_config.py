@@ -30,6 +30,9 @@ class ConfigurationMixin:
         """
         self.electrolyzer_presence = True
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
+        # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
+        # strategies of the electrolyzer.
+        self.forecast_horizon = 0
 
         """
             Battery
@@ -98,6 +101,13 @@ class ConfigurationMixin:
             initial_soc = initial_capacity_list[battery]
             self.ess_characteristics_list.append([initial_soc, max_capacity])
         self.total_ess_capacity = sum(max_capacity_list)
+
+    def update_config(self, new_self):
+        # Here the default config values can be overwritten by another config object.
+        # Object attributes from object obj_name can be fetched by obj(obj_name).
+        # Next to attribute data, other data is fetched as well, which begins with underscores.
+        # Each attribute of new_self overwrites the field with name x from the original object.
+        [setattr(self, x, getattr(new_self, x)) for x in dir(new_self) if not x.startswith('__')]
 
 
 if __name__ == "__main__":

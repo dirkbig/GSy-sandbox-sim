@@ -29,7 +29,10 @@ class Electrolyzer(Agent):
         """ Trading. """
         # Different methods can be chosen for deriving the bidding of the electrolyzer. Options are 'linprog' and
         # 'quadprog'. Quadprog by now seems to be the superior method in regard to result and computation time.
-        self.bidding_solver = "dummy"
+        self.bidding_solver = "quadprog"
+        # In case a forecast based bidding strategy is chosen, define how many time steps the method is supposed to look
+        # in the future [steps].
+        self.forecast_horizon = self.model.data.forecast_horizon
         self.wallet = Wallet(_unique_id)
         self.trading_state = None
         # Bid in the format [price, quantity, self ID]
@@ -189,7 +192,7 @@ class Electrolyzer(Agent):
 
     def update_bid(self):
         # Define the number of steps the perfect foresight optimization should look in the future.
-        n_step = 14 * 96
+        n_step = self.forecast_horizon
 
         if self.bidding_solver == "linprog":
             """ Linear program """

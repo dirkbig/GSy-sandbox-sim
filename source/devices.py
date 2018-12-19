@@ -95,7 +95,7 @@ class ESS(object):
             max_charge_stored = (self.max_capacity - self.soc_actual) / self.charge_eff
             max_charge_c_rate = self.max_capacity * self.c_rate * self.agent.data.market_interval / 60 / self.charge_eff
             max_bought = min(max_charge_stored, max_charge_c_rate)
-            print(max_bought, max_sold)
+            print("Max. bought: {}; max. sold: {}".format(max_bought, max_sold))
         else:
             # relaxing of constraints gimmick
             max_bought = 10000
