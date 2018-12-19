@@ -15,7 +15,7 @@ class Auctioneer(Agent):
         auction_log.info('auction of type %s created', _unique_id)
         self.model = model
 
-        self.snapshot_plot = True
+        self.snapshot_plot = False
         self.snapshot_plot_interval = 15
 
         self.id = _unique_id
@@ -47,7 +47,8 @@ class Auctioneer(Agent):
         self.who_gets_what_dict = {}
         for agent_id in self.model.agents:
             self.who_gets_what_dict[agent_id] = []
-
+        print("offers", self.offer_list)
+        print("bids", self.bid_list)
         if len(self.offer_list) is not 0 and len(self.bid_list) is not 0 \
                 or (self.model.agents['Utility'] is not None and len(self.bid_list) is not 0):
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of
@@ -56,14 +57,14 @@ class Auctioneer(Agent):
             self.execute_auction(sorted_x_y_y_pairs_list)
             self.clearing_of_market()
             """ clear lists for later use in next step """
-            self.bid_list = []
-            self.offer_list = []
+            self.bid_list = [[]]
+            self.offer_list = [[]]
             return
 
         else:
             """ clear lists for later use in next step """
-            self.bid_list = []
-            self.offer_list = []
+            self.bid_list = [[]]
+            self.offer_list = [[]]
             auction_log.warning("no trade at this step")
             return
 
@@ -107,19 +108,20 @@ class Auctioneer(Agent):
         # BELOW demand curve
 
         # sort on price, not quantity, so location[0]
-        np.array(self.bid_list)
-        if len(np.array(self.bid_list).shape) == 1:
-            self.bid_list = [self.bid_list]
-            assert len(np.array(self.bid_list).shape) == 2
+        print(self.bid_list)
 
-        if len(np.array(self.offer_list).shape) == 1:
-            self.offer_list = [self.offer_list]
-            assert len(np.array(self.offer_list).shape) == 2
+        for bid in self.bid_list:
+            if len(bid) is 0:
+                self.bid_list.remove(bid)
 
+        for offer in self.offer_list:
+            if len(offer) is 0:
+                self.offer_list.remove(offer)
+
+        print(self.bid_list)
         sorted_bid_list = sorted(self.bid_list, key=lambda location: location[0], reverse=True)
         sorted_offer_list = sorted(self.offer_list, key=lambda location: location[0])
 
-        print(sorted_bid_list)
         if self.model.data.utility_presence is not None:
             """ append (in a clever, semi-aesthetic way) the utility offer to the offer list according to the 
                 utility_market_maker_rate """
@@ -312,7 +314,7 @@ class Auctioneer(Agent):
         """ append utility ot who_gets_what dictionary """
         self.who_gets_what_dict[utility_id] = []
 
-        print("bid", sorted_bid_list)
-        print("offers", sorted_offer_list)
+        print("sorted offers", sorted_offer_list)
+        print("sorted bid", sorted_bid_list)
 
         return sorted_bid_list, sorted_offer_list
