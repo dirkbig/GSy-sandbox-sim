@@ -28,6 +28,7 @@ def step_microgrid():
     grid_log.info('Step %d' % microgrid.step_count)
     extract_data()
 
+
 microgrid = create_microgrid()
 
 for step in range(microgrid.data.num_steps):

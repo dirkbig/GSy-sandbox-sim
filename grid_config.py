@@ -28,13 +28,17 @@ class ConfigurationMixin:
         """ 
             Electrolyzer
         """
+        self.electrolyzer_presence = False
+        self.cell_area = 1500
+        self.n_cell = 140
+        self.p = 1.5
         self.electrolyzer_presence = True
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
 
         """
-            Battery
+            Commercial battery
         """
-        self.battery_presence = True
+        self.battery_presence = False
 
 
         """ 
