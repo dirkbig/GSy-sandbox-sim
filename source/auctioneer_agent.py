@@ -15,7 +15,7 @@ class Auctioneer(Agent):
         auction_log.info('auction of type %s created', _unique_id)
         self.model = model
 
-        self.snapshot_plot = False
+        self.snapshot_plot = True
         self.snapshot_plot_interval = 15
 
         self.id = _unique_id
