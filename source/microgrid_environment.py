@@ -21,34 +21,28 @@ class MicroGrid(Model):
 
         """ initiation """
         self.step_count = 0
-        self.agents = []
-        self.electrolyzer = None
-        self.utility = None
-
-        self.entities_dict = {}
+        self.agents = {}
 
         """ create the auction platform"""
         self.auction = Auctioneer(self.data.pricing_rule, self)
 
         """ create the utility grid"""
         if self.data.utility_presence is True:
-            self.utility = UtilityAgent(self)
+            utility_id = "Utility"
+            self.agents[utility_id] = UtilityAgent(utility_id, self)
 
         """ create N agents """
-        last_id = -1
-        for i in range(self.data.num_households):
-            self.agents.append(HouseholdAgent(i, self))
-            # Save the id number for further agents.
-            last_id = i
+        for house_id in range(self.data.num_households):
+            self.agents[house_id] = HouseholdAgent(house_id, self)
 
-        """ electrolyzer """
+        """ Electrolyzer """
         if self.data.electrolyzer_presence is True:
-            last_id += 1
-            self.agents.append(Electrolyzer(last_id, self))
+            electrolyzer_id = 'Electrolyzer'
+            self.agents[electrolyzer_id] = Electrolyzer(electrolyzer_id, self)
 
         if self.data.battery_presence is True:
-            last_id += 1
-            self.agents.append(Battery(last_id, self))
+            battery_id = 'CommercialBattery'
+            self.agents[battery_id] = Battery(battery_id, self)
 
         self.data_collector = DataCollector()
 
@@ -56,24 +50,19 @@ class MicroGrid(Model):
         """advances the model by one step"""
 
         """ pre-auction round """
-        random.shuffle(self.agents)
-        for agent in self.agents[:]:
-            agent.pre_auction_round()
-
-        if self.utility is not None:
-            self.utility.pre_auction_round()
+        for agent_id in self.agents:
+            self.agents[agent_id].pre_auction_round()
+            print(agent_id)
 
         """ auction round """
         self.auction.auction_round()
 
         """ post-auction round """
-        for agent in self.agents[:]:
-            agent.post_auction_round()
+        for agent_id in self.agents:
+            self.agents[agent_id].post_auction_round()
+            print(agent_id)
 
-        if self.utility is not None:
-            self.utility.post_auction_round()
-
-        """ Update the time """
+        """ Update Time """
         self.update_time()
 
     def update_time(self):

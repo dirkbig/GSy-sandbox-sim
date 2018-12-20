@@ -7,10 +7,12 @@ utility_log = logging.getLogger('run_microgrid.utility grid')
 
 class UtilityAgent(Agent):
     """ Utility agent is created by calling this function """
-    def __init__(self, model):
-        self.model = model
-        self.id = 'utility'
+    def __init__(self, _unique_id, model):
+        super().__init__(_unique_id, self)
 
+        self.model = model
+        self.trading_state = 'undefined'
+        self.id = _unique_id
         self.dynamical_pricing = True
 
         """load in utility energy price profile"""
@@ -26,16 +28,16 @@ class UtilityAgent(Agent):
         if self.dynamical_pricing is True:
             self.sell_rate_utility = self.price_profile[self.model.step_count]
             price = self.sell_rate_utility
-            quantity = 1000
-            self.utility_offer = [price, quantity, self.id]
+            # quantity = 1000
+            # self.utility_offer = [price, quantity, self.id]
 
         else:
             """ constant priced energy supply """
-            price = 18
-            quantity = 1000
+            price = 9
             # TODO: quantity should just saturate the market... so supply should be linked to unsaturated demand
+            # quantity = 1000
             # otherwise it will become a messy plot
-            self.utility_offer = [price, quantity, self.id]
+            # self.utility_offer = [price, quantity, self.id]
 
         """ two ways for utility to shoot its energy offer into the market:
             announcing a market maker rate, auctioneer assuming infinite supply capacity

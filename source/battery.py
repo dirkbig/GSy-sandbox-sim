@@ -65,9 +65,6 @@ class Battery(Agent):
         # Track the temperature of the different time steps [K].
         self.temperature = []
 
-
-
-
     def pre_auction_round(self):
         # Update the current time step.
         self.current_step = self.model.step_count
@@ -199,7 +196,6 @@ class Battery(Agent):
             res = [10]
             c = [0.1]
 
-
         charging_power = res[0]
         price = c[0]
 
@@ -210,13 +206,13 @@ class Battery(Agent):
             self.trading_state = None
         elif charging_power > 0:
             # Case: Bid on energy.
-            self.bid = [price, charging_power, self.id]
+            self.bid = [[price, charging_power, self.id]]
             self.offer = None
             self.trading_state = "buying"
         else:
             # Case: Sell energy.
             self.bid = None
-            self.offer = [price, charging_power, self.id]
+            self.offer = [[price, charging_power, self.id]]
             self.trading_state = "supplying"
 
     def announce_bid(self):
@@ -274,7 +270,6 @@ class Battery(Agent):
         # Update the time the battery was used [d].
         self.time_in_use += self.interval_time / 60 / 24
         battery_log.info("Battery states updated. Capacity loss due to aging is {} kWh.".format(capacity_loss_rel))
-
 
     def get_charging_limit(self):
         # Calculates how much energy can max. be bought or distributed in the next time step.
