@@ -39,6 +39,15 @@ for step in range(microgrid.data.num_steps):
     step_microgrid()
 
 assert microgrid.step_count == microgrid.data.num_steps
+
+write_output_to_csv = True
+if write_output_to_csv:
+    import csv
+    with open("result.csv", "w", newline='') as file:
+        writer = csv.writer(file)
+        for i in range(len(trade_deals_list_per_step)):
+            writer.writerow(trade_deals_list_per_step[i + 1][0])
+
 microgrid.data.plots()
 
 print("\n*******************************************************")
