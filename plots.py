@@ -6,9 +6,9 @@ sns.set()
 
 def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list):
     # TODO: export these demand/supply curves
-    x_quantities = []
-    y_bid_prices = []
-    y_offer_prices = []
+    x_quantities = [0]
+    y_bid_prices = [0]
+    y_offer_prices = [0]
 
     for i in range(len(sorted_x_y_y_pairs_list)):
         x_quantities.append(sorted_x_y_y_pairs_list[i][0])
