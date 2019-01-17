@@ -118,7 +118,25 @@ def csv_read_electrolyzer_profile(selected_electrolyzer_load_file):
     return electrolyzer_load_profile
 
 
-    return data_dict
+def csv_read_pv_profile(selected_pv_load_file="ts_pv_kWperkWinstalled_15min_2015.csv"):
+    pv_data_dir = path + '/pv_output_profiles'
+
+    if selected_pv_load_file not in os.listdir(pv_data_dir):
+        data_methods_log.warning("PV file '%s' not found" % selected_pv_load_file)
+        exit()
+
+
+    for profile in os.listdir(pv_data_dir):
+        if profile == selected_pv_load_file and profile.endswith(".csv"):
+            data_array = []
+            with open(pv_data_dir + '/' + profile) as csv_file:
+                data_file = csv.reader(csv_file, delimiter=',')
+                for row in data_file:
+                    data_array.append(float(row[1]))
+            break
+
+    pv_load_profile = data_array
+    return pv_load_profile
 
 
 def csv_read_load_h2():
@@ -133,18 +151,6 @@ def csv_read_load_h2():
 
     return data_array
 
-
-def csv_read_pv_profile():
-    # Read and return a PV generation profile for Berlin in 2015 [kW/kW_peak].
-    data_directory = "data_timeseries"
-    ts_name = "ts_pv_kWperkWinstalled_15min_2015.csv"
-    data_array = []
-    with open(data_directory + "/" + ts_name) as csv_file:
-        data_file = csv.reader(csv_file, delimiter=',')
-        for row in data_file:
-            data_array.append(row)
-
-    return data_array
 
 
 def csv_read_electricity_price():

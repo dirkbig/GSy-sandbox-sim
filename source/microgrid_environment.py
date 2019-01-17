@@ -4,6 +4,7 @@ from source.utility_agent import UtilityAgent
 from source.household_agent import HouseholdAgent
 from source.electrolyzer import Electrolyzer
 from source.battery import Battery
+from source.pv import Pv
 from source.data import Data
 
 from mesa import Model
@@ -43,6 +44,10 @@ class MicroGrid(Model):
         if self.data.battery_presence is True:
             battery_id = 'CommercialBattery'
             self.agents[battery_id] = Battery(battery_id, self)
+
+        if self.data.pv_presence is True:
+            pv_id = 'CommercialPv'
+            self.agents[pv_id] = Pv(pv_id, self)
 
         self.data_collector = DataCollector()
 

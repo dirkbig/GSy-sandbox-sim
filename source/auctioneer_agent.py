@@ -280,7 +280,7 @@ class Auctioneer(Agent):
         bid_total = sum(np.asarray(sorted_bid_list, dtype=object)[:, 1])
 
         try:
-            prosumer_offer_total = sum(np.asarray(sorted_offer_list)[:, 1])
+            prosumer_offer_total = sum(np.asarray(sorted_offer_list, dtype=object)[:, 1])
         except IndexError:
             prosumer_offer_total = 0
             auction_log.info("no prosumers in the grid supplying energy")

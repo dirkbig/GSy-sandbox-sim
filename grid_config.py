@@ -32,7 +32,6 @@ class ConfigurationMixin:
         self.cell_area = 1500
         self.n_cell = 140
         self.p = 1.5
-        self.electrolyzer_presence = True
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
         # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
         # strategies of the electrolyzer.
@@ -44,6 +43,13 @@ class ConfigurationMixin:
         self.battery_presence = False
 
 
+        """
+            Commercial PV 
+        """
+        self.pv_presence = False
+        self.pv_commercial_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
+
+
         """ 
             Utility 
         """
@@ -52,6 +58,7 @@ class ConfigurationMixin:
         self.negative_pricing = False
         self.dynamical_pricing = False
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
+
 
         """ 
             Households basic configuration 

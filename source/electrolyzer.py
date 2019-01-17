@@ -339,17 +339,17 @@ class Electrolyzer(Agent):
 
         # self.plot_optimization_result(opt_production, cumsum_h2_demand, c)
 
-        # Return the power value needed for the optimized production and the price [kW, EUR/kWh]
-        charging_power = self.get_power_by_production(opt_production[0])
+        # Return the energy value needed for the optimized production and the price [kWh, EUR/kWh]
+        energy_demand = self.get_power_by_production(opt_production[0]) * self.interval_time / 60
         price = c[0]
 
-        if charging_power == 0:
+        if energy_demand == 0:
             # Case: Do not bid.
             self.bid = None
             self.trading_state = None
         else:
             # Case: Bid on energy.
-            self.bid = [price, charging_power, self.id]
+            self.bid = [price, energy_demand, self.id]
             self.trading_state = "buying"
 
     def announce_bid(self):

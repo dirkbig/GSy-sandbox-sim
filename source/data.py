@@ -44,9 +44,10 @@ class Data(ConfigurationMixin, object):
         elif data_type == 'data_set_time_series':
             """ run model with real data, check if the strategies are performing, and for research results """
             self.load_array = self.get_load_profiles()
-            self.pv_gen_array = self.get_pv_gen_profiles()
+            self.pv_gen_array = self.get_pv_house_profiles()
             self.ess_list = self.ess_characteristics_list
             self.electrolyzer_list = self.get_electrolyzer_profiles()
+            self.pv_commercial_list = self.get_pv_commercial_profiles()
             if self.num_households > 0:
                 assert len(self.load_array) == self.num_households
             if self.num_pv_panels > 0:
@@ -114,7 +115,7 @@ class Data(ConfigurationMixin, object):
 
         return load_array
 
-    def get_pv_gen_profiles(self):
+    def get_pv_house_profiles(self):
         """ loading in load profiles """
         # TODO: currently, all agents get the same profile :( """
         pv_gen_array = []
@@ -160,6 +161,13 @@ class Data(ConfigurationMixin, object):
         assert len(electrolyzer_list) == self.num_steps + self.forecast_horizon
 
         return electrolyzer_list
+
+    def get_pv_commercial_profiles(self):
+        pv_commercial_list = csv_read_pv_profile(self.pv_commercial_profile)
+        pv_commercial_list = self.slice_from_to(pv_commercial_list, self.forecast_horizon)
+        assert len(pv_commercial_list) == self.num_steps + self.forecast_horizon
+
+        return pv_commercial_list
 
     def fill_in_classification_array(self):
         """ fill_in_classification_array according to configuration Mixin """
