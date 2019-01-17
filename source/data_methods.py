@@ -8,14 +8,12 @@ data_methods_log = logging.getLogger('run_microgrid.data_methods')
 # WHY IS THE DIRECTORY PATH CHANGED HERE? THIS LED TO AN ERROR. WITHOUT THIS IT IS WORKING FOR ME (FROM MARLON)
 # os.chdir("..")
 path = "./source" + "/profiles"
-print(path)
+#print(path)
 
 # def csv_read_load_profile(num_households_):
 #     data_dict = {}
 #     data_directory = "data_load_profiles"
 #
-
-
 
 def csv_read_load_file(num_households_with_load, household_loads_folder):
     data_list = []
@@ -27,8 +25,14 @@ def csv_read_load_file(num_households_with_load, household_loads_folder):
     except FileNotFoundError:
         data_methods_log.error("File  not Found: change path")
 
-    i = 0
-    for profile in os.listdir(data_directory):
+    # Get a list with all available load profiles in the folder.
+    load_profiles = os.listdir(data_directory)
+    # Check if there are enough load profiles, if not, throw an error.
+    if len(load_profiles) < num_households_with_load:
+        raise ValueError("There are less household load profiles than there are households with loads!")
+    # Only use as many load profiles as there are households.
+    load_profiles = load_profiles[:num_households_with_load]
+    for profile in load_profiles:
         data_array = []
         if profile.endswith(".csv"):
             with open(data_directory + '/' + profile) as csv_file:
@@ -38,9 +42,6 @@ def csv_read_load_file(num_households_with_load, household_loads_folder):
                         row[1] = 0
                     data_array.append(float(row[-1]))
         data_list.append(data_array)
-        i += 1
-        if i == num_households_with_load:
-            break
 
     return data_list
 
@@ -117,7 +118,25 @@ def csv_read_electrolyzer_profile(selected_electrolyzer_load_file):
     return electrolyzer_load_profile
 
 
-    return data_dict
+def csv_read_pv_profile(selected_pv_load_file="ts_pv_kWperkWinstalled_15min_2015.csv"):
+    pv_data_dir = path + '/pv_output_profiles'
+
+    if selected_pv_load_file not in os.listdir(pv_data_dir):
+        data_methods_log.warning("PV file '%s' not found" % selected_pv_load_file)
+        exit()
+
+
+    for profile in os.listdir(pv_data_dir):
+        if profile == selected_pv_load_file and profile.endswith(".csv"):
+            data_array = []
+            with open(pv_data_dir + '/' + profile) as csv_file:
+                data_file = csv.reader(csv_file, delimiter=',')
+                for row in data_file:
+                    data_array.append(float(row[1]))
+            break
+
+    pv_load_profile = data_array
+    return pv_load_profile
 
 
 def csv_read_load_h2():
@@ -132,18 +151,6 @@ def csv_read_load_h2():
 
     return data_array
 
-
-def csv_read_pv_profile():
-    # Read and return a PV generation profile for Berlin in 2015 [kW/kW_peak].
-    data_directory = "data_timeseries"
-    ts_name = "ts_pv_kWperkWinstalled_15min_2015.csv"
-    data_array = []
-    with open(data_directory + "/" + ts_name) as csv_file:
-        data_file = csv.reader(csv_file, delimiter=',')
-        for row in data_file:
-            data_array.append(row)
-
-    return data_array
 
 
 def csv_read_electricity_price():

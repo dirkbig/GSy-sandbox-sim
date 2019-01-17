@@ -13,7 +13,7 @@ class UtilityAgent(Agent):
         self.model = model
         self.trading_state = 'undefined'
         self.id = _unique_id
-        self.dynamical_pricing = False
+        self.dynamical_pricing = True
 
         """load in utility energy price profile"""
         self.price_profile = self.model.data.utility_pricing_profile
@@ -39,7 +39,13 @@ class UtilityAgent(Agent):
             # otherwise it will become a messy plot
             # self.utility_offer = [price, quantity, self.id]
 
+        """ two ways for utility to shoot its energy offer into the market:
+            announcing a market maker rate, auctioneer assuming infinite supply capacity
+             or announcing a price_quantity bid (quantity being rather high/large of course) """
+        # self.model.auction.offer_list.append(self.utility_offer)
         self.model.auction.utility_market_maker_rate = price
+
+        print("utility offer", self.utility_offer)
 
     def post_auction_round(self):
         return

@@ -4,6 +4,7 @@ from source.utility_agent import UtilityAgent
 from source.household_agent import HouseholdAgent
 from source.electrolyzer import Electrolyzer
 from source.battery import Battery
+from source.pv import Pv
 from source.data import Data
 
 from mesa import Model
@@ -15,8 +16,9 @@ env_log = logging.getLogger('run_microgrid.microgrid_env')
 
 class MicroGrid(Model):
     """ Agents are created in this environment that runs the simulation"""
-    def __init__(self):
-        self.data = Data()
+    def __init__(self,  run_configuration=None):
+
+        self.data = Data(run_configuration)
 
         """ initiation """
         self.step_count = 0
@@ -43,9 +45,11 @@ class MicroGrid(Model):
             battery_id = 'CommercialBattery'
             self.agents[battery_id] = Battery(battery_id, self)
 
-        self.data_collector = DataCollector()
+        if self.data.pv_presence is True:
+            pv_id = 'CommercialPv'
+            self.agents[pv_id] = Pv(pv_id, self)
 
-        print(self.agents)
+        self.data_collector = DataCollector()
 
     def sim_step(self):
         """advances the model by one step"""
@@ -68,4 +72,6 @@ class MicroGrid(Model):
 
     def update_time(self):
         self.step_count += 1
+
+
 

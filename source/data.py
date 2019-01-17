@@ -11,10 +11,14 @@ data_log = logging.getLogger('run_microgrid.data')
 
 
 class Data(ConfigurationMixin, object):
-    def __init__(self):
+    def __init__(self, run_configuration):
         super().__init__()
         """initialise data sets"""
         data_type = "data_set_time_series"  # random_1_step, custom_load_profiles, data_set_time_series
+
+        # If a new run configuration is given, update the configuration fields.
+        if run_configuration is not None:
+            self.update_config(run_configuration)
 
         if data_type == 'random_1_step':
             """ check whether the market platform can complete a full run, using random numbers of simplicity
@@ -40,12 +44,16 @@ class Data(ConfigurationMixin, object):
         elif data_type == 'data_set_time_series':
             """ run model with real data, check if the strategies are performing, and for research results """
             self.load_array = self.get_load_profiles()
-            self.pv_gen_array = self.get_pv_gen_profiles()
+            self.pv_gen_array = self.get_pv_house_profiles()
             self.ess_list = self.ess_characteristics_list
             self.electrolyzer_list = self.get_electrolyzer_profiles()
-            assert len(self.load_array) == self.num_households
-            assert len(self.pv_gen_array) == self.num_pv_panels
-            assert len(self.ess_list) == self.num_households_with_ess
+            self.pv_commercial_list = self.get_pv_commercial_profiles()
+            if self.num_households > 0:
+                assert len(self.load_array) == self.num_households
+            if self.num_pv_panels > 0:
+                assert len(self.pv_gen_array) == self.num_pv_panels
+            if self.num_households_with_ess > 0:
+                assert len(self.ess_list) == self.num_households_with_ess
             self.agent_data_array = self.fill_in_classification_array()
 
         else:
@@ -71,7 +79,10 @@ class Data(ConfigurationMixin, object):
         show()
 
     def get_load_profiles(self):
-        """ loading in load profiles """
+        """ loading in household load profiles """
+        if self.num_households == 0:
+            # Case: No households are in the system, thus the time series do not have to be loaded.
+            return []
 
         test = False
         if test is True:
@@ -104,14 +115,19 @@ class Data(ConfigurationMixin, object):
 
         return load_array
 
-    def get_pv_gen_profiles(self):
+    def get_pv_house_profiles(self):
         """ loading in load profiles """
         # TODO: currently, all agents get the same profile :( """
-        pv_gen_list = csv_read_pv_output_file(self.num_pv_panels, self.pv_output_profile)
-        pv_gen_array = np.array(pv_gen_list)
+        pv_gen_array = []
+        if self.num_pv_panels > 0:
+            # Case: There is PV present, thus the timeseries has to be loaded.
+            pv_gen_list = csv_read_pv_output_file(self.num_pv_panels, self.pv_output_profile)
+            pv_gen_array = np.array(pv_gen_list)
 
-        pv_gen_array = self.slice_from_to(pv_gen_array)
-        assert [len(pv_gen_array[i]) == self.num_steps for i in range(len(pv_gen_array))]
+            pv_gen_array = self.slice_from_to(pv_gen_array)
+            if self.num_pv_panels > 0:
+                # Case: PV panels are present. Then test if the pv time series have the correct length.
+                assert [len(pv_gen_array[i]) == self.num_steps for i in range(len(pv_gen_array))]
 
         """ manual tuning of data can happen here"""
         pv_gen_array = pv_gen_array*3
@@ -125,8 +141,8 @@ class Data(ConfigurationMixin, object):
         return [x[1] for x in electricity_price]
         """
         utility_profile_dict = csv_read_utility_file(self.utility_profile)
-        utility_profile_dict = self.slice_from_to(utility_profile_dict)
-        assert len(utility_profile_dict) == self.num_steps
+        utility_profile_dict = self.slice_from_to(utility_profile_dict, self.forecast_horizon)
+        assert len(utility_profile_dict) == self.num_steps + self.forecast_horizon
 
 
         # utility_profile_dict = utility_profile_dict[0::self.market_interval]
@@ -141,10 +157,17 @@ class Data(ConfigurationMixin, object):
         return [x[1] for x in h2_load]
         """
         electrolyzer_list = csv_read_electrolyzer_profile(self.fuel_station_load)
-        electrolyzer_list = self.slice_from_to(electrolyzer_list)
-        assert len(electrolyzer_list) == self.num_steps
+        electrolyzer_list = self.slice_from_to(electrolyzer_list, self.forecast_horizon)
+        assert len(electrolyzer_list) == self.num_steps + self.forecast_horizon
 
         return electrolyzer_list
+
+    def get_pv_commercial_profiles(self):
+        pv_commercial_list = csv_read_pv_profile(self.pv_commercial_profile)
+        pv_commercial_list = self.slice_from_to(pv_commercial_list, self.forecast_horizon)
+        assert len(pv_commercial_list) == self.num_steps + self.forecast_horizon
+
+        return pv_commercial_list
 
     def fill_in_classification_array(self):
         """ fill_in_classification_array according to configuration Mixin """
@@ -174,14 +197,20 @@ class Data(ConfigurationMixin, object):
 
         return agent_data_array
 
-    def slice_from_to(self, file):
-        try:
+    def slice_from_to(self, file, foresight_timeframe=0):
+        # Slice the loaded timeseries to the needed length, which is the simulation time frame plus for some time series
+        # the amount of time steps that are looked into with the optimization.
+        if type(file[0]) == list:
+            # Case: the first list entry is also a list, thus we have multiple timeseries here.
             for profile in range(len(file)):
-                file[profile] = file[profile][self.start:self.start + self.num_steps]
-        except TypeError:
-            print(type(file))
-            assert type(file) is list
-            file = file[self.start:self.start + self.num_steps]
+                file[profile] = file[profile][self.start:self.start + self.num_steps + foresight_timeframe]
+        elif type(file) == list:
+            # Case: file is a list but values in the list are not also lists, thus this is only one time series.
+            file = file[self.start:self.start + self.num_steps + foresight_timeframe]
+        else:
+            # file is not a list, this is a wrong format, thus an exception is raised.
+            raise TypeError('Expected time series date in the format list or list of lists.')
+
         return file
 
 

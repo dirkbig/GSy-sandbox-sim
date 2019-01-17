@@ -29,7 +29,10 @@ class Electrolyzer(Agent):
         """ Trading. """
         # Different methods can be chosen for deriving the bidding of the electrolyzer. Options are 'linprog' and
         # 'quadprog'. Quadprog by now seems to be the superior method in regard to result and computation time.
-        self.bidding_solver = "dummy"
+        self.bidding_solver = "quadprog"
+        # In case a forecast based bidding strategy is chosen, define how many time steps the method is supposed to look
+        # in the future [steps].
+        self.forecast_horizon = self.model.data.forecast_horizon
         self.wallet = Wallet(_unique_id)
         self.trading_state = None
         # Bid in the format [price, quantity, self ID]
@@ -189,7 +192,7 @@ class Electrolyzer(Agent):
 
     def update_bid(self):
         # Define the number of steps the perfect foresight optimization should look in the future.
-        n_step = 14 * 96
+        n_step = self.forecast_horizon
 
         if self.bidding_solver == "linprog":
             """ Linear program """
@@ -336,17 +339,17 @@ class Electrolyzer(Agent):
 
         # self.plot_optimization_result(opt_production, cumsum_h2_demand, c)
 
-        # Return the power value needed for the optimized production and the price [kW, EUR/kWh]
-        charging_power = self.get_power_by_production(opt_production[0])
+        # Return the energy value needed for the optimized production and the price [kWh, EUR/kWh]
+        energy_demand = self.get_power_by_production(opt_production[0]) * self.interval_time / 60
         price = c[0]
 
-        if charging_power == 0:
+        if energy_demand == 0:
             # Case: Do not bid.
             self.bid = None
             self.trading_state = None
         else:
             # Case: Bid on energy.
-            self.bid = [price, charging_power, self.id]
+            self.bid = [price, energy_demand, self.id]
             self.trading_state = "buying"
 
     def announce_bid(self):

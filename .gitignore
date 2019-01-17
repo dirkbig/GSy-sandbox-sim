@@ -12,3 +12,7 @@ source/.DS_Store
 profiles/.DS_Store
 
 *.txt
+
+test_result.csv
+example.pgf
+example.pdf

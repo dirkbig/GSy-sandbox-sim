@@ -47,8 +47,7 @@ class Auctioneer(Agent):
         self.who_gets_what_dict = {}
         for agent_id in self.model.agents:
             self.who_gets_what_dict[agent_id] = []
-        print("offers", self.offer_list)
-        print("bids", self.bid_list)
+
         if len(self.offer_list) is not 0 and len(self.bid_list) is not 0 \
                 or (self.model.agents['Utility'] is not None and len(self.bid_list) is not 0):
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of
@@ -91,10 +90,10 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
-        print('bids', self.sorted_bid_list)
-        print('offers', self.sorted_offer_list)
+        print('bids [price, quantity, id]:', self.sorted_bid_list)
+        print('offers [price, quantity, id]', self.sorted_offer_list)
 
-        print('trade_pairs', self.trade_pairs)
+        print('trade_pairs [id_seller, id_buyer, quantity, price*quantity]:', self.trade_pairs)
         if self.snapshot_plot is True and self.model.step_count % self.snapshot_plot_interval == 0:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
         # TODO: save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards
@@ -217,6 +216,7 @@ class Auctioneer(Agent):
             else:
                 break
 
+
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 
     def clearing_of_market(self):
@@ -280,7 +280,7 @@ class Auctioneer(Agent):
         bid_total = sum(np.asarray(sorted_bid_list, dtype=object)[:, 1])
 
         try:
-            prosumer_offer_total = sum(np.asarray(sorted_offer_list)[:, 1])
+            prosumer_offer_total = sum(np.asarray(sorted_offer_list, dtype=object)[:, 1])
         except IndexError:
             prosumer_offer_total = 0
             auction_log.info("no prosumers in the grid supplying energy")
