@@ -119,6 +119,8 @@ class Auctioneer(Agent):
                 self.offer_list.remove(offer)
 
         print(self.bid_list)
+
+        # bid = (price, quantity, id)
         sorted_bid_list = sorted(self.bid_list, key=lambda location: location[0], reverse=True)
         sorted_offer_list = sorted(self.offer_list, key=lambda location: location[0])
 
@@ -217,6 +219,7 @@ class Auctioneer(Agent):
             else:
                 break
 
+        print(sorted_x_y_y_pairs_list)
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 
     def clearing_of_market(self):
