@@ -219,7 +219,6 @@ class Auctioneer(Agent):
             else:
                 break
 
-        print(sorted_x_y_y_pairs_list)
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 
     def clearing_of_market(self):
