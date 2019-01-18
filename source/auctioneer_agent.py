@@ -15,7 +15,7 @@ class Auctioneer(Agent):
         auction_log.info('auction of type %s created', _unique_id)
         self.model = model
 
-        self.snapshot_plot = False
+        self.snapshot_plot = True
         self.snapshot_plot_interval = 15
 
         self.id = _unique_id
@@ -118,6 +118,8 @@ class Auctioneer(Agent):
                 self.offer_list.remove(offer)
 
         print(self.bid_list)
+
+        # bid = (price, quantity, id)
         sorted_bid_list = sorted(self.bid_list, key=lambda location: location[0], reverse=True)
         sorted_offer_list = sorted(self.offer_list, key=lambda location: location[0])
 
