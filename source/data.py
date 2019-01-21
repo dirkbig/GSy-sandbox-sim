@@ -118,20 +118,20 @@ class Data(ConfigurationMixin, object):
     def get_pv_house_profiles(self):
         """ loading in load profiles """
         # TODO: currently, all agents get the same profile :( """
-        pv_gen_array = []
+        pv_gen_list = []
         if self.num_pv_panels > 0:
             # Case: There is PV present, thus the timeseries has to be loaded.
             pv_gen_list = csv_read_pv_output_file(self.num_pv_panels, self.pv_output_profile)
-            pv_gen_array = np.array(pv_gen_list)
+            # pv_gen_array = np.array(pv_gen_list)
 
-            pv_gen_array = self.slice_from_to(pv_gen_array)
+            pv_gen_list = self.slice_from_to(pv_gen_list)
             if self.num_pv_panels > 0:
                 # Case: PV panels are present. Then test if the pv time series have the correct length.
-                assert [len(pv_gen_array[i]) == self.num_steps for i in range(len(pv_gen_array))]
+                assert [len(pv_gen_list[i]) == self.num_steps for i in range(len(pv_gen_list))]
 
         """ manual tuning of data can happen here"""
-        pv_gen_array = pv_gen_array*3
-        return pv_gen_array
+        #pv_gen_array = pv_gen_array * 3
+        return pv_gen_list
 
     def get_utility_profile(self):
         """ loads in utility pricing profile

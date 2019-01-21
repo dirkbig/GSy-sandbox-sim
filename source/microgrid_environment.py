@@ -55,17 +55,25 @@ class MicroGrid(Model):
         """advances the model by one step"""
 
         """ pre-auction round """
+        pre_agent_id = []
         for agent_id in self.agents:
             self.agents[agent_id].pre_auction_round()
-            print(agent_id)
+            pre_agent_id.append(agent_id)
+
+        info_string = 'Pre-auction round done for agent IDs:' + ' | {}' * len(pre_agent_id) + ' |'
+        print(info_string.format(*pre_agent_id))
 
         """ auction round """
         self.auction.auction_round()
 
         """ post-auction round """
+        updated_agent_id = []
         for agent_id in self.agents:
             self.agents[agent_id].post_auction_round()
-            print(agent_id)
+            updated_agent_id.append(agent_id)
+
+        info_string = 'Agents updated with following IDs:' + ' | {}' * len(updated_agent_id) + ' |'
+        print(info_string.format(*updated_agent_id))
 
         """ Update Time """
         self.update_time()

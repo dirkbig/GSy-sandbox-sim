@@ -48,8 +48,15 @@ class Auctioneer(Agent):
         for agent_id in self.model.agents:
             self.who_gets_what_dict[agent_id] = []
 
-        if len(self.offer_list) is not 0 and len(self.bid_list) is not 0 \
-                or (self.model.agents['Utility'] is not None and len(self.bid_list) is not 0):
+        # While an empty bid list may arrive as an empty list or as a list containing an empty list, the outer list is
+        # removed here for the later check, if there are bids at all (which is done taking the length of the bid list).
+        if len(self.bid_list) == 0:
+            bid_list = self.bid_list
+        else:
+            bid_list = self.bid_list[0]
+
+        if len(self.offer_list) is not 0 and len(bid_list) is not 0 \
+                or (self.model.agents['Utility'] is not None and len(bid_list) is not 0):
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of
                 prosumers or utility grid) """
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
@@ -217,7 +224,6 @@ class Auctioneer(Agent):
                         j += 1
             else:
                 break
-
 
         return sorted_bid_list, sorted_offer_list, sorted_x_y_y_pairs_list
 
