@@ -1,6 +1,6 @@
 from source import microgrid_environment
-# from grid_config_profile import ConfigurationUtility10prosumer as Config
-from grid_config_profile import ConfigurationUtilityElyPv as Config
+from grid_config_profile import ConfigurationUtility10household as Config
+# from grid_config_profile import ConfigurationUtilityElyPv as Config
 
 import logging
 logging.basicConfig(level=logging.WARNING)
@@ -12,10 +12,14 @@ fh.setFormatter(formatter)
 grid_log.addHandler(fh)
 
 trade_deals_list_per_step = {}
+clearing_price = {}
+clearing_quantity = {}
 
 
 def extract_data():
     trade_deals_list_per_step[microgrid.step_count] = microgrid.auction.trade_pairs
+    clearing_price[microgrid.step_count] = microgrid.auction.clearing_price
+    clearing_quantity[microgrid.step_count] = microgrid.auction.clearing_quantity
 
 
 def create_microgrid():
@@ -48,8 +52,15 @@ if write_output_to_csv:
         writer = csv.writer(file)
         for i in range(len(trade_deals_list_per_step)):
             this_row = []
-            for row_entry in trade_deals_list_per_step[i + 1]:
-                this_row += row_entry
+            if trade_deals_list_per_step[i+1] is None:
+                # Case: This trade entry is None. While a time step without a trade might lead to an entry of None or
+                # an empty list, make all Nones to empty lists for further processing.
+                trade_deals_list_per_step[i + 1] = []
+            if len(trade_deals_list_per_step[i+1]) > 0:
+                for row_entry in trade_deals_list_per_step[i+1]:
+                    this_row += row_entry
+            else:
+                this_row = ['No trade was made']
 
             writer.writerow(this_row)
 

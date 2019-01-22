@@ -118,5 +118,33 @@ def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time
            title='ESS deficits')
 
 
+def clearing_over_utility_price(num_steps, utility_price, clearing_price, clearing_quantity):
+
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+
+    ax.plot(steps, utility_price[:num_steps], label='Utility price')
+    ax.plot(steps, clearing_price, label='Clearing price')
+
+    ax.legend(loc='upper center', shadow=True, fontsize='x-large')
+    ax.set(xlabel='sim steps', ylabel='Eletricity costs [EUR/kWh]', title='Comparison utility - clearing price')
+
+    ax2 = ax.twinx()
+    ax2.step(steps, clearing_quantity, color='r')
+    ax2.set_ylabel("Trade quantity [kWh]", color='r')
+
+
+
+
+def clearing_quantity(num_steps, clearing_quantity):
+
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+
+    ax.plot(steps, clearing_quantity)
+
+    ax.set(xlabel='sim steps', ylabel='Clearing quantity [kWh]', title='Clearing quantity')
+
+
 def show():
     plt.show()

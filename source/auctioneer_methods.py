@@ -25,6 +25,9 @@ def check_demand_supply(sorted_bid_list_, sorted_offer_list_):
 def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     """ trade matching according pay-as-clear pricing rule """
     clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list_)
+    # Give some feedback to the found clearing price and quantity.
+    print('~~~\nclearing calculated. Clearing price: {} EUR/kWh; clearing quantity: {} kWh.\n~~~'.format(
+        clearing_price, clearing_quantity))
     """ some checks """
     trade_pairs_pac_ = []
     total_turnover_ = 0

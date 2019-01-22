@@ -61,21 +61,30 @@ class Data(ConfigurationMixin, object):
             exit()
 
         if self.utility_presence is True:
-            self.utility_pricing_profile = self.get_utility_profile()
-            assert len(self.utility_pricing_profile) >= self.num_steps
-            self.utility_pricing_profile = np.asarray(self.utility_pricing_profile)
+            if self.utility_dynamical_pricing is True:
+                self.utility_pricing_profile = self.get_utility_profile()
+                assert len(self.utility_pricing_profile) >= self.num_steps
+                self.utility_pricing_profile = np.asarray(self.utility_pricing_profile)
 
-            if self.negative_pricing is False:
-                self.utility_pricing_profile[self.utility_pricing_profile < 0] = 0
+                if self.negative_pricing is False:
+                    self.utility_pricing_profile[self.utility_pricing_profile < 0] = 0
+            else:
+                self.utility_pricing_profile = []
 
         """ SOC and unmatched loads and generation in grid """
         self.soc_list_over_time = np.zeros([self.num_households, self.num_steps])
         self.deficit_over_time = np.zeros([self.num_households, self.num_steps])
         self.overflow_over_time = np.zeros([self.num_households, self.num_steps])
+        # Log the clearing price [EUR] and quantity [kWh] for each step.
+        self.clearing_price = np.zeros([self.num_steps, 1])
+        self.clearing_quantity = np.zeros([self.num_steps, 1])
+        self.utility_price = np.zeros([self.num_steps, 1])
 
     def plots(self):
         soc_over_time(self.num_steps, self.soc_list_over_time)
         households_deficit_overflow(self.num_steps, self.deficit_over_time, self.overflow_over_time)
+        clearing_over_utility_price(self.num_steps, self.utility_price, self.clearing_price, self.clearing_quantity)
+        clearing_quantity(self.num_steps, self.clearing_quantity)
         show()
 
     def get_load_profiles(self):

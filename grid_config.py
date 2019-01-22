@@ -29,9 +29,6 @@ class ConfigurationMixin:
             Electrolyzer
         """
         self.electrolyzer_presence = False
-        self.cell_area = 1500
-        self.n_cell = 140
-        self.p = 1.5
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
         # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
         # strategies of the electrolyzer.
@@ -53,10 +50,18 @@ class ConfigurationMixin:
         """ 
             Utility 
         """
+        # Define if a utility grid should be part of the energy system
         self.utility_presence = True
-
+        # Define if the utility price should be loaded
+        self.utility_dynamical_pricing = True
+        # Define a fixed price for electricity from the utility grid. If a timeseries with an electricity price is
+        # loaded, the fixed price is added on top of that price from the time series [EUR/kWh].
+        self.utility_selling_price_fix = 0.0
+        self.utility_buying_price_fix = 0.0
+        # Define if negatives prices are possible. If not, at time steps where the time series price plus the fixed
+        # price is negative, it is set to 0 EUR/kWh instead.
         self.negative_pricing = False
-        self.dynamical_pricing = False
+
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
 
 

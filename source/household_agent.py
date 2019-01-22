@@ -134,6 +134,7 @@ class HouseholdAgent(Agent):
         self.data.overflow_over_time[self.id][self.model.step_count] = self.overflow
         self.data.deficit_over_time[self.id][self.model.step_count] = self.deficit
 
+
     def announce_bid_and_offers(self):
         """ announces bid to auction agent by appending to bid list """
         house_log.info('house%d is %s', self.id, self.trading_state)

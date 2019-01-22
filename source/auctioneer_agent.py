@@ -15,7 +15,7 @@ class Auctioneer(Agent):
         auction_log.info('auction of type %s created', _unique_id)
         self.model = model
 
-        self.snapshot_plot = True
+        self.snapshot_plot = False
         self.snapshot_plot_interval = 15
 
         self.id = _unique_id
@@ -50,15 +50,24 @@ class Auctioneer(Agent):
 
         # While an empty bid list may arrive as an empty list or as a list containing an empty list, the outer list is
         # removed here for the later check, if there are bids at all (which is done taking the length of the bid list).
-        if len(self.bid_list) == 0:
-            bid_list = self.bid_list
-        else:
-            bid_list = self.bid_list[0]
 
-        if len(self.offer_list) is not 0 and len(bid_list) is not 0 \
-                or (self.model.agents['Utility'] is not None and len(bid_list) is not 0):
+        """
+                if len(self.offer_list) is not 0 and len(self.bid_list) is not 0 \
+                or (self.model.agents['Utility'] is not None and len(self.bid_list) is not 0):
+        """
+        if len(self.bid_list) == 0:
+            bid_list_check = self.bid_list
+        elif len(self.bid_list) > 1:
+            bid_list_check = self.bid_list[1]
+            # While the first list entry can be an empty list, if there are multiple bids don't use the first one.
+        else:
+            bid_list_check = self.bid_list[0]
+
+        if len(self.offer_list) is not 0 and len(bid_list_check) is not 0 \
+                or (self.model.agents['Utility'] is not None and len(bid_list_check) is not 0):
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of
-                prosumers or utility grid) """
+            prosumers or utility grid) 
+            """
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
             self.execute_auction(sorted_x_y_y_pairs_list)
             self.clearing_of_market()
@@ -97,6 +106,13 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
+        self.model.data.clearing_price[self.model.step_count] = self.clearing_price
+        self.model.data.clearing_quantity[self.model.step_count] = self.clearing_quantity
+
+        # If there is a utility grid track the selling price of the grid.
+        if self.model.data.utility_presence is True:
+            self.model.data.utility_price[self.model.step_count] = self.model.agents['Utility'].sell_rate_utility
+
         print('bids [price, quantity, id]:', self.sorted_bid_list)
         print('offers [price, quantity, id]', self.sorted_offer_list)
 
@@ -114,7 +130,7 @@ class Auctioneer(Agent):
         # BELOW demand curve
 
         # sort on price, not quantity, so location[0]
-        print(self.bid_list)
+        # print(self.bid_list)
 
         for bid in self.bid_list:
             if len(bid) is 0:
@@ -124,7 +140,7 @@ class Auctioneer(Agent):
             if len(offer) is 0:
                 self.offer_list.remove(offer)
 
-        print(self.bid_list)
+        # print(self.bid_list)
 
         # bid = (price, quantity, id)
         sorted_bid_list = sorted(self.bid_list, key=lambda location: location[0], reverse=True)
