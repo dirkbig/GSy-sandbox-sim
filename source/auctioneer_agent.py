@@ -50,11 +50,6 @@ class Auctioneer(Agent):
 
         # While an empty bid list may arrive as an empty list or as a list containing an empty list, the outer list is
         # removed here for the later check, if there are bids at all (which is done taking the length of the bid list).
-
-        """
-                if len(self.offer_list) is not 0 and len(self.bid_list) is not 0 \
-                or (self.model.agents['Utility'] is not None and len(self.bid_list) is not 0):
-        """
         if len(self.bid_list) == 0:
             bid_list_check = self.bid_list
         elif len(self.bid_list) > 1:
@@ -146,10 +141,12 @@ class Auctioneer(Agent):
         sorted_bid_list = sorted(self.bid_list, key=lambda location: location[0], reverse=True)
         sorted_offer_list = sorted(self.offer_list, key=lambda location: location[0])
 
+        '''
         if self.model.data.utility_presence is not None:
             """ append (in a clever, semi-aesthetic way) the utility offer to the offer list according to the 
                 utility_market_maker_rate """
             sorted_bid_list, sorted_offer_list = self.append_utility_offer(sorted_bid_list, sorted_offer_list)
+        '''
 
         # creation of aggregate supply/demand points
         aggregate_quantity_points = []
@@ -335,7 +332,7 @@ class Auctioneer(Agent):
         sorted_bid_list = sorted(sorted_bid_list, key=lambda price_point: price_point[0], reverse=True)
         sorted_offer_list = sorted(sorted_offer_list, key=lambda price_point: price_point[0])
 
-        """ append utility ot who_gets_what dictionary """
+        """ append utility to who_gets_what dictionary """
         self.who_gets_what_dict[utility_id] = []
 
         print("sorted offers", sorted_offer_list)

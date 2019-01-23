@@ -56,25 +56,27 @@ class MicroGrid(Model):
 
         """ pre-auction round """
         # Track the total amount of electricity that is wanted (bids) and that is sold (offers) [kWh]
-        track_energy_wanted = 0
-        track_energy_offered = 0
+        total_energy_wanted = 0
+        total_energy_offered = 0
         pre_agent_id = []
         for agent_id in self.agents:
             self.agents[agent_id].pre_auction_round()
             pre_agent_id.append(agent_id)
             if self.agents[agent_id].bids is not None and len(self.agents[agent_id].bids) > 0:
-                track_energy_wanted += self.agents[agent_id].bids[0][1]
+                total_energy_wanted += self.agents[agent_id].bids[0][1]
             if self.agents[agent_id].offers is not None and len(self.agents[agent_id].offers) > 0:
-                track_energy_offered += self.agents[agent_id].offers[0][1]
+                total_energy_offered += self.agents[agent_id].offers[0][1]
 
-        print('Make utility bids')
         if self.data.utility_presence is True:
             # Construct a bid and an offer for the utility grid that can supply or buy all energy asked for or supplied.
             # Bids and offers are in the format [price, quantity, self.id]
-            self.agents['Utility'].bids = [self.agents['Utility'].sell_rate_utility, track_energy_wanted, 'Utility']
-            self.agents['Utility'].offers = [self.agents['Utility'].buy_rate_utility, track_energy_offered, 'Utility']
-
-
+            self.agents['Utility'].offers = [self.agents['Utility'].sell_rate_utility, total_energy_wanted, 'Utility']
+            self.auction.offer_list.append(self.agents['Utility'].offers)
+            self.agents['Utility'].bids = [self.agents['Utility'].buy_rate_utility, total_energy_offered, 'Utility']
+            self.auction.bid_list.append(self.agents['Utility'].bids)
+            # self.auction.who_gets_what_dict['Utility'] = []
+            print('Utility bid placed: {}. Utility offer placed: {}'.format(
+                str(self.agents['Utility'].bids), str(self.agents['Utility'].offers)))
 
         info_string = 'Pre-auction round done for agent IDs:' + ' | {}' * len(pre_agent_id) + ' |'
         print(info_string.format(*pre_agent_id))
