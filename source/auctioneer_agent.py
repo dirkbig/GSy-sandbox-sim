@@ -101,9 +101,15 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
+        # Update track values for later plots and evaluation.
         self.model.data.clearing_price[self.model.step_count] = self.clearing_price
         self.model.data.clearing_quantity[self.model.step_count] = self.clearing_quantity
-
+        # Track the deamdn of all households
+        household_demand = 0.0
+        for agent in self.model.agents:
+            if type(self.model.agents[agent]).__name__ == 'HouseholdAgent':
+                household_demand += self.model.agents[agent].load_data[self.model.step_count]
+        self.model.data.household_demand[self.model.step_count] = household_demand
         # If there is a utility grid track the selling price of the grid.
         if self.model.data.utility_presence is True:
             self.model.data.utility_price[self.model.step_count] = self.model.agents['Utility'].sell_rate_utility
