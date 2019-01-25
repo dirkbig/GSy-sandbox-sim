@@ -61,21 +61,32 @@ class Data(ConfigurationMixin, object):
             exit()
 
         if self.utility_presence is True:
-            self.utility_pricing_profile = self.get_utility_profile()
-            assert len(self.utility_pricing_profile) >= self.num_steps
-            self.utility_pricing_profile = np.asarray(self.utility_pricing_profile)
+            if self.utility_dynamical_pricing is True:
+                self.utility_pricing_profile = self.get_utility_profile()
+                assert len(self.utility_pricing_profile) >= self.num_steps
+                self.utility_pricing_profile = np.asarray(self.utility_pricing_profile)
 
-            if self.negative_pricing is False:
-                self.utility_pricing_profile[self.utility_pricing_profile < 0] = 0
+                if self.negative_pricing is False:
+                    self.utility_pricing_profile[self.utility_pricing_profile < 0] = 0
+            else:
+                self.utility_pricing_profile = []
 
         """ SOC and unmatched loads and generation in grid """
         self.soc_list_over_time = np.zeros([self.num_households, self.num_steps])
         self.deficit_over_time = np.zeros([self.num_households, self.num_steps])
         self.overflow_over_time = np.zeros([self.num_households, self.num_steps])
+        # Log the clearing price [EUR] and quantity [kWh] for each step.
+        self.clearing_price = np.zeros([self.num_steps, 1])
+        self.clearing_quantity = np.zeros([self.num_steps, 1])
+        self.utility_price = np.zeros([self.num_steps, 1])
+        self.household_demand = np.zeros([self.num_steps, 1])
 
     def plots(self):
         soc_over_time(self.num_steps, self.soc_list_over_time)
         households_deficit_overflow(self.num_steps, self.deficit_over_time, self.overflow_over_time)
+        clearing_over_utility_price(self.num_steps, self.utility_price, self.clearing_price, self.clearing_quantity)
+        clearing_quantity(self.num_steps, self.clearing_quantity)
+        clearing_quantity_over_demand(self.num_steps, self.clearing_quantity, self.household_demand)
         show()
 
     def get_load_profiles(self):
@@ -118,20 +129,20 @@ class Data(ConfigurationMixin, object):
     def get_pv_house_profiles(self):
         """ loading in load profiles """
         # TODO: currently, all agents get the same profile :( """
-        pv_gen_array = []
+        pv_gen_list = []
         if self.num_pv_panels > 0:
             # Case: There is PV present, thus the timeseries has to be loaded.
             pv_gen_list = csv_read_pv_output_file(self.num_pv_panels, self.pv_output_profile)
-            pv_gen_array = np.array(pv_gen_list)
+            # pv_gen_array = np.array(pv_gen_list)
 
-            pv_gen_array = self.slice_from_to(pv_gen_array)
+            pv_gen_list = self.slice_from_to(pv_gen_list)
             if self.num_pv_panels > 0:
                 # Case: PV panels are present. Then test if the pv time series have the correct length.
-                assert [len(pv_gen_array[i]) == self.num_steps for i in range(len(pv_gen_array))]
+                assert [len(pv_gen_list[i]) == self.num_steps for i in range(len(pv_gen_list))]
 
         """ manual tuning of data can happen here"""
-        pv_gen_array = pv_gen_array*3
-        return pv_gen_array
+        #pv_gen_array = pv_gen_array * 3
+        return pv_gen_list
 
     def get_utility_profile(self):
         """ loads in utility pricing profile

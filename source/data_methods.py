@@ -20,7 +20,7 @@ def csv_read_load_file(num_households_with_load, household_loads_folder):
     data_directory = path + '/data_load_profiles/' + household_loads_folder
     try:
         if household_loads_folder not in os.listdir(path + '/data_load_profiles'):
-            data_methods_log.warning("pv file '%s' not found" % household_loads_folder)
+            data_methods_log.warning("household demand profile file '%s' not found" % household_loads_folder)
             exit()
     except FileNotFoundError:
         data_methods_log.error("File  not Found: change path")
@@ -30,17 +30,22 @@ def csv_read_load_file(num_households_with_load, household_loads_folder):
     # Check if there are enough load profiles, if not, throw an error.
     if len(load_profiles) < num_households_with_load:
         raise ValueError("There are less household load profiles than there are households with loads!")
-    # Only use as many load profiles as there are households.
-    load_profiles = load_profiles[:num_households_with_load]
-    for profile in load_profiles:
+    # Only use as many load profiles as there are households. Use only files that end with .csv.
+    profiles_to_use = []
+    i_profile_used = 0
+    while i_profile_used < num_households_with_load:
+        if load_profiles[i_profile_used].endswith(".csv"):
+            profiles_to_use.append(load_profiles[i_profile_used])
+            i_profile_used += 1
+
+    for profile in profiles_to_use:
         data_array = []
-        if profile.endswith(".csv"):
-            with open(data_directory + '/' + profile) as csv_file:
-                data_file = csv.reader(csv_file, delimiter=',')
-                for row in data_file:
-                    if float(row[1]) < 0:
-                        row[1] = 0
-                    data_array.append(float(row[-1]))
+        with open(data_directory + '/' + profile) as csv_file:
+            data_file = csv.reader(csv_file, delimiter=',')
+            for row in data_file:
+                if float(row[1]) < 0:
+                    row[1] = 0
+                data_array.append(float(row[-1]))
         data_list.append(data_array)
 
     return data_list
@@ -61,14 +66,10 @@ def csv_read_pv_output_file(num_pv_panels, pv_output_profile):
             if profile == pv_output_profile and profile.endswith(".csv"):
                 with open(data_directory + '/' + profile) as csv_file:
                     data_file = csv.reader(csv_file, delimiter=',')
-                    row_i = 0
                     for row in data_file:
                         if float(row[1]) < 0.000001:
                             row[1] = 0
                         data_array.append(float(row[1]))
-                        row_i += 1
-                        if row_i >= 96:
-                            break
 
                 data_list.append(data_array)
                 i += 1

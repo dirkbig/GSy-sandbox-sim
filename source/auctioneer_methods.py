@@ -7,11 +7,11 @@ def check_demand_supply(sorted_bid_list_, sorted_offer_list_):
 
     if len(sorted_bid_list_) is not 0:
 
-        total_demand_ = np.sum([x[0] for x in sorted_bid_list_])
+        total_demand_ = np.sum([x[1] for x in sorted_bid_list_])
     else:
         total_demand_ = 0
     if len(sorted_offer_list_) is not 0:
-        total_supply_ = np.sum([x[0] for x in sorted_offer_list_])
+        total_supply_ = np.sum([x[1] for x in sorted_offer_list_])
     else:
         total_supply_ = 0
 
@@ -25,6 +25,9 @@ def check_demand_supply(sorted_bid_list_, sorted_offer_list_):
 def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     """ trade matching according pay-as-clear pricing rule """
     clearing_quantity, clearing_price = clearing_quantity_calc(sorted_x_y_y_pairs_list_)
+    # Give some feedback to the found clearing price and quantity.
+    print('~~~\nclearing calculated. Clearing price: {} EUR/kWh; clearing quantity: {} kWh.\n~~~'.format(
+        clearing_price, clearing_quantity))
     """ some checks """
     trade_pairs_pac_ = []
     total_turnover_ = 0
@@ -169,7 +172,10 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
             if sorted_x_y_y_pairs_list[i][1] < sorted_x_y_y_pairs_list[i][2]:
                 # clearing price is defined as the highest winning bid, sorted_x_x_y_pairs_list[i][1]
                 clearing_quantity_ = sorted_x_y_y_pairs_list[i - 1][0]
+                # WHY IS HERE THE PRICE USED FROM THE BID?? THIS WILL LEAD TO A HIGHER CLEARING PRICE
                 clearing_price_ = sorted_x_y_y_pairs_list[i - 1][1]
+                # ALTERNATIVELY HERE THE COSTS OF THE OFFER ARE USED!!
+                # clearing_price_ = sorted_x_y_y_pairs_list[i - 1][2]
                 method_logger.info('partially executed')
                 break
 

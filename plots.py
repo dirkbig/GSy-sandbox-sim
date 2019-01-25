@@ -40,7 +40,7 @@ def plot_avg_load_profile(num_steps, load_array):
         pass
     avg_load = np.ndarray.sum(np.array(load_array), axis=0) / len(load_array)
 
-    ax.plot(steps, avg_load)
+    ax.step(steps, avg_load)
     ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
            title='avg Load')
 
@@ -56,7 +56,7 @@ def plot_avg_pv_profile(num_steps, pv_array):
 
     avg_pv_output = np.sum(pv_array, axis=0)/len(pv_array)
 
-    ax.plot(steps, avg_pv_output)
+    ax.step(steps, avg_pv_output)
     ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
            title='avg PV output')
 
@@ -65,7 +65,7 @@ def plot_fuel_station_profile(num_steps, fuel_station_profile):
 
     steps = range(num_steps)
     fig, ax = plt.subplots()
-    ax.plot(steps, fuel_station_profile)
+    ax.step(steps, fuel_station_profile)
     ax.set(xlabel='sim steps', ylabel='H2 [kg] / step-interval',
            title='Load fuel station ')
 
@@ -77,8 +77,8 @@ def total_generation_vs_consumption(num_steps, pv_array, load_array):
     total_pv_output = np.sum(pv_array, axis=0)/ len(pv_array)
 
     fig, ax = plt.subplots()
-    ax.plot(steps, total_load, label='total load')
-    ax.plot(steps, total_pv_output, label='total pv')
+    ax.step(steps, total_load, label='total load')
+    ax.step(steps, total_pv_output, label='total pv')
 
     ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
            title='Total generation vs. consumption')
@@ -94,7 +94,7 @@ def soc_over_time(num_steps, soc_per_agent_over_time_array):
     steps = range(num_steps)
     fig, ax = plt.subplots()
     for ess in range(len(soc_per_agent_over_time_array)):
-        ax.plot(steps, soc_per_agent_over_time_array[ess])
+        ax.step(steps, soc_per_agent_over_time_array[ess])
     ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
            title='ESS soc')
 
@@ -110,12 +110,50 @@ def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time
 
     """ deficits """
     for ess in range(len(deficit_over_time)):
-        ax.plot(steps, deficit_over_time[ess])
+        ax.step(steps, deficit_over_time[ess])
     for ess in range(len(overflow_over_time)):
-        ax.plot(steps, overflow_over_time[ess])
+        ax.step(steps, overflow_over_time[ess])
 
     ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
            title='ESS deficits')
+
+
+def clearing_over_utility_price(num_steps, utility_price, clearing_price, clearing_quantity):
+
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+
+    ax.step(steps, utility_price[:num_steps], label='Utility price')
+    ax.step(steps, clearing_price, label='Clearing price')
+
+    ax.legend(loc='upper center', shadow=True, fontsize='x-large')
+    ax.set(xlabel='sim steps', ylabel='Eletricity costs [EUR/kWh]', title='Comparison utility - clearing price')
+
+    ax2 = ax.twinx()
+    ax2.step(steps, clearing_quantity, color='r')
+    ax2.set_ylabel("Trade quantity [kWh]", color='r')
+
+
+def clearing_quantity_over_demand(num_steps, clearing_quantity, demand):
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+
+    ax.step(steps, clearing_quantity, label='Clearing quantity')
+    ax.step(steps, demand, label='Household Demand')
+
+    ax.legend(loc='upper center', shadow=True, fontsize='x-large')
+    ax.set(xlabel='sim steps', ylabel='Electricity quantity [kWh]', title='Trading quantity over household demand')
+
+
+
+def clearing_quantity(num_steps, clearing_quantity):
+
+    steps = range(num_steps)
+    fig, ax = plt.subplots()
+
+    ax.step(steps, clearing_quantity)
+
+    ax.set(xlabel='sim steps', ylabel='Clearing quantity [kWh]', title='Clearing quantity')
 
 
 def show():
