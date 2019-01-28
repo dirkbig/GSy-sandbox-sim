@@ -15,7 +15,7 @@ class Auctioneer(Agent):
         auction_log.info('auction of type %s created', _unique_id)
         self.model = model
 
-        self.snapshot_plot = True
+        self.snapshot_plot = False
         self.snapshot_plot_interval = 10
 
         self.id = _unique_id
@@ -87,6 +87,10 @@ class Auctioneer(Agent):
         self.clearing_quantity = None
         self.clearing_price = None
 
+        ############################
+        self.pricing_rule = 'mcafee'
+        ############################
+
         """ picks pricing rule and generates trade_pairs"""
         if self.pricing_rule == 'pab':
             self.clearing_quantity, total_turnover, self.trade_pairs = \
@@ -101,6 +105,9 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
+        elif self.pricing_rule == 'mcafee':
+            self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
+                mcafee_pricing(sorted_x_y_y_pairs_list)
         # Update track values for later plots and evaluation.
         self.model.data.clearing_price[self.model.step_count] = self.clearing_price
         self.model.data.clearing_quantity[self.model.step_count] = self.clearing_quantity
