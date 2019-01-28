@@ -29,6 +29,7 @@ class ESS(object):
         """ strategy variables """
         self.total_supply_from_devices_at_step = None
         self.soc_preferred = None
+        self.soc_essential = None
         self.surplus = None
 
         """ SOC forecasting """
@@ -224,15 +225,18 @@ class ESS(object):
     def ess_demand_calc(self, current_step):
         """calculates the demand expresses by a household's ESS"""
         total_supply_from_devices = self.update_from_household_devices()
-
         self.soc_preferred_calc()
-        if self.soc_preferred is None:
-            self.soc_preferred = 0
 
-        """ The logic here is straight forward; what is the preferred SOC the battery wants to attain? 
-            -> surplus of ESS = actual SOC + aggregated supply from all devices (could be negative) - the preferred SOC 
-        """
+        assert self.min_capacity <= self.soc_preferred <= self.max_capacity
+
+        """ surplus of ESS = actual SOC + aggregated supply from all devices (could be negative) - the preferred SOC """
+
         self.surplus = self.soc_actual + total_supply_from_devices - self.soc_preferred
+
+        # some boundary conditions:
+        if self.soc_preferred is self.soc_actual and total_supply_from_devices < self.soc_actual:
+            self.surplus = 0
+
         device_log.info('soc surplus of house %d = %f' % (self.agent.id, self.surplus))
 
     def soc_preferred_calc(self):
@@ -254,8 +258,14 @@ class ESS(object):
             self.production_horizon = [0]
 
         self.soc_preferred = sum(self.load_horizon) - sum(self.production_horizon)
-        if self.soc_preferred < self.min_capacity:
-            self.soc_preferred = self.min_capacity
+        self.soc_essential = max(0, self.load_horizon[0] - self.production_horizon[0])
+
+        if self.soc_preferred is None:
+            self.soc_preferred = 0
+
+        # boundary conditions
+        clamp_soc_preferred = lambda value, minn, maxn: max(min(maxn, value), minn)
+        self.soc_preferred = clamp_soc_preferred(self.soc_preferred, self.min_capacity, self.max_capacity)
 
         return
 
