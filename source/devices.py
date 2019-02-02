@@ -1,5 +1,5 @@
 from math import exp
-from source.const import *
+from source.const import constraints_setting, horizon
 from source.devices_methods import *
 import source.const as const
 
@@ -19,7 +19,7 @@ class ESS(object):
         self.min_capacity = 0.1 * self.max_capacity
 
         self.soc_actual = self.initial_capacity
-        device_log.info('soc_actual house %d = %d' % (self.agent.id , self.soc_actual))
+        device_log.info('soc_actual house %d = %d' % (self.agent.id, self.soc_actual))
 
         """ initialization of all information the smart-ESS needs for its strategy  """
         self.next_interval_load = None
@@ -243,7 +243,7 @@ class ESS(object):
 
         if self.agent.has_load is True:
             max_horizon = min(len(self.agent.load_data), count + horizon)
-            self.load_horizon = self.agent.load_data[count:count + max_horizon]
+            self.load_horizon = self.agent.load_data[count: max_horizon]
         else:
             self.load_horizon = [0]
 

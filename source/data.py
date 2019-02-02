@@ -108,7 +108,7 @@ class Data(ConfigurationMixin, object):
         #     load_list[i] = load_list[i][0::self.market_interval]
         #
 
-        load_list = self.slice_from_to(load_list)
+        load_list = self.slice_from_to(load_list, self.forecast_horizon)
         assert [len(load_list[i]) == self.num_steps for i in range(len(load_list))]
 
         """ manual tuning of data can happen here """

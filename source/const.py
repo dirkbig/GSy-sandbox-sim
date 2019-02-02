@@ -10,7 +10,7 @@ num_minutes_in_a_day = 1440
 initial_coins_household = 10000000000
 
 """ Simulation environment """
-num_steps = int(96)
+num_steps = int(96*15)
 market_interval = 15  # minutes
 # Start time in UNIX (e.g. 1420070400 for 00:00:00-01.01.2015).
 # start_time = 1420070400
