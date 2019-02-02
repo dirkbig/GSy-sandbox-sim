@@ -127,11 +127,20 @@ def clearing_over_utility_price(num_steps, utility_price, clearing_price, cleari
     ax.step(steps, clearing_price, label='Clearing price')
 
     ax.legend(loc='upper center', shadow=True, fontsize='x-large')
+    line1 = ax.plot(steps, clearing_price, label='Price: Clearing', drawstyle='steps')
+    line2 = ax.plot(steps, utility_price[:num_steps], label='Price: Utility', linestyle='--', drawstyle='steps')
     ax.set(xlabel='sim steps', ylabel='Eletricity costs [EUR/kWh]', title='Comparison utility - clearing price')
+
 
     ax2 = ax.twinx()
     ax2.step(steps, clearing_quantity, color='r')
+    ax2.grid(False)
+    line3 = ax2.step(steps, clearing_quantity, label='Trading quantity', color='r')
     ax2.set_ylabel("Trade quantity [kWh]", color='r')
+
+    all_line = line1 + line2 + line3
+    label_name = [this_line.get_label() for this_line in all_line]
+    ax.legend(all_line, label_name, loc='center right', shadow=True)
 
 
 def clearing_quantity_over_demand(num_steps, clearing_quantity, demand):

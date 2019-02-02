@@ -115,14 +115,17 @@ class Data(ConfigurationMixin, object):
         load_array = np.array(load_list)
         load_array[np.isnan(load_array)] = 0
         # TODO: german consumption rates?
+        # WHAT WAS HAPPENING HERE? LOAD PROFILES WERE TUNED, THIS SHOULDN'T HAPPEN????
+        """
         for i in range(len(load_list)):
             max_element = np.amax(load_array[i])
             if max_element > 1:
                 load_array[i] = load_array[i] / max_element
                 print(max_element)
 
-        """ manual tuning of data can happen here """
+        ''' manual tuning of data can happen here '''
         load_array = load_array*2
+        """
 
         return load_array
 
