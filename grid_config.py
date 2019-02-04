@@ -45,7 +45,7 @@ class ConfigurationMixin:
             Utility 
         """
         # Define if a utility grid should be part of the energy system
-        self.utility_presence = False
+        self.utility_presence = True
         # Define if the utility price should be loaded
         self.utility_dynamical_pricing = True
         # Define a fixed price for electricity from the utility grid. If a timeseries with an electricity price is
@@ -61,10 +61,10 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 1
+        self.consumers = 2
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 1
+        self.prosumers_with_pv_and_ess = 2
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []
@@ -104,6 +104,8 @@ class ConfigurationMixin:
         """ ESS constants"""
         self.horizon = 24
         self.constraints_setting = "off"  # "off" or "on"
+        self.battery_aging = "off"  # "off" or "on"
+
         if self.constraints_setting == 'off':
             config_log.warning("Physical battery constraints are not active")
 

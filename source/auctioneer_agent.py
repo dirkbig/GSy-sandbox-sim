@@ -64,8 +64,6 @@ class Auctioneer(Agent):
             except TypeError:
                 return False
 
-        print(self.offer_list)
-        print(self.bid_list)
         if empty(self.offer_list) is False and empty(self.bid_list) is False \
                 or (self.model.data.utility_presence is True and empty(self.bid_list) is False):
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of

@@ -33,18 +33,18 @@ def smart_ess_strategy(self):
         self.offers = []
 
         # respects discharging limit constraints
-        self.ess.surplus = min(self.ess.surplus, self.ess.max_out)
+        offer_volume = min(self.ess.surplus, self.ess.max_out)
 
-        if self.bidding_method is "utility_function":
+        if self.bidding_method is "utility_function" and offer_volume > 0:
             """ Determine Price """
             discrete_offer_list = price_point_optimization(self)
 
-        elif self.bidding_method is "price_curve":
+        elif self.bidding_method is "price_curve" and offer_volume > 0:
             """ Discrete offer curve: multiple bids """
             base = 0
             number_of_offers = max(max_entries_to_market, int(self.ess.surplus))
             assert self.ess.surplus > 0
-            discrete_offer_list = battery_price_curve(self, utility_price, base, self.ess.surplus,  number_of_offers)
+            discrete_offer_list = battery_price_curve(self, utility_price, base, offer_volume,  number_of_offers)
 
         for offer in discrete_offer_list:
             if offer[0] is not 0:
@@ -53,6 +53,7 @@ def smart_ess_strategy(self):
 
     elif self.ess.surplus < 0:
         self.trading_state = 'buying'
+        bidding_volume = abs(self.ess.surplus)
         self.bids = []
 
         """ make sure ess buys at least essential demand"""
@@ -60,41 +61,39 @@ def smart_ess_strategy(self):
         # inflexible, thus at price taking rates (at utility prices)
         essential_demand = max(0, self.ess.soc_essential - self.ess.soc_actual)
         soc_leftover_space = self.ess.max_capacity - essential_demand - self.ess.soc_actual
-        margin = 0.001
+        margin = 0.00001
         assert self.ess.max_capacity - margin < self.ess.soc_actual + essential_demand + soc_leftover_space < \
                self.ess.max_capacity + margin
 
         if essential_demand > 0 and self.data.utility_presence is True:
+            print("essential_demand", essential_demand)
             self.bids.append([utility_price, essential_demand, self.id])
+            bidding_volume -= essential_demand
+
         elif essential_demand > 0 and self.data.utility_presence is False:
             # price taking at utility prices won't be a guarantee, thus effect set to zero this way.
             essential_demand = 0
 
-        """ Now ESS should be strategically bidding for SOC preferred (or just SOC_max?)"""
-        # bidding_volume = soc_leftover_space
-        bidding_volume = abs(self.ess.surplus) - essential_demand
-
-        # appears there is never need for this essential demand mechanic?
-        if essential_demand != 0:
-            print("essential_demand", essential_demand)
-
         try:
-            assert bidding_volume <= self.ess.soc_preferred - self.ess.total_supply_from_devices_at_step \
-                   - self.ess.soc_actual
-            assert bidding_volume + self.ess.soc_actual <= self.ess.max_capacity
+            possible_in = bidding_volume + self.pv.next_interval_estimated_generation
+            max_possible_in = self.ess.max_capacity - self.ess.soc_actual + abs(self.load.next_interval_estimated_load)
+            assert possible_in <= max_possible_in + margin
+
         except AssertionError:
             print("shit")
             print("bidding_volume", bidding_volume)
             print("ess_surplus", self.ess.surplus)
             print("max_capacity", self.ess.max_capacity)
             print("soc_actual", self.ess.soc_actual)
-            print("error", self.ess.max_capacity - self.ess.soc_actual - self.ess.total_supply_from_devices_at_step)
+            print("soc_preferred", self.ess.soc_preferred)
+            print("overshoot error", abs(possible_in - max_possible_in))
             exit("fix this")
-        if self.bidding_method is "utility_function":
+
+        if self.bidding_method is "utility_function" and bidding_volume > 0:
             """ bid approach, using utility function: only 1 bid """
             discrete_bid_list = price_point_optimization(self)
 
-        elif self.bidding_method is "price_curve":
+        elif self.bidding_method is "price_curve" and bidding_volume > 0:
             """ bid approach, using discrete offer curve: multiple bids
                 constrained by lower and higher bounds"""
             base = 0
@@ -172,13 +171,15 @@ def price_point_optimization(self):
 
 def battery_price_curve(self, mmr, base, trade_volume, number_of_bids):
 
-    assert trade_volume > 0 and number_of_bids > 0
-    increment = trade_volume/number_of_bids
-
     try:
-        bid_range = np.arange(0, trade_volume, increment)
-    except ValueError:
-        print("oh ohh")
+        assert trade_volume > 0 and number_of_bids > 0
+    except AssertionError:
+        print(trade_volume)
+        print(number_of_bids)
+        exit("Operation with zero")
+
+    increment = trade_volume/number_of_bids
+    bid_range = np.arange(0, trade_volume, increment)
 
     # risk parameter in case of selling:
     #   high: risk averse, battery really wants to sell and not be a price pusher

@@ -14,7 +14,7 @@ class ESS(object):
         """ ESS characteristics extracted from ess_data """
         self.initial_capacity = ess_data[0]
         self.max_capacity = ess_data[1]
-        self.min_capacity = 0.1 * self.max_capacity
+        self.min_capacity = 0 * self.max_capacity
 
         self.soc_actual = self.initial_capacity
         device_log.info('soc_actual house %d = %d' % (self.agent.id, self.soc_actual))
@@ -46,7 +46,7 @@ class ESS(object):
         # Nominal capacity of one single battery cell [Ah].
         self.cell_capacity = 2.05
         # Availability for discharge delta DOD (1 is 100% of capacity is available).
-        self.delta_dod = 0.01
+        self.delta_dod = 0.000
         # Time the battery is in use [d].
         self.time_in_use = 0
         # Total charge throughput Q [Ah].
@@ -171,20 +171,22 @@ class ESS(object):
             abs_throughput = energy_influx * self.discharge_eff
             rel_throughput = abs_throughput / self.max_capacity
             self.soc_actual += abs_throughput
+            assert 0 <= self.soc_actual <= self.max_capacity
 
         elif energy_influx * self.charge_eff > storage_space_left > 0:
             """ charging with overflow """
             abs_throughput = storage_space_left
             rel_throughput = abs_throughput / self.max_capacity
             self.soc_actual = self.max_capacity
-
             local_overflow = abs(energy_influx) - storage_space_left
+            assert 0 <= self.soc_actual <= self.max_capacity
 
         elif energy_influx * self.discharge_eff < 0 < self.soc_actual + energy_influx:
             """ discharging without depletion """
             abs_throughput = energy_influx * self.discharge_eff
             rel_throughput = abs_throughput / self.max_capacity
             self.soc_actual += abs_throughput
+            assert 0 <= self.soc_actual <= self.max_capacity
 
         elif energy_influx * self.discharge_eff < 0 and self.soc_actual + \
                 energy_influx * self.discharge_eff < 0:
@@ -193,6 +195,8 @@ class ESS(object):
             rel_throughput = abs_throughput / self.max_capacity
             self.soc_actual = 0
             local_deficit = abs(energy_influx) - self.soc_actual
+            assert 0 <= self.soc_actual <= self.max_capacity
+
         else:
             rel_throughput = 0
 
@@ -217,32 +221,27 @@ class ESS(object):
         device_log.info("Battery states updated. Capacity loss due to aging is {} kWh.".format(capacity_loss_rel))
 
         self.agent.data.soc_list_over_time[self.agent.id][self.agent.model.step_count] = self.soc_actual
+
+        assert 0 <= self.soc_actual <= self.max_capacity
         return local_overflow, local_deficit
 
     """ needed for storage strategy """
     def ess_demand_calc(self, current_step):
         """calculates the demand expresses by a household's ESS"""
         total_supply_from_devices = self.update_from_household_devices()
-
         self.soc_preferred_calc()
 
-        try:
-            assert self.min_capacity <= self.soc_preferred <= self.max_capacity
-        except AssertionError:
-            print('fack')
         """ surplus of ESS = actual SOC + aggregated supply from all devices (could be negative) - the preferred SOC """
-
         self.surplus = self.soc_actual + total_supply_from_devices - self.soc_preferred
 
         # some boundary conditions:
-        if self.soc_preferred is self.soc_actual and total_supply_from_devices < self.soc_actual:
+        if self.soc_preferred == self.soc_actual and total_supply_from_devices < self.soc_actual:
             self.surplus = 0
 
         device_log.info('soc surplus of house %d = %f' % (self.agent.id, self.surplus))
 
     def soc_preferred_calc(self):
         """forecast of load minus (personal) productions over horizon expresses preferred soc of ESS"""
-        # TODO: perfect foresight estimation of horizon
         count = self.agent.model.step_count
         """ 'Estimate' the coming X hours of load and production forecast """
 
@@ -267,6 +266,7 @@ class ESS(object):
         # boundary conditions
         clamp_soc_preferred = lambda value, minn, maxn: max(min(maxn, value), minn)
         self.soc_preferred = clamp_soc_preferred(self.soc_preferred, self.min_capacity, self.max_capacity)
+        assert self.min_capacity <= self.soc_preferred <= self.max_capacity
 
         return
 
@@ -277,7 +277,6 @@ class PVPanel(object):
         self.agent = agent
         self.device_pv_data = pv_data
         self.next_interval_estimated_generation = None
-        # TODO: API to PVLIB-Python?
 
     def get_generation(self, current_step):
 
