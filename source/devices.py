@@ -144,6 +144,7 @@ class ESS(object):
         """ independent charging limits check 
             should be done at bidding strategy as well
         """
+        # Getting the temperature [K].
         temperature = self.get_ess_temperature(self)
         self.temperature.append(temperature)
         [max_charge, max_discharge] = self.get_charging_limit()
