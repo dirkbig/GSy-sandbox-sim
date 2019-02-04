@@ -1,6 +1,7 @@
-# Pay as Clear Market 
+# Local Energy Market Model
 
-Agent-based model using MESA package modeling a two-sided market, pay-as-clear pricing rule based micro-grid energy market. Goal is to simulate a grid with households using plug-and-play bidding strategies and devices according a predefined grid set-up
+Agent-based model using MESA package modeling a two-sided market, pay-as-clear pricing rule based micro-grid energy market. Goal is to simulate a grid with households using plug-and-play bidding strategies and devices according a predefined grid set-up. Includes
+3 pricing algorithms; Pay as Bid (i.e. discriminatory auction), Pay as Clear (i.e. uniform auction) and the McAfee Auction.
 
 ## Getting started
 
