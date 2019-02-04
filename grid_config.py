@@ -1,29 +1,24 @@
 import numpy as np
 import source.const as const
 
+import logging
+config_log = logging.getLogger('grid_config.constants')
+
 """ Grid Configuration """
 
 
 class ConfigurationMixin:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
-
-        """ 
-            Simulation environment
-        """
-        self.num_days = const.num_steps * const.market_interval / 60 / 24
-        self.market_interval = const.market_interval  # minutes
-
-        # time
-        self.start = 0
-
-        self.num_steps = const.num_steps
+        self.sim_start = 0
+        self.num_days = 10
+        self.market_interval = 15  # minutes
+        self.num_steps = int(24 * 60 * self.num_days / self.market_interval)
 
         """ 
             Market structure 
         """
-        # TODO: this is already defined in const.py
-        self.pricing_rule = 'pac'  # or 'pab'
+        self.pricing_rule = 'pac'  # or 'pab' or 'mcafee'
 
         """ 
             Electrolyzer
@@ -46,7 +41,6 @@ class ConfigurationMixin:
         self.pv_presence = False
         self.pv_commercial_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
 
-
         """ 
             Utility 
         """
@@ -68,9 +62,9 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 0
+        self.consumers = 3
         self.prosumers_with_only_pv = 0
-        self.prosumers_with_ess = 1
+        self.prosumers_with_ess = 3
         self.prosumers_with_pv_and_ess = 0
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
@@ -107,6 +101,13 @@ class ConfigurationMixin:
         """    
             ESS data
         """
+
+        """ ESS constants"""
+        self.horizon = 24
+        self.constraints_setting = "off"  # "off" or "on"
+        if self.constraints_setting == 'off':
+            config_log.warning("Physical battery constraints are not active")
+
         self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
         max_capacity_list = np.full(self.num_households_with_ess, 10)
         initial_capacity_list = np.full(self.num_households_with_ess, 9)

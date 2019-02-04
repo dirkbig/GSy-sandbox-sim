@@ -1,4 +1,5 @@
 from source import microgrid_environment
+from source.const import *
 # from grid_config_profile import ConfigurationUtility10household as Config
 from grid_config_profile import ConfigurationUtility10prosumer as Config
 # from grid_config_profile import ConfigurationUtilityElyPv as Config
@@ -71,6 +72,6 @@ microgrid.data.plots()
 print("\n*******************************************************")
 print("                  Simulation finished")
 print("*******************************************************")
-print("List of trades made is:")
+print("List of trades made is [id_seller, id_buyer, quantity, price*quantity]:")
 print(trade_deals_list_per_step)
 

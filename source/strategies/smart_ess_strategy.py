@@ -73,7 +73,9 @@ def smart_ess_strategy(self):
             print("essential_demand", essential_demand)
 
         try:
-            assert bidding_volume <= self.ess.soc_preferred - self.ess.total_supply_from_devices_at_step - self.ess.soc_actual
+            assert bidding_volume <= self.ess.soc_preferred - self.ess.total_supply_from_devices_at_step \
+                   - self.ess.soc_actual
+            assert bidding_volume + self.ess.soc_actual <= self.max_capacity
         except AssertionError:
             print("shit")
             print("bidding_volume", bidding_volume)

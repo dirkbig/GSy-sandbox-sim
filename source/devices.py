@@ -1,7 +1,5 @@
 from math import exp
-from source.const import *
 from source.devices_methods import *
-import source.const as const
 
 import logging
 device_log = logging.getLogger('run_microgrid.device')
@@ -19,7 +17,7 @@ class ESS(object):
         self.min_capacity = 0.1 * self.max_capacity
 
         self.soc_actual = self.initial_capacity
-        device_log.info('soc_actual house %d = %d' % (self.agent.id , self.soc_actual))
+        device_log.info('soc_actual house %d = %d' % (self.agent.id, self.soc_actual))
 
         """ initialization of all information the smart-ESS needs for its strategy  """
         self.next_interval_load = None
@@ -33,10 +31,11 @@ class ESS(object):
         self.surplus = None
 
         """ SOC forecasting """
+        self.horizon = self.agent.data.horizon
         self.production_horizon = 0
         self.load_horizon = 0
 
-        """ physics """
+        """ Physics """
         # Charging and discharging efficiency (0 -> 0 %, 1 -> 100 %).
         self.charge_eff = 0.98
         self.discharge_eff = 0.98
@@ -76,13 +75,12 @@ class ESS(object):
 
     def uniform_call_to_device(self, current_step):
         device_log.info("ESS of house %s checking in" % self.agent.id)
-        self.agent.soc_actual = self.soc_actual
         return
 
     """ battery model """
     def get_charging_limit(self):
 
-        if constraints_setting is 'on':
+        if self.agent.data.constraints_setting is 'on':
             # Calculates how much energy can max. be bought or distributed in the next time step.
             # Output: array [max. bought, max. distributed] in kWh.
 
@@ -165,6 +163,7 @@ class ESS(object):
             assert storage_space_left >= 0
         except AssertionError:
             device_log.error("SOC is higher than max capacity of ESS, or negative")
+            exit("ESS physics broken, this should never happen")
 
         # Update the state of charge.
         if 0 < energy_influx * self.charge_eff < storage_space_left:
@@ -217,7 +216,6 @@ class ESS(object):
         self.time_in_use += self.agent.data.market_interval / 60 / 24
         device_log.info("Battery states updated. Capacity loss due to aging is {} kWh.".format(capacity_loss_rel))
 
-        self.agent.soc_actual = self.soc_actual
         self.agent.data.soc_list_over_time[self.agent.id][self.agent.model.step_count] = self.soc_actual
         return local_overflow, local_deficit
 
@@ -225,10 +223,13 @@ class ESS(object):
     def ess_demand_calc(self, current_step):
         """calculates the demand expresses by a household's ESS"""
         total_supply_from_devices = self.update_from_household_devices()
+
         self.soc_preferred_calc()
 
-        assert self.min_capacity <= self.soc_preferred <= self.max_capacity
-
+        try:
+            assert self.min_capacity <= self.soc_preferred <= self.max_capacity
+        except AssertionError:
+            print('fack')
         """ surplus of ESS = actual SOC + aggregated supply from all devices (could be negative) - the preferred SOC """
 
         self.surplus = self.soc_actual + total_supply_from_devices - self.soc_preferred
@@ -246,13 +247,13 @@ class ESS(object):
         """ 'Estimate' the coming X hours of load and production forecast """
 
         if self.agent.has_load is True:
-            max_horizon = min(len(self.agent.load_data), count + horizon)
-            self.load_horizon = self.agent.load_data[count:count + max_horizon]
+            max_horizon = min(len(self.agent.load_data), count + self.horizon)
+            self.load_horizon = self.agent.load_data[count: max_horizon]
         else:
             self.load_horizon = [0]
 
         if self.agent.has_pv is True:
-            max_horizon = min(len(self.agent.pv_data), count + horizon)
+            max_horizon = min(len(self.agent.pv_data), count + self.horizon)
             self.production_horizon = self.agent.pv_data[count: max_horizon]
         else:
             self.production_horizon = [0]

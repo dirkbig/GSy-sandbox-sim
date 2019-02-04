@@ -1,6 +1,7 @@
 from source.data_methods import *
 from plots import *
 from grid_config import ConfigurationMixin
+from source.const import *
 import numpy as np
 
 
@@ -108,21 +109,24 @@ class Data(ConfigurationMixin, object):
         #     load_list[i] = load_list[i][0::self.market_interval]
         #
 
-        load_list = self.slice_from_to(load_list)
+        load_list = self.slice_from_to(load_list, self.forecast_horizon)
         assert [len(load_list[i]) == self.num_steps for i in range(len(load_list))]
 
         """ manual tuning of data can happen here """
         load_array = np.array(load_list)
         load_array[np.isnan(load_array)] = 0
         # TODO: german consumption rates?
+        # WHAT WAS HAPPENING HERE? LOAD PROFILES WERE TUNED, THIS SHOULDN'T HAPPEN????
+        """
         for i in range(len(load_list)):
             max_element = np.amax(load_array[i])
             if max_element > 1:
                 load_array[i] = load_array[i] / max_element
                 print(max_element)
 
-        """ manual tuning of data can happen here """
+        ''' manual tuning of data can happen here '''
         load_array = load_array*2
+        """
 
         return load_array
 
@@ -141,7 +145,7 @@ class Data(ConfigurationMixin, object):
                 assert [len(pv_gen_list[i]) == self.num_steps for i in range(len(pv_gen_list))]
 
         """ manual tuning of data can happen here"""
-        #pv_gen_array = pv_gen_array * 3
+        # pv_gen_array = pv_gen_array * 3
         return pv_gen_list
 
     def get_utility_profile(self):
@@ -214,10 +218,10 @@ class Data(ConfigurationMixin, object):
         if type(file[0]) == list:
             # Case: the first list entry is also a list, thus we have multiple timeseries here.
             for profile in range(len(file)):
-                file[profile] = file[profile][self.start:self.start + self.num_steps + foresight_timeframe]
+                file[profile] = file[profile][self.sim_start:self.sim_start + self.num_steps + foresight_timeframe]
         elif type(file) == list:
             # Case: file is a list but values in the list are not also lists, thus this is only one time series.
-            file = file[self.start:self.start + self.num_steps + foresight_timeframe]
+            file = file[self.sim_start:self.sim_start + self.num_steps + foresight_timeframe]
         else:
             # file is not a list, this is a wrong format, thus an exception is raised.
             raise TypeError('Expected time series date in the format list or list of lists.')

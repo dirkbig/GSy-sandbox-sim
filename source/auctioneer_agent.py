@@ -16,7 +16,7 @@ class Auctioneer(Agent):
         self.model = model
 
         self.snapshot_plot = False
-        self.snapshot_plot_interval = 10
+        self.snapshot_plot_interval = 15
 
         self.id = _unique_id
         self.pricing_rule = self.model.data.pricing_rule
