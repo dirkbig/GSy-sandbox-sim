@@ -23,8 +23,8 @@ class Auctioneer(Agent):
         self.aggregate_demand_curve = []
         self.aggregate_supply_curve = []
 
-        self.bid_list = []
-        self.offer_list = []
+        self.bid_list = [[]]
+        self.offer_list = [[]]
         self.utility_market_maker_rate = 10
 
         self.sorted_bid_list = None
@@ -58,8 +58,16 @@ class Auctioneer(Agent):
         else:
             bid_list_check = self.bid_list[0]
 
-        if len(self.offer_list) is not 0 and len(bid_list_check) is not 0 \
-                or (self.model.agents['Utility'] is not None and len(bid_list_check) is not 0):
+        def empty(seq):
+            try:
+                return all(map(empty, seq))
+            except TypeError:
+                return False
+
+        print(self.offer_list)
+        print(self.bid_list)
+        if empty(self.offer_list) is False and empty(self.bid_list) is False \
+                or (self.model.data.utility_presence is True and empty(self.bid_list) is False):
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of
             prosumers or utility grid) 
             """
@@ -75,7 +83,7 @@ class Auctioneer(Agent):
             """ clear lists for later use in next step """
             self.bid_list = [[]]
             self.offer_list = [[]]
-            auction_log.warning("no trade at this step")
+            auction_log.error("no trade at this step")
             return
 
     def execute_auction(self, sorted_x_y_y_pairs_list):

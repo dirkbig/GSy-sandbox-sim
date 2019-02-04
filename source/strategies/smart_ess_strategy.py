@@ -19,7 +19,13 @@ def smart_ess_strategy(self):
     discrete_offer_list = []
     discrete_bid_list = []
     # price for which utility sells energy at this interval.
-    utility_price = self.model.agents['Utility'].sell_rate_utility
+    if self.data.utility_presence is True:
+        """ instead of making the utility set the upper limit, some other method is needed. 
+        For now, it suffices to set an arbitrary value... e.g. 30 ct/kWh """
+        utility_price = self.model.agents['Utility'].sell_rate_utility
+    else:
+        utility_price = 30
+
     max_entries_to_market = 4
 
     if self.ess.surplus > 0:
@@ -75,7 +81,7 @@ def smart_ess_strategy(self):
         try:
             assert bidding_volume <= self.ess.soc_preferred - self.ess.total_supply_from_devices_at_step \
                    - self.ess.soc_actual
-            assert bidding_volume + self.ess.soc_actual <= self.max_capacity
+            assert bidding_volume + self.ess.soc_actual <= self.ess.max_capacity
         except AssertionError:
             print("shit")
             print("bidding_volume", bidding_volume)
@@ -83,7 +89,7 @@ def smart_ess_strategy(self):
             print("max_capacity", self.ess.max_capacity)
             print("soc_actual", self.ess.soc_actual)
             print("error", self.ess.max_capacity - self.ess.soc_actual - self.ess.total_supply_from_devices_at_step)
-
+            exit("fix this")
         if self.bidding_method is "utility_function":
             """ bid approach, using utility function: only 1 bid """
             discrete_bid_list = price_point_optimization(self)
@@ -166,7 +172,9 @@ def price_point_optimization(self):
 
 def battery_price_curve(self, mmr, base, trade_volume, number_of_bids):
 
+    assert trade_volume > 0 and number_of_bids > 0
     increment = trade_volume/number_of_bids
+
     try:
         bid_range = np.arange(0, trade_volume, increment)
     except ValueError:

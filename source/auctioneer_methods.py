@@ -1,5 +1,6 @@
 import logging
 import numpy as np
+import pdb
 method_logger = logging.getLogger('run_microgrid.methods')
 
 
@@ -229,7 +230,10 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
 
     """ filter out None values and remove these points for they don't add information """
     # for i in range(len(sorted_x_y_y_pairs_list)):
-    #     if sorted_x_y_y_pairs_list[-i][1] is None or sorted_x_y_y_pairs_list[-i][2] is None:
+    #     if sorted_x_y_y_pairs_list[-i][1] is None or sorted_x_y_y_pairs_list[-i][2] is None
+
+    print(len(sorted_x_y_y_pairs_list))
+    assert sorted_x_y_y_pairs_list is not []
     sorted_x_y_y_pairs_list = [segment for segment in sorted_x_y_y_pairs_list if segment[1] is not None
                                and segment[2] is not None]
 
@@ -239,6 +243,7 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
     # fully execute: all bid prices are higher than offer prices
     if all(sorted_x_y_y_pairs_list[i][1] >= sorted_x_y_y_pairs_list[i][2] for i in range(len(sorted_x_y_y_pairs_list))):
         # clearing quantity is simply last quantity point of aggregate demand and supply curve
+
         clearing_quantity_ = sorted_x_y_y_pairs_list[-1][0]
         # highest winning bid is simply last price point of aggregate demand curve
         clearing_price_ = sorted_x_y_y_pairs_list[-1][1]

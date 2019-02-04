@@ -3,11 +3,9 @@ from source.wallet import Wallet
 from source.strategies.simple_strategy import simple_strategy
 from source.strategies.smart_ess_strategy import smart_ess_strategy
 
-from mesa import Agent
 import scipy.optimize as optimize
+from mesa import Agent
 import logging
-import numpy as np
-
 house_log = logging.getLogger('run_microgrid.house')
 
 
