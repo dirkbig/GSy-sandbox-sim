@@ -1,6 +1,7 @@
 from math import exp
 from source.devices_methods import *
 
+
 import logging
 device_log = logging.getLogger('run_microgrid.device')
 
@@ -15,7 +16,8 @@ class ESS(object):
         self.initial_capacity = ess_data[0]
         self.max_capacity = ess_data[1]
         self.min_capacity = 0 * self.max_capacity
-
+        self.max_capacity_init = self.max_capacity
+        self.min_capacity = 0.1 * self.max_capacity
         self.soc_actual = self.initial_capacity
         device_log.info('soc_actual house %d = %d' % (self.agent.id, self.soc_actual))
 
@@ -212,7 +214,7 @@ class ESS(object):
         self.total_charge_throughput += abs(self.cell_capacity * rel_throughput)
         # Update the capacity due to aging [kWh].
         capacity_loss_rel = self.get_capacity_loss_by_aging()
-        self.max_capacity = (1 - capacity_loss_rel) * self.max_capacity
+        self.max_capacity = (1 - capacity_loss_rel) * self.max_capacity_init
 
         if self.soc_actual > self.max_capacity:
             self.soc_actual = self.max_capacity
