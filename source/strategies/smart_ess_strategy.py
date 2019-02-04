@@ -33,7 +33,7 @@ def smart_ess_strategy(self):
         self.offers = []
 
         # respects discharging limit constraints
-        offer_volume  = min(self.ess.surplus, self.ess.max_out)
+        offer_volume = min(self.ess.surplus, self.ess.max_out)
 
         if self.bidding_method is "utility_function" and offer_volume > 0:
             """ Determine Price """
