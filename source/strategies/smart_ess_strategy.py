@@ -56,6 +56,9 @@ def smart_ess_strategy(self):
             number_of_bids = max(5, int(self.ess.surplus))
 
             discrete_bid_list = battery_price_curve(self, mmr, base, abs(self.ess.surplus), number_of_bids)
+            # HOTFIX - RAISE THE MONEY THAT IS PAYED FOR ELECTRICITY BY A CERTAIN FACTOR
+            for i in range(len(discrete_bid_list)):
+                discrete_bid_list[i][0] *= 1.3
 
         self.bids = []
         for bid in discrete_bid_list:

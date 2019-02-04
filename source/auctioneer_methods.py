@@ -173,9 +173,9 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
                 # clearing price is defined as the highest winning bid, sorted_x_x_y_pairs_list[i][1]
                 clearing_quantity_ = sorted_x_y_y_pairs_list[i - 1][0]
                 # WHY IS HERE THE PRICE USED FROM THE BID?? THIS WILL LEAD TO A HIGHER CLEARING PRICE
-                # clearing_price_ = sorted_x_y_y_pairs_list[i - 1][1]
+                clearing_price_ = sorted_x_y_y_pairs_list[i - 1][1]
                 # ALTERNATIVELY HERE THE COSTS OF THE OFFER ARE USED!!
-                clearing_price_ = sorted_x_y_y_pairs_list[i - 1][2]
+                # clearing_price_ = sorted_x_y_y_pairs_list[i - 1][2]
                 method_logger.info('partially executed')
                 break
 
