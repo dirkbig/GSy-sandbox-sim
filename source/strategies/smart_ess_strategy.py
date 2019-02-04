@@ -80,7 +80,6 @@ def smart_ess_strategy(self):
             assert possible_in <= max_possible_in + margin
 
         except AssertionError:
-            print("shit")
             print("bidding_volume", bidding_volume)
             print("ess_surplus", self.ess.surplus)
             print("max_capacity", self.ess.max_capacity)
