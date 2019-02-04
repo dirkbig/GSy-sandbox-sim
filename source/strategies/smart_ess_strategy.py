@@ -49,21 +49,38 @@ def smart_ess_strategy(self):
         self.trading_state = 'buying'
         self.bids = []
 
+        """ make sure ess buys at least essential demand"""
         # if reserves (soc_actual) is lower that the essential demand, then append this demand to bid curve as
         # inflexible, thus at price taking rates (at utility prices)
         essential_demand = max(0, self.ess.soc_essential - self.ess.soc_actual)
+        soc_leftover_space = self.ess.max_capacity - essential_demand - self.ess.soc_actual
+        margin = 0.001
+        assert self.ess.max_capacity - margin < self.ess.soc_actual + essential_demand + soc_leftover_space < \
+               self.ess.max_capacity + margin
+
         if essential_demand > 0 and self.data.utility_presence is True:
             self.bids.append([utility_price, essential_demand, self.id])
         elif essential_demand > 0 and self.data.utility_presence is False:
             # price taking at utility prices won't be a guarantee, thus effect set to zero this way.
             essential_demand = 0
 
-        """ make sure ess buys at least essential demand"""
-        soc_leftover_space = self.ess.max_capacity - essential_demand - self.ess.soc_actual
-        margin = 0.001
+        """ Now ESS should be strategically bidding for SOC preferred (or just SOC_max?)"""
+        # bidding_volume = soc_leftover_space
+        bidding_volume = abs(self.ess.surplus) - essential_demand
 
-        assert self.ess.max_capacity - margin < self.ess.soc_actual + essential_demand + soc_leftover_space < \
-               self.ess.max_capacity + margin
+        # appears there is never need for this essential demand mechanic?
+        if essential_demand != 0:
+            print("essential_demand", essential_demand)
+
+        try:
+            assert bidding_volume <= self.ess.soc_preferred - self.ess.total_supply_from_devices_at_step - self.ess.soc_actual
+        except AssertionError:
+            print("shit")
+            print("bidding_volume", bidding_volume)
+            print("ess_surplus", self.ess.surplus)
+            print("max_capacity", self.ess.max_capacity)
+            print("soc_actual", self.ess.soc_actual)
+            print("error", self.ess.max_capacity - self.ess.soc_actual - self.ess.total_supply_from_devices_at_step)
 
         if self.bidding_method is "utility_function":
             """ bid approach, using utility function: only 1 bid """
@@ -74,13 +91,13 @@ def smart_ess_strategy(self):
                 constrained by lower and higher bounds"""
             base = 0
             # a bid for every kWh seems, fair, with a certain maximum amount to bids)
-            number_of_bids = max(max_entries_to_market, int(self.ess.surplus))
+            number_of_bids = max(max_entries_to_market, bidding_volume)
             try:
                 assert soc_leftover_space >= 0
             except AssertionError:
                 print("shit")
 
-            discrete_bid_list = battery_price_curve(self, utility_price, base, soc_leftover_space, number_of_bids)
+            discrete_bid_list = battery_price_curve(self, utility_price, base, bidding_volume, number_of_bids)
 
         # first bid is the essential demand, bought in at utility price
         self.bids.append([utility_price, essential_demand, self.id])

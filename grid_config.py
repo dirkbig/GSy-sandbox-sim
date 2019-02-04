@@ -68,9 +68,9 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 2
+        self.consumers = 0
         self.prosumers_with_only_pv = 0
-        self.prosumers_with_ess = 0
+        self.prosumers_with_ess = 1
         self.prosumers_with_pv_and_ess = 0
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess

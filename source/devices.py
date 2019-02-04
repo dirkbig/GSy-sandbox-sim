@@ -27,7 +27,7 @@ class ESS(object):
         self.next_interval_electrolyzer_load = None
 
         """ strategy variables """
-        self.total_supply_from_devices_at_step = None
+        self.total_supply_from_devices_at_step = 0
         self.soc_preferred = None
         self.soc_essential = None
         self.surplus = None

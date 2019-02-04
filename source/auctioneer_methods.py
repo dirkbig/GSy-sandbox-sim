@@ -218,6 +218,8 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
             # total_turnover_ += trade_payment
             # prev_segment_quantity = trade_quantity
 
+    return clearing_quantity, clearing_price, total_turnover_, trade_pairs_mcafee_
+
 
 def clearing_quantity_calc(sorted_x_y_y_pairs_list):
     """ This can be used both for PaC as for PaB, returns clearing quantity and uniform clearing price"""
