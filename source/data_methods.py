@@ -15,6 +15,19 @@ path = "./source" + "/profiles"
 #     data_directory = "data_load_profiles"
 #
 
+
+def csv_load_file(data_directory, profile):
+    data_array = []
+    with open(data_directory + '/' + profile) as csv_file:
+        data_file = csv.reader(csv_file, delimiter=',')
+        for row in data_file:
+            if float(row[1]) < 0:
+                row[1] = 0
+            data_array.append(float(row[-1]))
+
+    return data_array
+
+
 def csv_read_load_file(num_households_with_load, household_loads_folder):
     data_list = []
     data_directory = path + '/data_load_profiles/' + household_loads_folder
@@ -39,13 +52,7 @@ def csv_read_load_file(num_households_with_load, household_loads_folder):
             i_profile_used += 1
 
     for profile in profiles_to_use:
-        data_array = []
-        with open(data_directory + '/' + profile) as csv_file:
-            data_file = csv.reader(csv_file, delimiter=',')
-            for row in data_file:
-                if float(row[1]) < 0:
-                    row[1] = 0
-                data_array.append(float(row[-1]))
+        data_array = csv_load_file(data_directory, profile)
         data_list.append(data_array)
 
     return data_list
