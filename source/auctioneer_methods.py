@@ -86,7 +86,6 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
 
     for trade in trade_pairs_pac_:
         if any(element is None for element in trade):
-            print('weird stuff is happening')
             exit('weird stuff is happening')
 
     method_logger.info('finished matching winning bids and offers')
@@ -128,8 +127,9 @@ def pab_pricing(sorted_x_y_y_pairs_list, sorted_bid_list, sorted_offer_list):
         total_turnover_ += trade_payment
         prev_segment_quantity = trade_quantity
 
+    average_clearing_price = total_turnover_ / clearing_quantity
     # lumping together reduces transparency since prices per trade deal are different, so this is omitted here
-    return clearing_quantity, clearing_price, total_turnover_, trade_pairs_pab_
+    return clearing_quantity, average_clearing_price, total_turnover_, trade_pairs_pab_
 
 
 def mcafee_pricing(sorted_x_y_y_pairs_list):
@@ -137,17 +137,16 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
 
     if clearing_quantity is None:
         return clearing_quantity, clearing_price, None, None
-
-
-    ## TEST sorted_x_y_y_pairs_list ##
-    # [volume, bid price, offer price, buyer, seller]
-    sorted_x_y_y_pairs_list = \
-        [
-            [0.1, 10, 1, 0, 'Utility'],
-            [0.1, 9, 2, 1, 'Utility'],
-            [0.1, 9, 2, 0, 'Utility'],
-            [0.1, 5, 10, 1, 'Utility']
-        ]
+    #
+    # ## TEST sorted_x_y_y_pairs_list ##
+    # # [volume, bid price, offer price, buyer, seller]
+    # sorted_x_y_y_pairs_list = \
+    #     [
+    #         [0.1, 10, 1, 0, 'Utility'],
+    #         [0.1, 9, 2, 1, 'Utility'],
+    #         [0.1, 9, 2, 0, 'Utility'],
+    #         [0.1, 5, 10, 1, 'Utility']
+    #     ]
 
     clearing_quantity, clearing_price, k = clearing_quantity_calc(sorted_x_y_y_pairs_list)
 
@@ -163,6 +162,8 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
     if offer_k <= p_0 <= bid_k:
         clearing_index = k
         clearing_price = p_0
+        buget_balanced = True
+
         """ all first k trades will be executed for clearing price p_0"""
         total_turnover_ = 0
 
@@ -181,7 +182,7 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
             """ Open to market design matching algorithm """
             trade_payment = trade_quantity * clearing_price
             # set up trade pairs
-            trade_pair = [seller_id, buyer_id, trade_quantity, trade_payment]
+            trade_pair = [seller_id, buyer_id, trade_quantity, buget_balanced, trade_payment]
             trade_pairs_mcafee_.append(trade_pair)
             # finalise
             total_turnover_ += trade_payment
@@ -190,10 +191,11 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
         clearing_index = k - 1
         clearing_sell_price = offer_k
         clearing_buy_price = bid_k
-
+        buget_balanced = False
         """ all first k-1 trades will be executed for sell price of offer_k and buy price of bid_k """
         total_turnover_ = 0
-
+        total_inbalance = 0
+        total_paid_to_sellers = 0
         # filter only on executed segments that have no Non types (meaning) bid/offer but not offer/bid
         # first check if None, if not, check whether under clearing quantity
         # since p_0 is outside of range, trade k is kicked, thus executed_segment slice is 1 trade smaller.
@@ -211,13 +213,14 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
             trade_revenue_seller = trade_quantity * clearing_sell_price
             trade_payment_buyer = trade_quantity * clearing_buy_price
             # set up trade pairs
-            # NB, market is NOT budget balanced so here issues start arising. This will for now raise an error
-            # TODO: fix financial settlement model such that it can handle non budget balanced traded.
-            trade_pair = [seller_id, buyer_id, trade_quantity, [trade_revenue_seller, trade_payment_buyer]]
+            trade_pair = [seller_id, buyer_id, trade_quantity, buget_balanced, [trade_revenue_seller, trade_payment_buyer]]
             trade_pairs_mcafee_.append(trade_pair)
             # finalise
-            # total_turnover_ += trade_payment
-            # prev_segment_quantity = trade_quantity
+            total_turnover_ += trade_payment_buyer
+            total_inbalance += trade_payment_buyer - trade_revenue_seller
+            total_paid_to_sellers += trade_revenue_seller
+            assert total_turnover_ is total_inbalance + total_paid_to_sellers
+            prev_segment_quantity = trade_quantity
 
     return clearing_quantity, clearing_price, total_turnover_, trade_pairs_mcafee_
 
