@@ -152,6 +152,7 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
 
     print(sorted_x_y_y_pairs_list)
     print(k)
+    # problem is what if there is no k+1 buyer/seller
     bid_next = sorted_x_y_y_pairs_list[k + 1][1]
     offer_next = sorted_x_y_y_pairs_list[k + 1][2]
     p_0 = (bid_next + offer_next) / 2
