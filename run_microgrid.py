@@ -1,7 +1,9 @@
 from source import microgrid_environment
+from source.const import *
 # from grid_config_profile import ConfigurationUtility10household as Config
 from grid_config_profile import ConfigurationUtility10prosumer as Config
 # from grid_config_profile import ConfigurationUtilityElyPv as Config
+from grid_config import ConfigurationMixin as Config
 
 import logging
 logging.basicConfig(level=logging.WARNING)

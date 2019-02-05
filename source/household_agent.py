@@ -3,11 +3,9 @@ from source.wallet import Wallet
 from source.strategies.simple_strategy import simple_strategy
 from source.strategies.smart_ess_strategy import smart_ess_strategy
 
-from mesa import Agent
 import scipy.optimize as optimize
+from mesa import Agent
 import logging
-import numpy as np
-
 house_log = logging.getLogger('run_microgrid.house')
 
 
@@ -50,7 +48,6 @@ class HouseholdAgent(Agent):
             self.ess = ESS(self, self.ess_data)
             self.devices['ESS'] = self.ess
             self.has_ess = True
-            self.soc_actual = self.ess.soc_actual
 
         else:
             self.soc_actual = 0
@@ -119,9 +116,13 @@ class HouseholdAgent(Agent):
         self.energy_trade_flux = sum(self.model.auction.who_gets_what_dict[self.id])
         self.net_energy_in = self.pv_production_on_step + self.load_on_step + self.energy_trade_flux
 
+        assert self.pv_production_on_step >= 0
+        assert self.load_on_step <= 0
+
         """ update ESS and unmatched loads """
         if self.has_ess is True:
             self.overflow, self.deficit = self.ess.update_ess_state(self.net_energy_in)
+
         else:
             if self.net_energy_in > 0:
                 self.overflow = abs(self.net_energy_in)
