@@ -15,6 +15,10 @@ class UtilityAgent(Agent):
         self.id = _unique_id
         self.dynamical_pricing = self.model.data.utility_dynamical_pricing
 
+        """ Track values """
+        self.energy_bought_tot = 0
+        self.energy_sold_tot = 0
+
         """load in utility energy price profile"""
         self.price_profile = self.model.data.utility_pricing_profile
         self.utility_selling_price_fix = self.model.data.utility_selling_price_fix
@@ -61,4 +65,10 @@ class UtilityAgent(Agent):
         # print("utility offer", self.utility_offer)
 
     def post_auction_round(self):
+        this_energy_trade = sum(self.model.auction.who_gets_what_dict[self.id])
+        if this_energy_trade < 0:
+            self.energy_sold_tot += abs(this_energy_trade)
+        elif this_energy_trade > 0:
+            self.energy_bought_tot += this_energy_trade
+
         return

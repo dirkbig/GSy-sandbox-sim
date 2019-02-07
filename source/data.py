@@ -3,6 +3,7 @@ from plots import *
 from grid_config import ConfigurationMixin
 from source.const import *
 import numpy as np
+from copy import deepcopy
 
 
 import logging
@@ -186,7 +187,7 @@ class Data(ConfigurationMixin, object):
 
     def fill_in_classification_array(self):
         """ fill_in_classification_array according to configuration Mixin """
-        agent_data_array = self.classification_array
+        agent_data_array = deepcopy(self.classification_array)
 
         load = 0
         pv = 0
@@ -200,6 +201,11 @@ class Data(ConfigurationMixin, object):
 
             if self.classification_array[agent][1]:
                 agent_data_array[agent][1] = self.pv_gen_array[pv]
+                if type(self.classification_array[agent][1]) is not bool:
+                    # If the classification value for PV for this household is not a boolean, it is treated as a
+                    # multiplier for the PV time series.
+                    multiplier = self.classification_array[agent][1]
+                    agent_data_array[agent][1] = [i * multiplier for i in agent_data_array[agent][1]]
                 pv += 1
             else:
                 agent_data_array[agent][1] = None

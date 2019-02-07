@@ -1,9 +1,10 @@
 from source import microgrid_environment
+from eval_result.eval_verbose import eval_print
 from source.const import *
 # from grid_config_profile import ConfigurationUtility10household as Config
 from grid_config_profile import ConfigurationUtility10prosumer as Config
 # from grid_config_profile import ConfigurationUtilityElyPv as Config
-from grid_config import ConfigurationMixin as Config
+# from grid_config import ConfigurationMixin as Config
 
 import logging
 logging.basicConfig(level=logging.WARNING)
@@ -67,11 +68,11 @@ if write_output_to_csv:
 
             writer.writerow(this_row)
 
+eval_print(microgrid, trade_deals_list_per_step)
 microgrid.data.plots()
 
 print("\n*******************************************************")
 print("                  Simulation finished")
 print("*******************************************************")
-print("List of trades made is [id_seller, id_buyer, quantity, price*quantity]:")
-print(trade_deals_list_per_step)
+
 

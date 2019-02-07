@@ -28,6 +28,12 @@ class HouseholdAgent(Agent):
         self.pv_production_on_step = 0
         self.ess_demand_on_step = 0
 
+        """ Tracking values """
+        self.demand_tot = 0
+        self.pv_production_tot = 0
+        self.overflow_tot = 0
+        self.deficit_tot = 0
+
         """ Creation of device objects, depending what Data class assigns them """
         self.devices = {}
         self.has_load = False
@@ -83,9 +89,11 @@ class HouseholdAgent(Agent):
 
         if self.has_load is True:
             self.load_on_step = self.load.get_load(current_step)
+            self.demand_tot += float(self.load_data[current_step])
 
         if self.has_pv is True:
             self.pv_production_on_step = self.pv.get_generation(current_step)
+            self.pv_production_tot += self.pv_production_on_step
 
     def pre_auction_round(self):
         """ each agent makes a step here, before auction step"""
@@ -134,6 +142,9 @@ class HouseholdAgent(Agent):
         """ data logging """
         self.data.overflow_over_time[self.id][self.model.step_count] = self.overflow
         self.data.deficit_over_time[self.id][self.model.step_count] = self.deficit
+
+        self.overflow_tot += self.overflow
+        self.deficit_tot += self.deficit
 
 
     def announce_bid_and_offers(self):
