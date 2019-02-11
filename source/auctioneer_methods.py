@@ -39,8 +39,7 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
 
     # filter only on executed segments that have no Non types (meaning) bid/offer but not offer/bid
     # first check if None, if not, check whether under clearing quantity
-    executed_segment = [segment for segment in sorted_x_y_y_pairs_list_ if segment[0] is not None
-                        and segment[0] <= clearing_quantity]
+    executed_segment = sorted_x_y_y_pairs_list_[0:breakeven_index_k+1]
 
     total_turnover_ = clearing_quantity * clearing_price
     assert total_turnover_ >= 0 and clearing_quantity >= 0
@@ -70,7 +69,6 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
         total_turnover_internally += trade_payment
         prev_segment_quantity = segment[0]
 
-    # this is me having fun I am sorry
     try:
         assert total_turnover_internally == total_turnover_
     except AssertionError:
@@ -79,10 +77,8 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
         print(clearing_quantity_internally)
         print(total_turnover_internally)
         print(total_turnover_)
-        if abs(total_turnover_ - total_turnover_internally) < 0.001:
-            pass
-        else:
-            assert total_turnover_internally == total_turnover_
+        error = abs(total_turnover_ - total_turnover_internally)
+        print(error)
 
     for trade in trade_pairs_pac_:
         if any(element is None for element in trade):
@@ -102,10 +98,11 @@ def pab_pricing(sorted_x_y_y_pairs_list, sorted_bid_list, sorted_offer_list):
     trade_pairs_pab_ = []
     total_turnover_ = 0
 
-    # filter only on executed segments that have no Non types (meaning) bid/offer but not offer/bid
+    # filter only on executed segments that have no None types (meaning) bid/offer but not offer/bid
     # first check if None, if not, check whether under clearing quantity
-    executed_segment = [segment for segment in sorted_x_y_y_pairs_list if segment[0] is not None
-                        and segment[0] <= clearing_quantity]
+    # executed_segment = [segment for segment in sorted_x_y_y_pairs_list if segment[0] is not None
+    #                     and segment[0] <= clearing_quantity]
+    executed_segment = sorted_x_y_y_pairs_list[0:breakeven_index_k+1]
     """ this function should return a pairing of bids and offers for determined prices"""
     trade_pairs = []
     prev_segment_quantity = 0
@@ -271,7 +268,7 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
         # clearing quantity is simply last quantity point of aggregate demand and supply curve
         break_even_index = len(sorted_x_y_y_pairs_list) - 1
 
-        clearing_quantity_ = sum(list_of_volumes[0:break_even_index+1])
+        clearing_quantity_ = sorted_x_y_y_pairs_list[-1][0]
         # highest winning bid is simply last price point of aggregate demand curve
         clearing_price_ = sorted_x_y_y_pairs_list[-1][1]
         method_logger.info('fully executed')
@@ -293,7 +290,7 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
             if sorted_x_y_y_pairs_list[i][1] < sorted_x_y_y_pairs_list[i][2]:
                 break_even_index = i - 1
                 # clearing price is defined as the highest winning bid, sorted_x_x_y_pairs_list[i][1]
-                clearing_quantity_ = sum(list_of_volumes[0:break_even_index + 1])
+                clearing_quantity_ = sorted_x_y_y_pairs_list[i - 1][0]
                 # WHY IS HERE THE PRICE USED FROM THE BID?? THIS WILL LEAD TO A HIGHER CLEARING PRICE
                 clearing_price_ = sorted_x_y_y_pairs_list[i - 1][1]
                 # ALTERNATIVELY HERE THE COSTS OF THE OFFER ARE USED!!

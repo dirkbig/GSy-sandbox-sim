@@ -18,7 +18,7 @@ class ConfigurationMixin:
         """ 
             Market structure 
         """
-        self.pricing_rule = 'pab'  # 'pac', 'pab' or 'mcafee'
+        self.pricing_rule = 'pac'  # 'pac', 'pab' or 'mcafee'
 
         """ 
             Electrolyzer
@@ -33,7 +33,6 @@ class ConfigurationMixin:
             Commercial battery
         """
         self.battery_presence = False
-
 
         """
             Commercial PV 
@@ -61,10 +60,10 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 3
+        self.consumers = 2
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 3
+        self.prosumers_with_pv_and_ess = 2
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []

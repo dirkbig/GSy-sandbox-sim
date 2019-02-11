@@ -95,10 +95,6 @@ class Auctioneer(Agent):
         self.clearing_quantity = None
         self.clearing_price = None
 
-        # ############################
-        self.pricing_rule = 'mcafee'
-        # ############################
-
         """ picks pricing rule and generates trade_pairs"""
         if self.pricing_rule == 'pab':
             self.clearing_quantity, average_clearing_price, total_turnover, self.trade_pairs = \
@@ -113,7 +109,6 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
-        # UNDER CONSTRUCTION
         elif self.pricing_rule == 'mcafee':
             self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
                 mcafee_pricing(sorted_x_y_y_pairs_list)
@@ -341,7 +336,6 @@ class Auctioneer(Agent):
                 if budget_balanced is True:
                     # McAfee pricing settlement if budget balanced
                     # data structure: [seller_id, buyer_id, trade_quantity, budget_balanced, trade_payment]
-                    print("shape", np.shape(trade_payment))
                     assert np.shape(trade_payment) is ()
                     who_gets_what_bb(id_seller, id_buyer, trade_quantity, trade_payment)
                 else:
