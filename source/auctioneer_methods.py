@@ -133,39 +133,58 @@ def pab_pricing(sorted_x_y_y_pairs_list, sorted_bid_list, sorted_offer_list):
 
 
 def mcafee_pricing(sorted_x_y_y_pairs_list):
-    clearing_quantity, clearing_price, k = clearing_quantity_calc(sorted_x_y_y_pairs_list)
 
-    if clearing_quantity is None:
-        return clearing_quantity, clearing_price, None, None
-    #
-    # ## TEST sorted_x_y_y_pairs_list ##
+    # # TEST sorted_x_y_y_pairs_list #
     # # [volume, bid price, offer price, buyer, seller]
     # sorted_x_y_y_pairs_list = \
     #     [
-    #         [0.1, 10, 1, 0, 'Utility'],
-    #         [0.1, 9, 2, 1, 'Utility'],
-    #         [0.1, 9, 2, 0, 'Utility'],
-    #         [0.1, 5, 10, 1, 'Utility']
+    #         [1.1, 10, 1, 0, 'Utility'],
+    #         [1.2, 9, 2, 1, 'Utility'],
+    #         [1.3, 9, 2, 0, 'Utility'],
+    #         [1.4, 3, 8, 1, 'Utility']
     #     ]
 
     clearing_quantity, clearing_price, k = clearing_quantity_calc(sorted_x_y_y_pairs_list)
 
-    print(sorted_x_y_y_pairs_list)
-    print(k)
-    # problem is what if there is no k+1 buyer/seller
-    bid_next = sorted_x_y_y_pairs_list[k + 1][1]
-    offer_next = sorted_x_y_y_pairs_list[k + 1][2]
-    p_0 = (bid_next + offer_next) / 2
+    if clearing_quantity is None:
+        return clearing_quantity, clearing_price, None, None
 
+    # k is break even bid/offer index, translated to list index (which starts at 0)
+    # problem is what if there is no k+1 buyer/seller
     bid_k = sorted_x_y_y_pairs_list[k][1]
     offer_k = sorted_x_y_y_pairs_list[k][2]
 
+    # dealing with boundary condition; what if there is no k+1 trading pair (boundary at the right)
+    try:
+        bid_next = sorted_x_y_y_pairs_list[k + 1][1]
+    except IndexError:
+        bid_next = None
+    try:
+        offer_next = sorted_x_y_y_pairs_list[k + 1][2]
+    except IndexError:
+        offer_next = None
+
+    if bid_next is not None and offer_next is not None:
+        p_0 = (bid_next + offer_next) / 2
+    else:
+        print(sorted_x_y_y_pairs_list)
+        # omit trading pair k?
+        k = k - 1
+        # then; recalculate bid_k, offer_k, bid_next, offer_next and p_0 = (bid_next + offer_next) / 2
+        bid_next = sorted_x_y_y_pairs_list[k + 1][1]
+        offer_next = sorted_x_y_y_pairs_list[k + 1][2]
+        bid_k = sorted_x_y_y_pairs_list[k][1]
+        offer_k = sorted_x_y_y_pairs_list[k][2]
+        p_0 = (bid_next + offer_next) / 2
+        # TODO: and what if it hits the boundary at the left? What if there is only 1 bid/offer pair?
+        # exit("no idea what to do here yet...")
+
     if offer_k <= p_0 <= bid_k:
+        """ all first k trades will be executed for clearing price p_0"""
         clearing_index = k
         clearing_price = p_0
         buget_balanced = True
 
-        """ all first k trades will be executed for clearing price p_0"""
         total_turnover_ = 0
 
         # filter only on executed segments that have no Non types (meaning) bid/offer but not offer/bid
@@ -189,13 +208,13 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
             total_turnover_ += trade_payment
             prev_segment_quantity = trade_quantity
     else:
-        clearing_index = k - 1
+        """ all first k-1 trades will be executed for selling price :offer_k: and buying price :bid_k: """
         clearing_sell_price = offer_k
         clearing_buy_price = bid_k
         buget_balanced = False
         """ all first k-1 trades will be executed for sell price of offer_k and buy price of bid_k """
         total_turnover_ = 0
-        total_inbalance = 0
+        total_imbalance = 0
         total_paid_to_sellers = 0
         # filter only on executed segments that have no Non types (meaning) bid/offer but not offer/bid
         # first check if None, if not, check whether under clearing quantity
@@ -218,10 +237,15 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
             trade_pairs_mcafee_.append(trade_pair)
             # finalise
             total_turnover_ += trade_payment_buyer
-            total_inbalance += trade_payment_buyer - trade_revenue_seller
+            total_imbalance += trade_payment_buyer - trade_revenue_seller
             total_paid_to_sellers += trade_revenue_seller
-            assert total_turnover_ is total_inbalance + total_paid_to_sellers
+            try:
+                assert total_turnover_ == total_imbalance + total_paid_to_sellers
+            except AssertionError:
+                raise AssertionError
             prev_segment_quantity = trade_quantity
+
+    # TODO: mcafee_trade_efficiency: all trades that are kicked / execution below full market efficiency
 
     return clearing_quantity, clearing_price, total_turnover_, trade_pairs_mcafee_
 
@@ -236,19 +260,18 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
     # for i in range(len(sorted_x_y_y_pairs_list)):
     #     if sorted_x_y_y_pairs_list[-i][1] is None or sorted_x_y_y_pairs_list[-i][2] is None
 
-    print(len(sorted_x_y_y_pairs_list))
     assert sorted_x_y_y_pairs_list is not []
     sorted_x_y_y_pairs_list = [segment for segment in sorted_x_y_y_pairs_list if segment[1] is not None
                                and segment[2] is not None]
 
-    # now I make range(len(sorted_x_y_y_pairs_list)-1), -1 because of the forwards-step bug (see TODO_above)
-    # if all offers are affordable to bids, i.e all offers are lower price than bids, the market should
+    list_of_volumes = [sorted_x_y_y_pairs_list[volume][0] for volume in range(len(sorted_x_y_y_pairs_list))]
 
     # fully execute: all bid prices are higher than offer prices
     if all(sorted_x_y_y_pairs_list[i][1] >= sorted_x_y_y_pairs_list[i][2] for i in range(len(sorted_x_y_y_pairs_list))):
         # clearing quantity is simply last quantity point of aggregate demand and supply curve
+        break_even_index = len(sorted_x_y_y_pairs_list) - 1
 
-        clearing_quantity_ = sorted_x_y_y_pairs_list[-1][0]
+        clearing_quantity_ = sum(list_of_volumes[0:break_even_index+1])
         # highest winning bid is simply last price point of aggregate demand curve
         clearing_price_ = sorted_x_y_y_pairs_list[-1][1]
         method_logger.info('fully executed')
@@ -257,6 +280,7 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
     elif all(sorted_x_y_y_pairs_list[i][1] < sorted_x_y_y_pairs_list[i][2] for i in range(len(sorted_x_y_y_pairs_list))):
         clearing_quantity_ = None
         clearing_price_ = None
+        break_even_index = None
         method_logger.info('nothing executed')
 
     # execute partially: some bids prices are lower than some offer prices
@@ -267,14 +291,15 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
             # if bid is still higher than offer, then save it as potential clearing quantity and next "losing?" bid
             # as clearing price
             if sorted_x_y_y_pairs_list[i][1] < sorted_x_y_y_pairs_list[i][2]:
+                break_even_index = i - 1
                 # clearing price is defined as the highest winning bid, sorted_x_x_y_pairs_list[i][1]
-                clearing_quantity_ = sorted_x_y_y_pairs_list[i - 1][0]
+                clearing_quantity_ = sum(list_of_volumes[0:break_even_index + 1])
                 # WHY IS HERE THE PRICE USED FROM THE BID?? THIS WILL LEAD TO A HIGHER CLEARING PRICE
                 clearing_price_ = sorted_x_y_y_pairs_list[i - 1][1]
                 # ALTERNATIVELY HERE THE COSTS OF THE OFFER ARE USED!!
                 # clearing_price_ = sorted_x_y_y_pairs_list[i - 1][2]
                 method_logger.info('partially executed')
-                break_even_index = i - 1
                 break
 
+    # sorted_x_y_y_pairs_list: [volume, bid price, offer price, buyer, seller]
     return clearing_quantity_, clearing_price_, break_even_index

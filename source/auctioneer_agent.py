@@ -45,10 +45,10 @@ class Auctioneer(Agent):
         """check whether all agents have submitted their bids"""
         self.user_participation()
 
-        """ resets the acquired energy for all households """
-        self.who_gets_what_dict = {}
-        for agent_id in self.model.agents:
-            self.who_gets_what_dict[agent_id] = []
+        # """ resets the acquired energy for all households """
+        # self.who_gets_what_dict = {}
+        # for agent_id in self.model.agents:
+        #     self.who_gets_what_dict[agent_id] = []
 
         # While an empty bid list may arrive as an empty list or as a list containing an empty list, the outer list is
         # removed here for the later check, if there are bids at all (which is done taking the length of the bid list).
@@ -113,6 +113,7 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
+        # UNDER CONSTRUCTION
         elif self.pricing_rule == 'mcafee':
             self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
                 mcafee_pricing(sorted_x_y_y_pairs_list)
@@ -269,6 +270,11 @@ class Auctioneer(Agent):
     def clearing_of_market(self):
         """clears market """
 
+        """ resets the acquired energy for all households """
+        self.who_gets_what_dict = {}
+        for agent_id in self.model.agents:
+            self.who_gets_what_dict[agent_id] = []
+
         def who_gets_what_bb(_id_seller, _id_buyer, _trade_quantity, _turnover):
             """ execute trade buy calling household agent's wallet settlement """
             # Settlement of seller revenue if market is budget balanced
@@ -314,7 +320,17 @@ class Auctioneer(Agent):
 
         elif self.trade_pairs is not None and self.pricing_rule in ['mcafee']:
             # McAfee pricing settlement
-            assert np.shape(self.trade_pairs)[1] is 5
+
+            print(self.trade_pairs)
+            try:
+                # check whether trade_pairs elements contain 5 components
+                # this will check in case the mcafee clearing is budget balanced
+                assert np.shape(self.trade_pairs)[1] is 5
+            except ValueError:
+                # and this checks whether the 5th element is a list of two values
+                # in case budget imbalanced; 5th element list are payments of both seller or buyer
+                assert len(self.trade_pairs[0][4]) is 2
+
             for trade in range(len(self.trade_pairs)):
                 id_seller = self.trade_pairs[trade][0]
                 id_buyer = self.trade_pairs[trade][1]
@@ -407,7 +423,7 @@ class Auctioneer(Agent):
         """ append utility to who_gets_what dictionary """
         self.who_gets_what_dict[utility_id] = []
 
-        print("sorted offers", sorted_offer_list)
-        print("sorted bid", sorted_bid_list)
+        print(f"sorted offers: {sorted_offer_list}")
+        print(f"sorted bid: {sorted_bid_list}")
 
         return sorted_bid_list, sorted_offer_list

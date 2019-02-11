@@ -45,7 +45,7 @@ class ConfigurationMixin:
             Utility 
         """
         # Define if a utility grid should be part of the energy system
-        self.utility_presence = False
+        self.utility_presence = True
         # Define if the utility price should be loaded
         self.utility_dynamical_pricing = True
         # Define a fixed price for electricity from the utility grid. If a timeseries with an electricity price is
@@ -61,10 +61,10 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 0
-        self.prosumers_with_only_pv = 5
+        self.consumers = 3
+        self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 5
+        self.prosumers_with_pv_and_ess = 3
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []

@@ -36,7 +36,6 @@ class Pv(Agent):
         self.sold_energy = None
         self.bought_energy = None
 
-
         pv_log.info("PV object was generated.")
 
     def pre_auction_round(self):
