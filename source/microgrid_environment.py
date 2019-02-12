@@ -61,6 +61,7 @@ class MicroGrid(Model):
             pre_agent_id.append(agent_id)
 
         """ Utility grid treatment """
+        # TODO: move this to utility agent?
         if self.data.utility_presence is True:
             # Track the total amount of electricity that is wanted (bids) and that is sold (offers) [kWh]. Further set
             # the price of each bid, that exceeds the price the utility grid is offering electricity for, to

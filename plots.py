@@ -21,7 +21,9 @@ def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list
     ax.step(x_quantities, y_offer_prices, label='offers')
     if clearing_quantity is not None:
         ax.axvline(x=clearing_quantity, color='black', linestyle='--')
-        ax.axhline(y=clearing_price, color='black', linestyle='--')
+        if clearing_price is not None:
+            ax.axhline(y=clearing_price, color='black', linestyle='--')
+
     ax.legend()
     ax.set(xlabel='quantity', ylabel='price',
            title='clearing markets aggregate demand and supply blocks')

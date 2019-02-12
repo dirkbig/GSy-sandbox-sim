@@ -18,7 +18,7 @@ class ConfigurationMixin:
         """ 
             Market structure 
         """
-        self.pricing_rule = 'pac'  # or 'pab' or 'mcafee'
+        self.pricing_rule = 'pac'  # 'pac', 'pab' or 'mcafee'
 
         """ 
             Electrolyzer
@@ -33,7 +33,6 @@ class ConfigurationMixin:
             Commercial battery
         """
         self.battery_presence = False
-
 
         """
             Commercial PV 

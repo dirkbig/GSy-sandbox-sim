@@ -3,6 +3,7 @@ from source.auctioneer_methods import *
 from plots import clearing_snapshot
 from mesa import Agent
 import seaborn as sns
+from source.wallet import Wallet
 
 sns.set()
 auction_log = logging.getLogger('run_microgrid.auctioneer')
@@ -14,6 +15,7 @@ class Auctioneer(Agent):
         super().__init__(_unique_id, self)
         auction_log.info('auction of type %s created', _unique_id)
         self.model = model
+        self.wallet = Wallet(_unique_id)
 
         self.snapshot_plot = False
         self.snapshot_plot_interval = 15
@@ -43,10 +45,10 @@ class Auctioneer(Agent):
         """check whether all agents have submitted their bids"""
         self.user_participation()
 
-        """ resets the acquired energy for all households """
-        self.who_gets_what_dict = {}
-        for agent_id in self.model.agents:
-            self.who_gets_what_dict[agent_id] = []
+        # """ resets the acquired energy for all households """
+        # self.who_gets_what_dict = {}
+        # for agent_id in self.model.agents:
+        #     self.who_gets_what_dict[agent_id] = []
 
         # While an empty bid list may arrive as an empty list or as a list containing an empty list, the outer list is
         # removed here for the later check, if there are bids at all (which is done taking the length of the bid list).
@@ -93,17 +95,13 @@ class Auctioneer(Agent):
         self.clearing_quantity = None
         self.clearing_price = None
 
-        # ############################
-        # self.pricing_rule = 'mcafee'
-        # ############################
-
         """ picks pricing rule and generates trade_pairs"""
         if self.pricing_rule == 'pab':
-            self.clearing_quantity, total_turnover, self.trade_pairs = \
+            self.clearing_quantity, average_clearing_price, total_turnover, self.trade_pairs = \
                 pab_pricing(sorted_x_y_y_pairs_list, self.sorted_bid_list, self.sorted_offer_list)
 
-            auction_log.info("Clearing quantity %f, total turnover is %f",
-                             self.clearing_quantity, total_turnover)
+            auction_log.info("Clearing quantity %f, avg price %f, total turnover is %f",
+                             self.clearing_quantity, average_clearing_price,  total_turnover)
 
         elif self.pricing_rule == 'pac':
             self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
@@ -111,9 +109,9 @@ class Auctioneer(Agent):
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
-        # elif self.pricing_rule == 'mcafee':
-        #     self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
-        #         mcafee_pricing(sorted_x_y_y_pairs_list)
+        elif self.pricing_rule == 'mcafee':
+            self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
+                mcafee_pricing(sorted_x_y_y_pairs_list)
 
         # Update track values for later plots and evaluation.
         self.model.data.clearing_price[self.model.step_count] = self.clearing_price
@@ -131,8 +129,11 @@ class Auctioneer(Agent):
 
         print('bids [price, quantity, id]:', self.sorted_bid_list)
         print('offers [price, quantity, id]', self.sorted_offer_list)
-
         print('trade_pairs [id_seller, id_buyer, quantity, price*quantity]:', self.trade_pairs)
+
+        if self.model.data.pricing_rule is 'pab':
+            self.clearing_price = None
+
         if self.snapshot_plot is True and self.model.step_count % self.snapshot_plot_interval == 0:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
         # TODO: save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards
@@ -265,32 +266,92 @@ class Auctioneer(Agent):
         """clears market """
 
         """ resets the acquired energy for all households """
+        self.who_gets_what_dict = {}
         for agent_id in self.model.agents:
-            self.model.agents[agent_id].energy_trade_flux = 0
+            self.who_gets_what_dict[agent_id] = []
+
+        def who_gets_what_bb(_id_seller, _id_buyer, _trade_quantity, _turnover):
+            """ execute trade buy calling household agent's wallet settlement """
+            # Settlement of seller revenue if market is budget balanced
+            # Is this if statement necessary?
+            if id_seller is 'Utility':
+                """ seller was utility """
+                self.who_gets_what_dict[_id_seller].append(-_trade_quantity)
+                self.model.agents['Utility'].wallet.settle_revenue(_turnover)
+            else:
+                self.who_gets_what_dict[_id_seller].append(-_trade_quantity)
+                self.model.agents[_id_seller].wallet.settle_revenue(_turnover)
+
+            # Settlement of buyer payments
+            self.who_gets_what_dict[_id_buyer].append(_trade_quantity)
+            self.model.agents[_id_buyer].wallet.settle_payment(_turnover)
+
+        def who_gets_what_not_bb(_id_seller, _id_buyer, _trade_quantity, _trade_payment):
+            """ execute trade buy calling household agent's wallet settlement """
+            # Settlement of seller revenue if market is NOT budget balanced
+            trade_revenue_seller, trade_payment_buyer = _trade_payment
+            assert trade_payment_buyer >= trade_revenue_seller
+            clearing_inbalance = trade_payment_buyer - trade_revenue_seller
+
+            self.who_gets_what_dict[_id_seller].append(-_trade_quantity)
+            self.who_gets_what_dict[_id_buyer].append(_trade_quantity)
+
+            self.model.agents[_id_seller].wallet.settle_revenue(trade_revenue_seller)
+            self.model.agents[_id_buyer].wallet.settle_payment(trade_payment_buyer)
+
+            # tokens to be burned according to McAfee budget imbalance
+            self.model.auction.wallet.settle_revenue(clearing_inbalance)
 
         """ listing of all offers/bids selected for trade """
-        if self.trade_pairs is not None:
+        if self.trade_pairs is not None and self.pricing_rule in ['pac', 'pab']:
+            assert np.shape(self.trade_pairs)[1] is 4
             for trade in range(len(self.trade_pairs)):
                 # data structure: [seller_id, buyer_id, trade_quantity, turnover]
                 id_seller = self.trade_pairs[trade][0]
                 id_buyer = self.trade_pairs[trade][1]
                 trade_quantity = self.trade_pairs[trade][2]
                 turnover = self.trade_pairs[trade][3]
+                who_gets_what_bb(id_seller, id_buyer, trade_quantity, turnover)
 
-                """ execute trade buy calling household agent's wallet settlement """
-                if id_seller is 'Utility':
-                    """ seller was utility """
-                    self.who_gets_what_dict[id_seller].append(-trade_quantity)
-                    self.model.agents['Utility'].wallet.settle_revenue(turnover)
+        elif self.trade_pairs is not None and self.pricing_rule in ['mcafee']:
+            # McAfee pricing settlement
+
+            print(self.trade_pairs)
+            try:
+                # check whether trade_pairs elements contain 5 components
+                # this will check in case the mcafee clearing is budget balanced
+                assert np.shape(self.trade_pairs)[1] is 5
+            except ValueError:
+                # and this checks whether the 5th element is a list of two values
+                # in case budget imbalanced; 5th element list are payments of both seller or buyer
+                assert len(self.trade_pairs[0][4]) is 2
+
+            for trade in range(len(self.trade_pairs)):
+                id_seller = self.trade_pairs[trade][0]
+                id_buyer = self.trade_pairs[trade][1]
+                trade_quantity = self.trade_pairs[trade][2]
+                budget_balanced = self.trade_pairs[trade][3]
+                trade_payment = self.trade_pairs[trade][4]
+
+                if budget_balanced is True:
+                    # McAfee pricing settlement if budget balanced
+                    # data structure: [seller_id, buyer_id, trade_quantity, budget_balanced, trade_payment]
+                    assert np.shape(trade_payment) is ()
+                    who_gets_what_bb(id_seller, id_buyer, trade_quantity, trade_payment)
                 else:
-                    self.who_gets_what_dict[id_seller].append(-trade_quantity)
-                    self.model.agents[id_seller].wallet.settle_revenue(turnover)
-
-                self.who_gets_what_dict[id_buyer].append(trade_quantity)
-                self.model.agents[id_buyer].wallet.settle_payment(turnover)
+                    # Mcafee pricing settlement if NOT budget balanced
+                    # data structure: [seller_id, buyer_id, trade_quantity, budget_balanced, trade_payment_tuple]
+                    assert len(trade_payment) is 2
+                    who_gets_what_not_bb(id_seller, id_buyer, trade_quantity, trade_payment)
 
         else:
-            auction_log.warning("no trade at this step")
+            auction_log.warning("Auction clearing did not result in trade at this interval")
+
+        # Should happen inside the agent class
+        """ resets the acquired energy for all households """
+        for agent_id in self.model.agents:
+            self.model.agents[agent_id].energy_trade_flux = 0
+        # Should happen inside the agent class
 
     def user_participation(self):
         """ small analysis on user participation per step"""
@@ -356,7 +417,7 @@ class Auctioneer(Agent):
         """ append utility to who_gets_what dictionary """
         self.who_gets_what_dict[utility_id] = []
 
-        print("sorted offers", sorted_offer_list)
-        print("sorted bid", sorted_bid_list)
+        print(f"sorted offers: {sorted_offer_list}")
+        print(f"sorted bid: {sorted_bid_list}")
 
         return sorted_bid_list, sorted_offer_list
