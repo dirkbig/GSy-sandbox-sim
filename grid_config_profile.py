@@ -235,7 +235,7 @@ class ConfigurationUtility10prosumer:
         # time
         self.start = 0
 
-        self.num_steps = int(96*30)
+        self.num_steps = int(96*1)
 
         """ 
             Market structure 
