@@ -6,7 +6,6 @@ file are either missing or redundant.
 """
 
 import numpy as np
-import source.const as const
 
 
 """ ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -20,13 +19,12 @@ class ConfigurationUtilityEly:
         """ 
             Simulation environment
         """
-        self.num_days = const.num_steps * const.market_interval / 60 / 24
-        self.market_interval = const.market_interval  # minutes
+        self.market_interval = 15  # minutes
 
         # time
         self.start = 0
 
-        self.num_steps = const.num_steps
+        self.num_steps = self.num_steps = int(96*1)
 
         """ 
             Market structure 
@@ -126,13 +124,12 @@ class ConfigurationUtilityElyPv:
         """ 
             Simulation environment
         """
-        self.num_days = const.num_steps * const.market_interval / 60 / 24
-        self.market_interval = const.market_interval  # minutes
+        self.market_interval = 15  # minutes
 
         # time
         self.start = 0
 
-        self.num_steps = const.num_steps
+        self.num_steps = self.num_steps = int(96*1)
 
         """ 
             Market structure 
@@ -233,13 +230,12 @@ class ConfigurationUtility10prosumer:
         """ 
             Simulation environment
         """
-        self.num_days = const.num_steps * const.market_interval / 60 / 24
-        self.market_interval = const.market_interval  # minutes
+        self.market_interval = 15  # minutes
 
         # time
         self.start = 0
 
-        self.num_steps = const.num_steps
+        self.num_steps = int(96*1)
 
         """ 
             Market structure 
@@ -304,7 +300,7 @@ class ConfigurationUtility10prosumer:
 
         """ prosumers with both PV and ESS"""
         for agent in range(self.prosumers_with_pv_and_ess):
-            self.classification_array.append([True, True, True])
+            self.classification_array.append([True, 5, True])
 
         """ 
             Load data
@@ -340,13 +336,12 @@ class ConfigurationUtility10household:
         """ 
             Simulation environment
         """
-        self.num_days = const.num_steps * const.market_interval / 60 / 24
-        self.market_interval = const.market_interval  # minutes
+        self.market_interval = 15  # minutes
 
         # time
         self.start = 0
 
-        self.num_steps = const.num_steps
+        self.num_steps = int(96 * 1)
 
         """ 
             Market structure 

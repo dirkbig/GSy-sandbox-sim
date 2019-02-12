@@ -11,9 +11,9 @@ class ConfigurationMixin:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
         self.sim_start = 0
-        self.num_days = 2
         self.market_interval = 15  # minutes
-        self.num_steps = int(24 * 60 * self.num_days / self.market_interval)
+        num_days = 10
+        self.num_steps = int(24 * 60 * num_days / self.market_interval)
 
         """ 
             Market structure 
