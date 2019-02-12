@@ -105,7 +105,7 @@ def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time
 
     steps = range(num_steps)
     fig, ax = plt.subplots()
-    """ overflows """
+    """ overflows / curtailment """
     # for ess in range(len(soc_deficit_overflow_over_time)):
     #     soc_deficit_overflow_over_time[]
     #     ax.plot(steps, soc_deficit_overflow_over_time[ess])
@@ -125,7 +125,6 @@ def clearing_over_utility_price(num_steps, utility_price, clearing_price, cleari
     steps = range(num_steps)
     fig, ax = plt.subplots()
 
-
     ax.step(steps, utility_price[:num_steps], label='Utility price')
     ax.step(steps, clearing_price, label='Clearing price')
 
@@ -134,7 +133,6 @@ def clearing_over_utility_price(num_steps, utility_price, clearing_price, cleari
     line1 = ax.plot(steps, clearing_price, label='Price: Clearing', drawstyle='steps')
     line2 = ax.plot(steps, utility_price[:num_steps], label='Price: Utility', linestyle='--', drawstyle='steps')
     ax.set(xlabel='sim steps', ylabel='Eletricity costs [EUR/kWh]', title='Comparison utility - clearing price')
-
 
     ax2 = ax.twinx()
     ax2.step(steps, clearing_quantity, color='r')
@@ -157,7 +155,6 @@ def clearing_quantity_over_demand(num_steps, clearing_quantity, demand):
 
     ax.legend(loc='upper center', shadow=True, fontsize='x-large')
     ax.set(xlabel='sim steps', ylabel='Electricity quantity [kWh]', title='Trading quantity over household demand')
-
 
 
 def clearing_quantity(num_steps, clearing_quantity):

@@ -67,9 +67,6 @@ with open("../test_result.csv", 'r', newline='') as csv_file:
 
             counter += 1
 
-
-
-
 # Calculate the electricity price for that time step [EUR/kWh].
 elec_price = []
 for i in range(len(trade_quantity['Utility'])):

@@ -14,7 +14,7 @@ class Pv(Agent):
         self.id = _unique_id
         self.model = model
         # Simulation time [min].
-        self.interval_time = const.market_interval
+        self.interval_time = self.model.data.market_interval
         self.current_step = 0
         # Define the installed power of the PV panel [kW].
         self.power_installed = 1000
@@ -31,8 +31,8 @@ class Pv(Agent):
         self.wallet = Wallet(_unique_id)
         self.trading_state = None
         # Bid in the format [price, quantity, self ID]
-        self.bid = None
-        self.offer = None
+        self.bids = None
+        self.offers = None
         self.sold_energy = None
         self.bought_energy = None
 
@@ -49,13 +49,11 @@ class Pv(Agent):
             this_energy_produced = \
                 self.power_production[self.current_step] * self.interval_time / 60 * self.power_installed
             # Set the selling bid as price [EUR/kWh] and energy sold [kWh] and the PV ID.
-            self.bid = [0, this_energy_produced, self.id]
+            self.offers = [0, this_energy_produced, self.id]
         else:
-
-            this_energy_produced = 0
-            self.trading_state = None
-            #
-            self.bid = [0, 0, self.id]
+            this_energy_produced = 0.0
+            self.trading_state = 'passive'
+            self.offers = [0, this_energy_produced, self.id]
 
         # Track the energy produced [kWh].
         self.track_electricity_produced.append(this_energy_produced)
@@ -64,6 +62,7 @@ class Pv(Agent):
 
     def post_auction_round(self):
         # No post auction step required.
+        # TODO: settle money made  by selling energy
         pass
 
     def announce_bid(self):
@@ -71,7 +70,8 @@ class Pv(Agent):
         pv_log.info('PV bidding state is {}'.format(self.trading_state))
 
         if self.trading_state == 'supplying':
-            self.model.auction.offer_list.append(self.bid)
+            print("pv offer", self.offers)
+            self.model.auction.offer_list.append(self.offers)
 
 
 

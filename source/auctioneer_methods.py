@@ -242,7 +242,7 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
                 raise AssertionError
             prev_segment_quantity = trade_quantity
 
-    # TODO: mcafee_trade_efficiency: all trades that are kicked / execution below full market efficiency
+    # TODO: insight in mcafee_trade_efficiency: all trades that are kicked / execution below full market efficiency
 
     return clearing_quantity, clearing_price, total_turnover_, trade_pairs_mcafee_
 
