@@ -303,7 +303,7 @@ class Auctioneer(Agent):
             self.model.auction.wallet.settle_revenue(clearing_inbalance)
 
         """ listing of all offers/bids selected for trade """
-        if self.trade_pairs is not None and self.pricing_rule in ['pac', 'pab']:
+        if self.trade_pairs and self.pricing_rule in ['pac', 'pab']:
             assert np.shape(self.trade_pairs)[1] is 4
             for trade in range(len(self.trade_pairs)):
                 # data structure: [seller_id, buyer_id, trade_quantity, turnover]
@@ -313,7 +313,7 @@ class Auctioneer(Agent):
                 turnover = self.trade_pairs[trade][3]
                 who_gets_what_bb(id_seller, id_buyer, trade_quantity, turnover)
 
-        elif self.trade_pairs is not None and self.pricing_rule in ['mcafee']:
+        elif self.trade_pairs and self.pricing_rule in ['mcafee']:
             # McAfee pricing settlement
 
             print(self.trade_pairs)
