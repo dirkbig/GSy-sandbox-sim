@@ -17,5 +17,3 @@ def peak_shaving_strategy(self):
     a smart-contract
 
     """
-    self.model.auction.bi
-
