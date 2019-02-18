@@ -18,7 +18,7 @@ class ConfigurationMixin:
         """ 
             Market structure 
         """
-        self.pricing_rule = 'mcafee'  # 'pac', 'pab' or 'mcafee'
+        self.pricing_rule = 'pac'  # 'pac', 'pab' or 'mcafee'
 
         """ 
             Electrolyzer
@@ -37,7 +37,7 @@ class ConfigurationMixin:
         """
             Commercial PV 
         """
-        self.pv_presence = True
+        self.pv_presence = False
         self.pv_commercial_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
 
         """ 

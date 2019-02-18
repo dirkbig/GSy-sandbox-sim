@@ -18,6 +18,7 @@ Aging effects are converted to financial loss and taken into account for the bid
 
 battery_log = logging.getLogger("battery")
 
+
 class Battery(Agent):
     """ Battery agents are created through this class """
     def __init__(self, _unique_id, model):
@@ -39,7 +40,6 @@ class Battery(Agent):
         self.offer = None
         self.sold_energy = None
         self.bought_energy = None
-
 
         # Physical parameter
         # Capacity [kWh]

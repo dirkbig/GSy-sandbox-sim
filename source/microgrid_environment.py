@@ -86,6 +86,8 @@ class MicroGrid(Model):
                     for this_offer in self.agents[agent_id].offers:
                         print(this_offer, agent_id)
                         # TODO: PV agent creates problem here. Utility agent finds a PV offer;
+                        # if this_offer == 0 and agent_id is 'CommercialPV' :
+                        #     this_offer = self.agent['CommercialPV'].proxy_offer
                         # self.agent['CommercialPV'].offers == 0... instead of a tuple...
                         total_energy_offered += this_offer[1]
 
