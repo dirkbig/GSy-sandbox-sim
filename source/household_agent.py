@@ -146,7 +146,6 @@ class HouseholdAgent(Agent):
         self.overflow_tot += self.overflow
         self.deficit_tot += self.deficit
 
-
     def announce_bid_and_offers(self):
         """ announces bid to auction agent by appending to bid list """
         house_log.info('house%d is %s', self.id, self.trading_state)
@@ -154,9 +153,9 @@ class HouseholdAgent(Agent):
         if self.trading_state == 'supplying':
             for offer in self.offers:
                 self.model.auction.offer_list.append(offer)
-
         elif self.trading_state == 'buying':
             for bid in self.bids:
                 self.model.auction.bid_list.append(bid)
+                print(bid)
 
 

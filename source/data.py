@@ -145,8 +145,6 @@ class Data(ConfigurationMixin, object):
                 # Case: PV panels are present. Then test if the pv time series have the correct length.
                 assert [len(pv_gen_list[i]) == self.num_steps for i in range(len(pv_gen_list))]
 
-        """ manual tuning of data can happen here"""
-        # pv_gen_array = pv_gen_array * 3
         return pv_gen_list
 
     def get_utility_profile(self):

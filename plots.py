@@ -5,15 +5,15 @@ sns.set()
 
 
 def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list):
-    # TODO: export these demand/supply curves
+    # TODO: export/save these demand/supply curves?
     x_quantities = [0]
     y_bid_prices = [0]
     y_offer_prices = [0]
 
-    for i in range(len(sorted_x_y_y_pairs_list)):
-        x_quantities.append(sorted_x_y_y_pairs_list[i][0])
-        y_bid_prices.append(sorted_x_y_y_pairs_list[i][1])
-        y_offer_prices.append(sorted_x_y_y_pairs_list[i][2])
+    for segment in sorted_x_y_y_pairs_list:
+        x_quantities.append(segment[0])
+        y_bid_prices.append(segment[1])
+        y_offer_prices.append(segment[2])
 
     fig, ax = plt.subplots()
 
@@ -28,9 +28,6 @@ def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list
     ax.set(xlabel='quantity', ylabel='price',
            title='clearing markets aggregate demand and supply blocks')
     plt.show()
-
-    # TODO: somehow update the plot every plot, look into:
-    # https://stackoverflow.com/questions/46001645/how-to-make-a-progresing-plot-in-matplotlib
 
 
 def plot_avg_load_profile(num_steps, load_array):
@@ -105,7 +102,7 @@ def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time
 
     steps = range(num_steps)
     fig, ax = plt.subplots()
-    """ overflows """
+    """ overflows / curtailment """
     # for ess in range(len(soc_deficit_overflow_over_time)):
     #     soc_deficit_overflow_over_time[]
     #     ax.plot(steps, soc_deficit_overflow_over_time[ess])
@@ -125,7 +122,6 @@ def clearing_over_utility_price(num_steps, utility_price, clearing_price, cleari
     steps = range(num_steps)
     fig, ax = plt.subplots()
 
-
     ax.step(steps, utility_price[:num_steps], label='Utility price')
     ax.step(steps, clearing_price, label='Clearing price')
 
@@ -134,7 +130,6 @@ def clearing_over_utility_price(num_steps, utility_price, clearing_price, cleari
     line1 = ax.plot(steps, clearing_price, label='Price: Clearing', drawstyle='steps')
     line2 = ax.plot(steps, utility_price[:num_steps], label='Price: Utility', linestyle='--', drawstyle='steps')
     ax.set(xlabel='sim steps', ylabel='Eletricity costs [EUR/kWh]', title='Comparison utility - clearing price')
-
 
     ax2 = ax.twinx()
     ax2.step(steps, clearing_quantity, color='r')
@@ -157,7 +152,6 @@ def clearing_quantity_over_demand(num_steps, clearing_quantity, demand):
 
     ax.legend(loc='upper center', shadow=True, fontsize='x-large')
     ax.set(xlabel='sim steps', ylabel='Electricity quantity [kWh]', title='Trading quantity over household demand')
-
 
 
 def clearing_quantity(num_steps, clearing_quantity):

@@ -72,11 +72,6 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     try:
         assert total_turnover_internally == total_turnover_
     except AssertionError:
-        print(executed_segment)
-        print(clearing_quantity)
-        print(clearing_quantity_internally)
-        print(total_turnover_internally)
-        print(total_turnover_)
         error = abs(total_turnover_ - total_turnover_internally)
         print(error)
 
@@ -164,7 +159,6 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
     if bid_next is not None and offer_next is not None:
         p_0 = (bid_next + offer_next) / 2
     else:
-        print(sorted_x_y_y_pairs_list)
         # omit trading pair k?
         k = k - 1
         # then; recalculate bid_k, offer_k, bid_next, offer_next and p_0 = (bid_next + offer_next) / 2
@@ -242,7 +236,7 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
                 raise AssertionError
             prev_segment_quantity = trade_quantity
 
-    # TODO: mcafee_trade_efficiency: all trades that are kicked / execution below full market efficiency
+    # TODO: insight in mcafee_trade_efficiency: all trades that are kicked / execution below full market efficiency
 
     return clearing_quantity, clearing_price, total_turnover_, trade_pairs_mcafee_
 
@@ -256,12 +250,9 @@ def clearing_quantity_calc(sorted_x_y_y_pairs_list):
     """ filter out None values and remove these points for they don't add information """
     # for i in range(len(sorted_x_y_y_pairs_list)):
     #     if sorted_x_y_y_pairs_list[-i][1] is None or sorted_x_y_y_pairs_list[-i][2] is None
-
     assert sorted_x_y_y_pairs_list is not []
     sorted_x_y_y_pairs_list = [segment for segment in sorted_x_y_y_pairs_list if segment[1] is not None
                                and segment[2] is not None]
-
-    list_of_volumes = [sorted_x_y_y_pairs_list[volume][0] for volume in range(len(sorted_x_y_y_pairs_list))]
 
     # fully execute: all bid prices are higher than offer prices
     if all(sorted_x_y_y_pairs_list[i][1] >= sorted_x_y_y_pairs_list[i][2] for i in range(len(sorted_x_y_y_pairs_list))):

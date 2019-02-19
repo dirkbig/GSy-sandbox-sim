@@ -73,6 +73,9 @@ class MicroGrid(Model):
             utility_buy_price = self.agents['Utility'].buy_rate_utility
             utility_sell_price = self.agents['Utility'].sell_rate_utility
             for agent_id in self.agents:
+                # TODO: the utility should rather take info from the bid/offer list of auctioneer;
+                # from all individual agents; thus use self.auction.bid_list and self.auction.offer_list?
+
                 if self.agents[agent_id].bids is not None and len(self.agents[agent_id].bids) > 0:
                     for this_bid in self.agents[agent_id].bids:
                         total_energy_wanted += this_bid[1]
@@ -81,7 +84,12 @@ class MicroGrid(Model):
                             this_bid[0] = utility_sell_price
                 if self.agents[agent_id].offers is not None and len(self.agents[agent_id].offers) > 0:
                     for this_offer in self.agents[agent_id].offers:
+                        # TODO: PV agent creates problem here. Utility agent finds a PV offer;
+                        # if this_offer == 0 and agent_id is 'CommercialPV' :
+                        #     this_offer = self.agent['CommercialPV'].proxy_offer
+                        # self.agent['CommercialPV'].offers == 0... instead of a tuple...
                         total_energy_offered += this_offer[1]
+
                         # If the offer price is below what the utility pays for energy, set it to that price [EUR/kWh].
                         if this_offer[0] < utility_buy_price:
                             this_offer[0] = utility_buy_price
@@ -95,8 +103,6 @@ class MicroGrid(Model):
             # self.auction.who_gets_what_dict['Utility'] = []
             print('Utility bid placed: {}. Utility offer placed: {}'.format(
                 str(self.agents['Utility'].bids), str(self.agents['Utility'].offers)))
-
-
 
         info_string = 'Pre-auction round done for agent IDs:' + ' | {}' * len(pre_agent_id) + ' |'
         print(info_string.format(*pre_agent_id))

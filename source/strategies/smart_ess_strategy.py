@@ -78,13 +78,7 @@ def smart_ess_strategy(self):
             possible_in = bidding_volume + self.pv.next_interval_estimated_generation
             max_possible_in = self.ess.max_capacity - self.ess.soc_actual + abs(self.load.next_interval_estimated_load)
             assert possible_in <= max_possible_in + margin
-
         except AssertionError:
-            print("bidding_volume", bidding_volume)
-            print("ess_surplus", self.ess.surplus)
-            print("max_capacity", self.ess.max_capacity)
-            print("soc_actual", self.ess.soc_actual)
-            print("soc_preferred", self.ess.soc_preferred)
             print("overshoot error", abs(possible_in - max_possible_in))
             exit("fix this")
 
@@ -101,12 +95,14 @@ def smart_ess_strategy(self):
             try:
                 assert soc_leftover_space >= 0
             except AssertionError:
-                print("shit")
+                exit("AssertionError: soc_leftover_space >= 0")
 
             discrete_bid_list = battery_price_curve(self, utility_price, base, bidding_volume, number_of_bids)
 
         # first bid is the essential demand, bought in at utility price
-        self.bids.append([utility_price, essential_demand, self.id])
+        if essential_demand > 0:
+            self.bids.append([utility_price, essential_demand, self.id])
+
         for bid in discrete_bid_list:
             if bid[0] is not 0:
                 self.bids.append([bid[0], bid[1], self.id])
