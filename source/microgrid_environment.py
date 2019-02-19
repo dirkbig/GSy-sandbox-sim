@@ -84,7 +84,6 @@ class MicroGrid(Model):
                             this_bid[0] = utility_sell_price
                 if self.agents[agent_id].offers is not None and len(self.agents[agent_id].offers) > 0:
                     for this_offer in self.agents[agent_id].offers:
-                        print(this_offer, agent_id)
                         # TODO: PV agent creates problem here. Utility agent finds a PV offer;
                         # if this_offer == 0 and agent_id is 'CommercialPV' :
                         #     this_offer = self.agent['CommercialPV'].proxy_offer

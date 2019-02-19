@@ -72,11 +72,6 @@ def pac_pricing(sorted_x_y_y_pairs_list_, sorted_bid_list, sorted_offer_list):
     try:
         assert total_turnover_internally == total_turnover_
     except AssertionError:
-        print(executed_segment)
-        print(clearing_quantity)
-        print(clearing_quantity_internally)
-        print(total_turnover_internally)
-        print(total_turnover_)
         error = abs(total_turnover_ - total_turnover_internally)
         print(error)
 
@@ -164,7 +159,6 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
     if bid_next is not None and offer_next is not None:
         p_0 = (bid_next + offer_next) / 2
     else:
-        print(sorted_x_y_y_pairs_list)
         # omit trading pair k?
         k = k - 1
         # then; recalculate bid_k, offer_k, bid_next, offer_next and p_0 = (bid_next + offer_next) / 2

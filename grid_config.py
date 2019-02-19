@@ -12,7 +12,7 @@ class ConfigurationMixin:
         """ Configuration of the grid Mixin Class"""
         self.sim_start = 0
         self.market_interval = 15  # minutes
-        num_days = 10
+        num_days = 1
         self.num_steps = int(24 * 60 * num_days / self.market_interval)
 
         """ 
@@ -37,20 +37,20 @@ class ConfigurationMixin:
         """
             Commercial PV 
         """
-        self.pv_presence = False
+        self.pv_presence = True
         self.pv_commercial_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
 
         """ 
             Utility 
         """
         # Define if a utility grid should be part of the energy system
-        self.utility_presence = True
+        self.utility_presence = False
         # Define if the utility price should be loaded
-        self.utility_dynamical_pricing = True
+        self.utility_dynamical_pricing = False
         # Define a fixed price for electricity from the utility grid. If a timeseries with an electricity price is
         # loaded, the fixed price is added on top of that price from the time series [EUR/kWh].
-        self.utility_selling_price_fix = 0.0
-        self.utility_buying_price_fix = 0.0
+        self.utility_selling_price_fix = 30.0
+        self.utility_buying_price_fix = 30.0
         # Define if negatives prices are possible. If not, at time steps where the time series price plus the fixed
         # price is negative, it is set to 0 EUR/kWh instead.
         self.negative_pricing = False
@@ -60,10 +60,10 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 2
+        self.consumers = 1
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 2
+        self.prosumers_with_pv_and_ess = 1
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []

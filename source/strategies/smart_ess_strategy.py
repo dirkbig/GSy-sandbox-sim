@@ -95,7 +95,7 @@ def smart_ess_strategy(self):
             try:
                 assert soc_leftover_space >= 0
             except AssertionError:
-                print("shit")
+                exit("AssertionError: soc_leftover_space >= 0")
 
             discrete_bid_list = battery_price_curve(self, utility_price, base, bidding_volume, number_of_bids)
 
