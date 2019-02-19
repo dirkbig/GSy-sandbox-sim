@@ -41,10 +41,11 @@ def eval_print(microgrid, trade_deals_list_per_step):
     print('\nAll households could be {:.4} % self sufficient.'.format(los_tot))
 
     # Calculate what ratio of the demand of the household was supplied by the grid.
-    if microgrid.agents['Utility'].energy_sold_tot == 0:
-        household_grid_usage = "-"
-    else:
-        household_grid_usage = demand_all / microgrid.agents['Utility'].energy_sold_tot
+    if microgrid.data.utility_presence is True:
+        if microgrid.agents['Utility'].energy_sold_tot == 0:
+            household_grid_usage = "-"
+        else:
+            household_grid_usage = demand_all / microgrid.agents['Utility'].energy_sold_tot
 
-    print('\nFrom the total energy consumption {:.4} % was supplied by the grid.'.format(household_grid_usage))
-    print('The utility grid bought {} kWh of electricity.'.format(microgrid.agents['Utility'].energy_bought_tot))
+        print('\nFrom the total energy consumption {:.4} % was supplied by the grid.'.format(household_grid_usage))
+        print('The utility grid bought {} kWh of electricity.'.format(microgrid.agents['Utility'].energy_bought_tot))

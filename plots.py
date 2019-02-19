@@ -5,15 +5,15 @@ sns.set()
 
 
 def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list):
-    # TODO: export these demand/supply curves
+    # TODO: export/save these demand/supply curves?
     x_quantities = [0]
     y_bid_prices = [0]
     y_offer_prices = [0]
 
-    for i in range(len(sorted_x_y_y_pairs_list)):
-        x_quantities.append(sorted_x_y_y_pairs_list[i][0])
-        y_bid_prices.append(sorted_x_y_y_pairs_list[i][1])
-        y_offer_prices.append(sorted_x_y_y_pairs_list[i][2])
+    for segment in sorted_x_y_y_pairs_list:
+        x_quantities.append(segment[0])
+        y_bid_prices.append(segment[1])
+        y_offer_prices.append(segment[2])
 
     fig, ax = plt.subplots()
 
@@ -28,9 +28,6 @@ def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list
     ax.set(xlabel='quantity', ylabel='price',
            title='clearing markets aggregate demand and supply blocks')
     plt.show()
-
-    # TODO: somehow update the plot every plot, look into:
-    # https://stackoverflow.com/questions/46001645/how-to-make-a-progresing-plot-in-matplotlib
 
 
 def plot_avg_load_profile(num_steps, load_array):

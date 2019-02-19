@@ -57,6 +57,7 @@ class UtilityAgent(Agent):
         self.model.auction.utility_market_maker_rate = price_sell
         self.sell_rate_utility = price_sell
         self.buy_rate_utility = price_buy
+
         # The bids and offers of the utility grid are set in "microgrid_environment.py" according to the total demand
         # and offer for each time step.
         self.bids = None
