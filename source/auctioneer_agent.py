@@ -331,6 +331,7 @@ class Auctioneer(Agent):
 
         """ listing of all offers/bids selected for trade """
         if self.trade_pairs != [] and self.pricing_rule in ['pac', 'pab']:
+
             assert np.shape(self.trade_pairs)[1] is 4
             for trade in range(len(self.trade_pairs)):
                 # data structure: [seller_id, buyer_id, trade_quantity, turnover]
