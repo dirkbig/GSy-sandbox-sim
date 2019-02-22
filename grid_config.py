@@ -44,10 +44,10 @@ class ConfigurationMixin:
             Utility 
         """
         # Define if a utility grid should be part of the energy system
-        self.utility_presence = False
+        self.utility_presence = True
         # Define if the utility price should be loaded
         self.utility_dynamical_pricing = False
-        # Define a fixed price for electricity from the utility grid. If a timeseries with an electricity price is
+        # Define a fixed price for electricity from the utility grid. If a time series with an electricity price is
         # loaded, the fixed price is added on top of that price from the time series [EUR/kWh].
         self.utility_selling_price_fix = 30.0
         self.utility_buying_price_fix = 30.0
@@ -60,10 +60,10 @@ class ConfigurationMixin:
         """ 
             Households basic configuration 
         """
-        self.consumers = 1
+        self.consumers = 0
         self.prosumers_with_only_pv = 0
-        self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 1
+        self.prosumers_with_ess = 1
+        self.prosumers_with_pv_and_ess = 0
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []
@@ -109,8 +109,8 @@ class ConfigurationMixin:
             config_log.warning("Physical battery constraints are not active")
 
         self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
-        max_capacity_list = np.full(self.num_households_with_ess, 10)
-        initial_capacity_list = np.full(self.num_households_with_ess, 9)
+        max_capacity_list = np.full(self.num_households_with_ess, 5)
+        initial_capacity_list = np.full(self.num_households_with_ess, 0)
         self.ess_characteristics_list = []
 
         for battery in range(self.num_households_with_ess):

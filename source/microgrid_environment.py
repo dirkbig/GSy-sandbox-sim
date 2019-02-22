@@ -98,8 +98,11 @@ class MicroGrid(Model):
             # Bids and offers are in the format [price, quantity, self.id]
             self.agents['Utility'].offers = [self.agents['Utility'].sell_rate_utility, total_energy_wanted, 'Utility']
             self.auction.offer_list.append(self.agents['Utility'].offers)
-            self.agents['Utility'].bids = [self.agents['Utility'].buy_rate_utility, total_energy_offered, 'Utility']
-            self.auction.bid_list.append(self.agents['Utility'].bids)
+
+            # TODO: I DON'T THINK THIS IS A GOOD WAY TO DO IT. IT SHOULD BE DECOUPLED FROM THE ACTUAL AUCTION.
+            # self.agents['Utility'].bids = [self.agents['Utility'].buy_rate_utility, total_energy_offered, 'Utility']
+            # self.auction.bid_list.append(self.agents['Utility'].bids)
+
             # self.auction.who_gets_what_dict['Utility'] = []
             print('Utility bid placed: {}. Utility offer placed: {}'.format(
                 str(self.agents['Utility'].bids), str(self.agents['Utility'].offers)))

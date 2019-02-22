@@ -25,11 +25,12 @@ class HouseholdAgent(Agent):
         self.ess_data = self.model.data.agent_data_array[self.id][2]
 
         self.load_on_step = 0
-        self.pv_production_on_step = 0
+        self.generation_on_step = 0
         self.ess_demand_on_step = 0
 
         """ Tracking values """
         self.demand_tot = 0
+        self.generation_tot = 0
         self.pv_production_tot = 0
         self.overflow_tot = 0
         self.deficit_tot = 0
@@ -84,23 +85,35 @@ class HouseholdAgent(Agent):
         self.net_energy_in_simple_strategy = 0
 
     def state_update_from_devices(self):
-        """ updates the household agent on state of devices """
+        """ updates the household agent on the state of household devices """
         current_step = self.model.step_count
 
-        if self.has_load is True:
-            self.load_on_step = self.load.get_load(current_step)
-            self.demand_tot += float(self.load_data[current_step])
+        # if self.has_load is True:
+        #     self.load_on_step = self.load.get_load(current_step)
+        #     self.demand_tot += float(self.load_data[current_step])
 
         if self.has_pv is True:
             self.pv_production_on_step = self.pv.get_generation(current_step)
             self.pv_production_tot += self.pv_production_on_step
 
+        # a second method achieving the same result.
+        self.generation_on_step = 0
+        self.load_on_step = 0
+        for device in self.devices:
+            energy = self.devices[device].uniform_call_to_device(self.model.step_count)
+            if self.devices[device].type is 'Generation':
+                assert energy >= 0
+                self.generation_on_step += energy
+                self.generation_tot += energy
+            if self.devices[device].type is "Load":
+                assert energy <= 0
+                self.load_on_step += energy
+                self.demand_tot += abs(self.load_on_step) # this is counted as a positive value again..
+
     def pre_auction_round(self):
         """ each agent makes a step here, before auction step"""
 
         self.state_update_from_devices()
-        for device in self.devices:
-            self.devices[device].uniform_call_to_device(self.model.step_count)
 
         """ 
             STRATEGIES 
@@ -121,10 +134,13 @@ class HouseholdAgent(Agent):
     def post_auction_round(self):
         """ after auctioneer gives clearing signal """
 
-        self.energy_trade_flux = sum(self.model.auction.who_gets_what_dict[self.id])
-        self.net_energy_in = self.pv_production_on_step + self.load_on_step + self.energy_trade_flux
+        if self.model.auction.who_gets_what_dict[self.id] is []:
+            self.energy_trade_flux = 0
+        else:
+            self.energy_trade_flux = sum(self.model.auction.who_gets_what_dict[self.id])
+        self.net_energy_in = self.generation_on_step + self.load_on_step + self.energy_trade_flux
 
-        assert self.pv_production_on_step >= 0
+        assert self.generation_on_step >= 0
         assert self.load_on_step <= 0
 
         """ update ESS and unmatched loads """

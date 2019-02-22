@@ -15,7 +15,7 @@ def simple_strategy(self):
         self.ess.surplus = self.soc_actual
         self.net_energy_in_simple_strategy = self.ess.surplus
     else:
-        self.net_energy_in_simple_strategy = self.pv_production_on_step - abs(self.load_on_step)
+        self.net_energy_in_simple_strategy = self.generation_on_step - abs(self.load_on_step)
 
     """ Determine Price """
     if self.net_energy_in_simple_strategy > 0:

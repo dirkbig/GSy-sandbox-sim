@@ -17,7 +17,7 @@ class Auctioneer(Agent):
         self.model = model
         self.wallet = Wallet(_unique_id)
 
-        self.snapshot_plot = True
+        self.snapshot_plot = False
         self.snapshot_plot_interval = 15
 
         self.id = _unique_id
@@ -39,16 +39,11 @@ class Auctioneer(Agent):
         self.percentage_buyers = None
         self.percentage_passive = None
 
-        self.who_gets_what_dict = None
+        self.who_gets_what_dict = []
 
     def auction_round(self):
         """check whether all agents have submitted their bids"""
         self.user_participation()
-
-        # """ resets the acquired energy for all households """
-        # self.who_gets_what_dict = {}
-        # for agent_id in self.model.agents:
-        #     self.who_gets_what_dict[agent_id] = []
 
         # While an empty bid list may arrive as an empty list or as a list containing an empty list, the outer list is
         # removed here for the later check, if there are bids at all (which is done taking the length of the bid list).
@@ -59,6 +54,11 @@ class Auctioneer(Agent):
             # While the first list entry can be an empty list, if there are multiple bids don't use the first one.
         else:
             bid_list_check = self.bid_list[0]
+
+        """ resets the acquired energy for all households """
+        self.who_gets_what_dict = {}
+        for agent_id in self.model.agents:
+            self.who_gets_what_dict[agent_id] = []
 
         def empty(seq):
             try:
@@ -288,12 +288,6 @@ class Auctioneer(Agent):
 
     def clearing_of_market(self):
         """clears market """
-
-        """ resets the acquired energy for all households """
-        self.who_gets_what_dict = {}
-        for agent_id in self.model.agents:
-            self.who_gets_what_dict[agent_id] = []
-
         def who_gets_what_bb(_id_seller, _id_buyer, _trade_quantity, _turnover):
             """ execute trade buy calling household agent's wallet settlement """
             # Settlement of seller revenue if market is budget balanced
@@ -330,9 +324,11 @@ class Auctioneer(Agent):
             self.model.auction.wallet.settle_revenue(clearing_inbalance)
 
         """ listing of all offers/bids selected for trade """
-        if self.trade_pairs != [] and self.pricing_rule in ['pac', 'pab']:
-
-            assert np.shape(self.trade_pairs)[1] is 4
+        if self.trade_pairs is not None and self.pricing_rule in ['pac', 'pab']:
+            try:
+                assert np.shape(self.trade_pairs)[1] is 4
+            except IndexError:
+                pass
             for trade in range(len(self.trade_pairs)):
                 # data structure: [seller_id, buyer_id, trade_quantity, turnover]
                 id_seller = self.trade_pairs[trade][0]
@@ -341,7 +337,7 @@ class Auctioneer(Agent):
                 turnover = self.trade_pairs[trade][3]
                 who_gets_what_bb(id_seller, id_buyer, trade_quantity, turnover)
 
-        elif self.trade_pairs != [] and self.pricing_rule in ['mcafee']:
+        elif self.trade_pairs is not None and self.pricing_rule in ['mcafee']:
             # McAfee pricing settlement
             print(self.trade_pairs)
             try:
@@ -373,7 +369,6 @@ class Auctioneer(Agent):
 
         else:
             auction_log.warning("Auction clearing did not result in trade at this interval")
-
 
         # Should happen inside the agent class
         """ resets the acquired energy for all households """

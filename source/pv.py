@@ -32,7 +32,9 @@ class Pv(Agent):
         self.offers = None
         self.sold_energy = None
         self.bought_energy = None
-        self.marginal_price = 0
+
+        # LCOE for a commercial PV array
+        self.marginal_price = 8
         pv_log.info("PV object was generated.")
 
     def pre_auction_round(self):
@@ -43,7 +45,7 @@ class Pv(Agent):
         print('This energy produced by pv is {}'.format(self.power_production[self.current_step]))
         if self.power_production[self.current_step] > 0:
             self.trading_state = 'supplying'
-            # Calculate the energy produced in this time step [kWh].
+            # Calculate th e energy produced in this time step [kWh].
             this_energy_produced = \
                 self.power_production[self.current_step] * self.interval_time / 60 * self.power_installed
             # Set the selling bid as price [EUR/kWh] and energy sold [kWh] and the PV ID.
