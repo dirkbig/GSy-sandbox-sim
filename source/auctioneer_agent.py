@@ -325,10 +325,7 @@ class Auctioneer(Agent):
 
         """ listing of all offers/bids selected for trade """
         if self.trade_pairs is not None and self.pricing_rule in ['pac', 'pab']:
-            try:
-                assert np.shape(self.trade_pairs)[1] is 4
-            except IndexError:
-                exit('fix this')
+            assert np.shape(self.trade_pairs)[1] is 4
             for trade in range(len(self.trade_pairs)):
                 # data structure: [seller_id, buyer_id, trade_quantity, turnover]
                 id_seller = self.trade_pairs[trade][0]
