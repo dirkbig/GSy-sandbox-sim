@@ -328,7 +328,7 @@ class Auctioneer(Agent):
             try:
                 assert np.shape(self.trade_pairs)[1] is 4
             except IndexError:
-                pass
+                exit('fix this')
             for trade in range(len(self.trade_pairs)):
                 # data structure: [seller_id, buyer_id, trade_quantity, turnover]
                 id_seller = self.trade_pairs[trade][0]
