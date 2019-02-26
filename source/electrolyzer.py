@@ -570,3 +570,5 @@ class Electrolyzer(Agent):
 
         return voltage_reversible
 
+    def track_data(self):
+        pass

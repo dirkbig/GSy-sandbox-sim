@@ -13,3 +13,6 @@ class HydrogenCar(Agent):
     def __init__(self, _unique_id, model):
         """ Electrolyzer gas station supply (consumption of hydrogen cars) profile can live here """
         pass
+
+    def track_data(self):
+        pass

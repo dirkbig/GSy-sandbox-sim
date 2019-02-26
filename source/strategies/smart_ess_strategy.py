@@ -66,7 +66,6 @@ def smart_ess_strategy(self):
                self.ess.max_capacity + margin
 
         if essential_demand > 0 and self.data.utility_presence is True:
-            print("essential_demand", essential_demand)
             self.bids.append([utility_price, essential_demand, self.id])
             bidding_volume -= essential_demand
 

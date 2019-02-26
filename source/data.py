@@ -74,10 +74,11 @@ class Data(ConfigurationMixin, object):
                 self.utility_pricing_profile = []
 
         """ SOC and unmatched loads and generation in grid """
+        # data array to capture: num_households x num_steps
         self.soc_list_over_time = np.zeros([self.num_households, self.num_steps])
         self.deficit_over_time = np.zeros([self.num_households, self.num_steps])
         self.overflow_over_time = np.zeros([self.num_households, self.num_steps])
-        # Log the clearing price [EUR] and quantity [kWh] for each step.
+        # data array to capture: num_steps
         self.clearing_price = np.zeros([self.num_steps, 1])
         self.clearing_quantity = np.zeros([self.num_steps, 1])
         self.utility_price = np.zeros([self.num_steps, 1])

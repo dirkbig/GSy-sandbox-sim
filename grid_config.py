@@ -18,7 +18,7 @@ class ConfigurationMixin:
         """ 
             Market structure 
         """
-        self.pricing_rule = 'pac'  # 'pac', 'pab' or 'mcafee'
+        self.pricing_rule = 'pab'  # 'pac', 'pab' or 'mcafee'
 
         """ 
             Electrolyzer

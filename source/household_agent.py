@@ -172,6 +172,6 @@ class HouseholdAgent(Agent):
         elif self.trading_state == 'buying':
             for bid in self.bids:
                 self.model.auction.bid_list.append(bid)
-                print(bid)
 
-
+    def track_data(self):
+        pass
