@@ -132,6 +132,9 @@ class MicroGrid(Model):
         print(info_string.format(*updated_agent_id))
         print("")
 
+        """ Alternative pricing scheme comes here """
+        # TODO: alt pricing
+
         """ Track data """
         for agent_id in self.agents:
             self.agents[agent_id].track_data()

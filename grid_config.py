@@ -18,7 +18,7 @@ class ConfigurationMixin:
         """ 
             Market structure 
         """
-        self.pricing_rule = 'pab'  # 'pac', 'pab' or 'mcafee'
+        self.pricing_rule = 'pac'  # 'pac', 'pab' or 'mcafee'
 
         """ 
             Electrolyzer
@@ -47,22 +47,24 @@ class ConfigurationMixin:
         self.utility_presence = True
         # Define if the utility price should be loaded
         self.utility_dynamical_pricing = False
+        self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
+        # Define if negatives prices are possible. If not, at time steps where the time series price plus the fixed
+        # price is negative, it is set to 0 EUR/kWh instead.
+        self.negative_pricing = False
         # Define a fixed price for electricity from the utility grid. If a time series with an electricity price is
         # loaded, the fixed price is added on top of that price from the time series [EUR/kWh].
         self.utility_selling_price_fix = 30.0
         self.utility_buying_price_fix = 30.0
-        # Define if negatives prices are possible. If not, at time steps where the time series price plus the fixed
-        # price is negative, it is set to 0 EUR/kWh instead.
-        self.negative_pricing = False
 
-        self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
+        # alternative pricing scheme for rest-production.
+        self.fit_pricing = False
 
         """ 
             Households basic configuration 
         """
         self.consumers = 0
         self.prosumers_with_only_pv = 0
-        self.prosumers_with_ess = 1
+        self.prosumers_with_ess = 0
         self.prosumers_with_pv_and_ess = 0
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess

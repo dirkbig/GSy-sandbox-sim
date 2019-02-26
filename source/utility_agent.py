@@ -132,8 +132,21 @@ class UtilityAgent(Agent):
             self.energy_sold_tot += abs(this_energy_trade)
         elif this_energy_trade > 0:
             self.energy_bought_tot += this_energy_trade
-
         return
+
+    def alternative_pricing(self):
+
+        assert self.model.data.fit_pricing is True
+        # maximum feed in volume based on yearly number
+        max_feed_in = 10000000
+        # Feed-in-Tariff
+        fit = 0.5 * self.price_sell
+
+        for agent in self.model.agents:
+            feed_in_production_from_agent = max(agent.rest_production, max_feed_in)
+            reimbursement_fit = feed_in_production_from_agent * fit
+            agent.wallet.settle_revenue(reimbursement_fit)
+            self.wallet.settle_revenue(reimbursement_fit)
 
     def track_data(self):
         pass

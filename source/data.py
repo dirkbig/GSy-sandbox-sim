@@ -9,8 +9,6 @@ from copy import deepcopy
 import logging
 data_log = logging.getLogger('run_microgrid.data')
 
-# TODO: UNIX TO DATE
-
 
 class Data(ConfigurationMixin, object):
     def __init__(self, run_configuration):

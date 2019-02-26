@@ -84,6 +84,8 @@ class HouseholdAgent(Agent):
         self.deficit = None
         self.net_energy_in_simple_strategy = 0
 
+        self.rest_production = 0
+
     def state_update_from_devices(self):
         """ updates the household agent on the state of household devices """
         current_step = self.model.step_count
