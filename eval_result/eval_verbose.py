@@ -12,12 +12,12 @@ def eval_print(microgrid, trade_deals_list_per_step):
     print(trade_deals_list_per_step)
     print()
 
-    agents = microgrid.agents
-
     # Sum up tracking values for all households.
     pv_production_all = 0
     demand_all = 0
+
     # Print out the ratio of the energy needed and produced by the consumers.
+    agents = microgrid.agents
     for this_agent_id in agents:
         if type(agents[this_agent_id]).__name__ == 'HouseholdAgent':
             this_agent = agents[this_agent_id]

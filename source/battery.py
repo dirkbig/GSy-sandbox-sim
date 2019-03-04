@@ -221,8 +221,11 @@ class Battery(Agent):
 
         if self.trading_state == 'buying':
             self.model.auction.bid_list.append(self.bid)
+            print('Energy bid by {} is {}'.format(self.id, self.bid[1]))
+
         elif self.trading_state == "supplying":
             self.model.auction.offer_list.append(self.offer)
+            print('Energy offered by {} is {}'.format(self.id, self.offer[1]))
 
     def update_state(self, charging_energy, temperature=273.15+10):
         """
@@ -336,3 +339,5 @@ if __name__ == "__main__":
             print("Step {}: Battery states updated. Stored energy {:2} kWh, Capacity of battery is {:.5} kWh. This temp: {}".format(
                 i_step, battery.stored_electricity, battery.capacity, this_temp))
 
+    def track_data(self):
+        pass

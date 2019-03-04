@@ -59,6 +59,7 @@ class ESS(object):
         # charging limits
         self.max_in = None
         self.max_out = None
+        self.type = "ESS"
 
     def update_from_household_devices(self):
         """ ask an update from all devices within the information sphere
@@ -280,6 +281,7 @@ class PVPanel(object):
         self.agent = agent
         self.device_pv_data = pv_data
         self.next_interval_estimated_generation = None
+        self.type = "Generation"
 
     def get_generation(self, current_step):
 
@@ -292,7 +294,7 @@ class PVPanel(object):
     def uniform_call_to_device(self, current_step):
         assert current_step == self.agent.model.step_count
         device_log.info("PV of house %s checking in" % self.agent.id)
-        self.next_interval_estimated_generation = self.get_generation(current_step)  # production thus positive
+        self.next_interval_estimated_generation = abs(self.get_generation(current_step))  # production thus positive
 
         return self.next_interval_estimated_generation
 
@@ -303,10 +305,12 @@ class GeneralLoad(object):
         self.agent = agent
         self.device_load_data = load_data
         self.next_interval_estimated_load = None
+        self.type = "Load"
 
     def get_load(self, current_step):
         assert current_step == self.agent.model.step_count
-        self.next_interval_estimated_load = - float(self.agent.load_data[current_step])  # load thus negative
+        self.next_interval_estimated_load = - float(self.agent.load_data[current_step])
+        assert self.next_interval_estimated_load < 0
         if self.next_interval_estimated_load is None:
             self.next_interval_estimated_load = 0
 
@@ -316,6 +320,8 @@ class GeneralLoad(object):
         device_log.info("Load of house %s checking in" % self.agent.id)
         assert current_step == self.agent.model.step_count
         self.next_interval_estimated_load = self.get_load(current_step)
+        assert self.next_interval_estimated_load < 0
+
         return self.next_interval_estimated_load
 
 

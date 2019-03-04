@@ -17,7 +17,7 @@ class Auctioneer(Agent):
         self.model = model
         self.wallet = Wallet(_unique_id)
 
-        self.snapshot_plot = True
+        self.snapshot_plot = False
         self.snapshot_plot_interval = 15
 
         self.id = _unique_id
@@ -25,8 +25,8 @@ class Auctioneer(Agent):
         self.aggregate_demand_curve = []
         self.aggregate_supply_curve = []
 
-        self.bid_list = [[]]
-        self.offer_list = [[]]
+        self.bid_list = []
+        self.offer_list = []
         self.utility_market_maker_rate = 10
 
         self.sorted_bid_list = None
@@ -39,16 +39,11 @@ class Auctioneer(Agent):
         self.percentage_buyers = None
         self.percentage_passive = None
 
-        self.who_gets_what_dict = None
+        self.who_gets_what_dict = []
 
     def auction_round(self):
         """check whether all agents have submitted their bids"""
         self.user_participation()
-
-        # """ resets the acquired energy for all households """
-        # self.who_gets_what_dict = {}
-        # for agent_id in self.model.agents:
-        #     self.who_gets_what_dict[agent_id] = []
 
         # While an empty bid list may arrive as an empty list or as a list containing an empty list, the outer list is
         # removed here for the later check, if there are bids at all (which is done taking the length of the bid list).
@@ -60,14 +55,18 @@ class Auctioneer(Agent):
         else:
             bid_list_check = self.bid_list[0]
 
+        """ resets the acquired energy for all households """
+        self.who_gets_what_dict = {}
+        for agent_id in self.model.agents:
+            self.who_gets_what_dict[agent_id] = []
+
         def empty(seq):
             try:
                 return all(map(empty, seq))
             except TypeError:
                 return False
 
-        if empty(self.offer_list) is False and empty(self.bid_list) is False \
-                or (self.model.data.utility_presence is True and empty(self.bid_list) is False):
+        if empty(self.offer_list) is False and empty(self.bid_list) is False:
             """ only proceed to auction if there is demand and supply (i.e. supply in the form of
             prosumers or utility grid) 
             """
@@ -75,14 +74,15 @@ class Auctioneer(Agent):
             self.execute_auction(sorted_x_y_y_pairs_list)
             self.clearing_of_market()
             """ clear lists for later use in next step """
-            self.bid_list = [[]]
-            self.offer_list = [[]]
+            self.bid_list = []
+            self.offer_list = []
+
             return
 
         else:
             """ clear lists for later use in next step """
-            self.bid_list = [[]]
-            self.offer_list = [[]]
+            self.bid_list = []
+            self.offer_list = []
             auction_log.error("no trade at this step")
             return
 
@@ -117,28 +117,34 @@ class Auctioneer(Agent):
 
         """ picks pricing rule and generates trade_pairs"""
         if self.pricing_rule == 'pab':
-            self.clearing_quantity, average_clearing_price, total_turnover, self.trade_pairs = \
-                pab_pricing(sorted_x_y_y_pairs_list, self.sorted_bid_list, self.sorted_offer_list)
-
+            self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
+                pab_pricing(sorted_x_y_y_pairs_list)
+            print(f"Clearing rate was (on average): {self.clearing_price} [EUR/kWh]")
+            print(f"Clearing volume was: {self.clearing_quantity} [kWh]")
             auction_log.info("Clearing quantity %f, avg price %f, total turnover is %f",
-                             self.clearing_quantity, average_clearing_price,  total_turnover)
+                             self.clearing_quantity, self.clearing_price,  total_turnover)
 
         elif self.pricing_rule == 'pac':
             self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
-                pac_pricing(sorted_x_y_y_pairs_list, self.sorted_bid_list, self.sorted_offer_list)
+                pac_pricing(sorted_x_y_y_pairs_list)
+            print(f"Clearing rate was: {self.clearing_price} [EUR/kWh]")
+            print(f"Clearing volume was: {self.clearing_quantity} [kWh]")
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
         elif self.pricing_rule == 'mcafee':
             self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
                 mcafee_pricing(sorted_x_y_y_pairs_list)
+            print(f"Clearing rate was (on average): {self.clearing_price} [EUR/kWh]")
+            print(f"Clearing volume was: {self.clearing_quantity} [kWh]")
+            auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
+                             self.clearing_quantity, self.clearing_price, total_turnover)
 
         # Make snapshot of market clearing for market analysis
         if self.snapshot_plot is True and self.model.step_count % self.snapshot_plot_interval == 0:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
 
         # Save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards
-
         # Update track values for later plots and evaluation.
         self.model.data.clearing_price[self.model.step_count] = self.clearing_price
         self.model.data.clearing_quantity[self.model.step_count] = self.clearing_quantity
@@ -149,13 +155,10 @@ class Auctioneer(Agent):
             if type(self.model.agents[agent]).__name__ == 'HouseholdAgent':
                 household_demand += self.model.agents[agent].load_data[self.model.step_count]
         self.model.data.household_demand[self.model.step_count] = household_demand
-        # If there is a utility grid track the selling price of the grid.
-        if self.model.data.utility_presence is True:
-            self.model.data.utility_price[self.model.step_count] = self.model.agents['Utility'].sell_rate_utility
 
-        print('bids [price, quantity, id]:', self.sorted_bid_list)
-        print('offers [price, quantity, id]', self.sorted_offer_list)
-        print('trade_pairs [id_seller, id_buyer, quantity, price*quantity]:', self.trade_pairs)
+        print(f"bids [price, quantity, id]: {self.sorted_bid_list}")
+        print(f"offers [price, quantity, id]: {self.sorted_offer_list}")
+        print(f"trade_pairs [id_seller, id_buyer, quantity, price*quantity]: {self.trade_pairs}")
 
         if self.model.data.pricing_rule is 'pab':
             self.clearing_price = None
@@ -187,12 +190,11 @@ class Auctioneer(Agent):
             sorted_offer_list = sorted(self.offer_list, key=lambda location: location[0])
         except TypeError:
             pass
-        '''
-        if self.model.data.utility_presence is not None:
-            """ append (in a clever, semi-aesthetic way) the utility offer to the offer list according to the 
-                utility_market_maker_rate """
-            sorted_bid_list, sorted_offer_list = self.append_utility_offer(sorted_bid_list, sorted_offer_list)
-        '''
+
+        # if self.model.data.utility_presence is not None:
+        #     """ append (in a clever, semi-aesthetic way) the utility offer to the offer list according to the
+        #         utility_market_maker_rate """
+        #     sorted_bid_list, sorted_offer_list = self.append_utility_offer(sorted_bid_list, sorted_offer_list)
 
         # creation of aggregate supply/demand points
         aggregate_quantity_points = []
@@ -288,12 +290,6 @@ class Auctioneer(Agent):
 
     def clearing_of_market(self):
         """clears market """
-
-        """ resets the acquired energy for all households """
-        self.who_gets_what_dict = {}
-        for agent_id in self.model.agents:
-            self.who_gets_what_dict[agent_id] = []
-
         def who_gets_what_bb(_id_seller, _id_buyer, _trade_quantity, _turnover):
             """ execute trade buy calling household agent's wallet settlement """
             # Settlement of seller revenue if market is budget balanced
@@ -330,8 +326,7 @@ class Auctioneer(Agent):
             self.model.auction.wallet.settle_revenue(clearing_inbalance)
 
         """ listing of all offers/bids selected for trade """
-        if self.trade_pairs != [] and self.pricing_rule in ['pac', 'pab']:
-
+        if self.trade_pairs is not None and self.pricing_rule in ['pac', 'pab']:
             assert np.shape(self.trade_pairs)[1] is 4
             for trade in range(len(self.trade_pairs)):
                 # data structure: [seller_id, buyer_id, trade_quantity, turnover]
@@ -341,7 +336,7 @@ class Auctioneer(Agent):
                 turnover = self.trade_pairs[trade][3]
                 who_gets_what_bb(id_seller, id_buyer, trade_quantity, turnover)
 
-        elif self.trade_pairs != [] and self.pricing_rule in ['mcafee']:
+        elif self.trade_pairs is not None and self.pricing_rule in ['mcafee']:
             # McAfee pricing settlement
             print(self.trade_pairs)
             try:
@@ -374,7 +369,6 @@ class Auctioneer(Agent):
         else:
             auction_log.warning("Auction clearing did not result in trade at this interval")
 
-
         # Should happen inside the agent class
         """ resets the acquired energy for all households """
         for agent_id in self.model.agents:
@@ -404,48 +398,5 @@ class Auctioneer(Agent):
         self.percentage_buyers = num_buying / total_num
         self.percentage_passive = num_undefined / total_num
 
-    def append_utility_offer(self, sorted_bid_list, sorted_offer_list):
-        """ function is only called when an utility is present, it supplements the offer list of auctioneer
-            with an 'infinite' supply of energy up to the necessary amount to cover all demand, bought or not """
-
-        bid_total = sum(np.asarray(sorted_bid_list, dtype=object)[:, 1])
-
-        try:
-            prosumer_offer_total = sum(np.asarray(sorted_offer_list, dtype=object)[:, 1])
-        except IndexError:
-            prosumer_offer_total = 0
-            auction_log.info("no prosumers in the grid supplying energy")
-
-        """ Append utility"""
-        total_offer_below_mmr = 0
-        utility_id = self.model.agents['Utility'].id
-        if len(sorted_offer_list) is 0:
-            utility_quantity = bid_total
-            sorted_offer_list.insert(0, [self.utility_market_maker_rate, utility_quantity, utility_id])
-
-        else:
-            for offer in range(len(sorted_offer_list)):
-                if sorted_offer_list[offer][0] <= self.utility_market_maker_rate:
-                    total_offer_below_mmr += sorted_offer_list[offer][1]
-                    """ offer is less expensive than market maker rate """
-                    pass
-                if sorted_offer_list[offer][0] > self.utility_market_maker_rate or offer == len(sorted_offer_list) - 1:
-                    """ offer is more expensive that market maker rate, 
-                        utility is only activated if market maker rate is competitive (lower than prosumer rate)"""
-                    if bid_total > total_offer_below_mmr:
-                        utility_quantity = bid_total - total_offer_below_mmr
-                        sorted_offer_list.insert(offer + 1, [self.utility_market_maker_rate, utility_quantity, utility_id])
-
-                    else:
-                        auction_log.info("no utility import into community needed at this step")
-
-        sorted_bid_list = sorted(sorted_bid_list, key=lambda price_point: price_point[0], reverse=True)
-        sorted_offer_list = sorted(sorted_offer_list, key=lambda price_point: price_point[0])
-
-        """ append utility to who_gets_what dictionary """
-        self.who_gets_what_dict[utility_id] = []
-
-        print(f"sorted offers: {sorted_offer_list}")
-        print(f"sorted bid: {sorted_bid_list}")
-
-        return sorted_bid_list, sorted_offer_list
+    def track_data(self):
+        pass

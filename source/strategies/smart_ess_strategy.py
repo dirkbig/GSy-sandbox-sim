@@ -66,7 +66,6 @@ def smart_ess_strategy(self):
                self.ess.max_capacity + margin
 
         if essential_demand > 0 and self.data.utility_presence is True:
-            print("essential_demand", essential_demand)
             self.bids.append([utility_price, essential_demand, self.id])
             bidding_volume -= essential_demand
 
@@ -74,9 +73,10 @@ def smart_ess_strategy(self):
             # price taking at utility prices won't be a guarantee, thus effect set to zero this way.
             essential_demand = 0
 
+        possible_in = bidding_volume + self.generation_on_step
+        max_possible_in = self.ess.max_capacity - self.ess.soc_actual + abs(self.load_on_step)
+
         try:
-            possible_in = bidding_volume + self.pv.next_interval_estimated_generation
-            max_possible_in = self.ess.max_capacity - self.ess.soc_actual + abs(self.load.next_interval_estimated_load)
             assert possible_in <= max_possible_in + margin
         except AssertionError:
             print("overshoot error", abs(possible_in - max_possible_in))
