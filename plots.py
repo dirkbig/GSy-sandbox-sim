@@ -101,7 +101,7 @@ def soc_over_time(num_steps, soc_per_agent_over_time_array):
 def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time):
 
     steps = range(num_steps)
-    fig, ax = plt.subplots()
+    f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
     """ overflows / curtailment """
     # for ess in range(len(soc_deficit_overflow_over_time)):
     #     soc_deficit_overflow_over_time[]
@@ -109,13 +109,14 @@ def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time
 
     """ deficits """
     for ess in range(len(deficit_over_time)):
-        ax.step(steps, deficit_over_time[ess])
+        ax1.step(steps, deficit_over_time[ess])
     for ess in range(len(overflow_over_time)):
-        ax.step(steps, overflow_over_time[ess])
+        ax2.step(steps, overflow_over_time[ess])
 
-    ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
-           title='ESS deficits')
-
+    ax1.set(xlabel='sim steps', ylabel='kWh / step-interval',
+           title='ESS deficits, unmatched loads')
+    ax2.set(xlabel='sim steps', ylabel='kWh / step-interval',
+           title='ESS overflow, forced curtailment of generation')
 
 def clearing_over_utility_price(num_steps, utility_price, clearing_price, clearing_quantity):
 
