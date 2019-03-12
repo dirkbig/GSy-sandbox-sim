@@ -102,13 +102,11 @@ class Data(ConfigurationMixin, object):
         # self.model.data.agent_measurements[agent_id]["energy_surplus_over_time"][self.model.step_count] = \
         #
         # self.model.data.agent_measurements[agent_id]["bid_energy_over_time"][self.model.step_count] =
-
         self.model.data.agent_measurements[agent_id]["traded_volume_over_time"][self.model.step_count] = \
             sum(self.model.auction.who_gets_what_dict[agent_id])
-
-        self.model.data.agent_measurements[agent_id]["revenue_over_time"][self.model.step_count] = \
-            self.model.agents[agent_id].wallet.payment_history[self.model.step_count]
-
+        #
+        # self.model.data.agent_measurements[agent_id]["revenue_over_time"][self.model.step_count] = \
+        #     self.model.agents[agent_id].wallet.payment_history[self.model.step_count]
 
     def plots(self):
         traded_volume_over_time(self.num_steps, self.agent_measurements)

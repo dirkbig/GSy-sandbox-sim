@@ -165,14 +165,14 @@ def clearing_quantity(num_steps, clearing_quantity):
 
     ax.set(xlabel='sim steps', ylabel='Clearing quantity [kWh]', title='Clearing quantity')
 
+
 def traded_volume_over_time(num_steps, agent_measurements):
 
-    f, (ax1, ax2) = plt.subplots(1, 2, sharey=False)
+    f, ax1 = plt.subplots()
 
     for agent in agent_measurements:
         ax1.bar(np.arange(num_steps), agent_measurements[agent]["traded_volume_over_time"])
         label = agent
-        ax2.bar(np.arange(num_steps), agent_measurements[agent]["revenue_over_time"])
     # ax.title('Traded volume per agent')
 
     # ax.legend((p1[0], p2[0]), ('Men', 'Women'))
