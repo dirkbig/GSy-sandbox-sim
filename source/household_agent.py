@@ -164,16 +164,21 @@ class HouseholdAgent(Agent):
         self.overflow_tot += self.overflow
         self.deficit_tot += self.deficit
 
+        traded_energy = sum(self.model.auction.who_gets_what_dict[self.id])
+        self.model.data.agent_measurements[self.id]["traded_volume_over_time"][self.model.step_count] = traded_energy
+
     def announce_bid_and_offers(self):
         """ announces bid to auction agent by appending to bid list """
         house_log.info('house%d is %s', self.id, self.trading_state)
-
+        bid_volume_on_market = 0
         if self.trading_state == 'supplying':
             for offer in self.offers:
                 self.model.auction.offer_list.append(offer)
+                bid_volume_on_market += offer[1]
         elif self.trading_state == 'buying':
             for bid in self.bids:
                 self.model.auction.bid_list.append(bid)
+                bid_volume_on_market += bid[1]
 
     def track_data(self):
         pass

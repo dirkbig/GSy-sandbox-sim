@@ -11,8 +11,10 @@ data_log = logging.getLogger('run_microgrid.data')
 
 
 class Data(ConfigurationMixin, object):
-    def __init__(self, run_configuration):
+    def __init__(self, run_configuration, model):
         super().__init__()
+
+        self.model = model
         """initialise data sets"""
         data_type = "data_set_time_series"  # random_1_step, custom_load_profiles, data_set_time_series
 
@@ -71,7 +73,7 @@ class Data(ConfigurationMixin, object):
             else:
                 self.utility_pricing_profile = []
 
-        """ SOC and unmatched loads and generation in grid """
+        """ MEASUREMENTS """
         # data array to capture: num_households x num_steps
         self.soc_list_over_time = np.zeros([self.num_households, self.num_steps])
         self.deficit_over_time = np.zeros([self.num_households, self.num_steps])
@@ -82,7 +84,34 @@ class Data(ConfigurationMixin, object):
         self.utility_price = np.zeros([self.num_steps, 1])
         self.household_demand = np.zeros([self.num_steps, 1])
 
+        # to be expanded after all agents are initialized
+        self.agent_measurements = {}
+
+    def initiate_measurement_dict(self):
+
+        for _, agent in self.model.agents.items():
+            self.agent_measurements[agent.id] = {
+                "energy_surplus_over_time": np.zeros(self.num_steps),
+                "bid_energy_over_time": np.zeros(self.num_steps),
+                "traded_volume_over_time": np.zeros(self.num_steps),
+                "revenue_over_time": np.zeros(self.num_steps),
+            }
+
+    def fill_measurement_dict(self, agent_id):
+
+        # self.model.data.agent_measurements[agent_id]["energy_surplus_over_time"][self.model.step_count] = \
+        #
+        # self.model.data.agent_measurements[agent_id]["bid_energy_over_time"][self.model.step_count] =
+
+        self.model.data.agent_measurements[agent_id]["traded_volume_over_time"][self.model.step_count] = \
+            sum(self.model.auction.who_gets_what_dict[agent_id])
+
+        self.model.data.agent_measurements[agent_id]["revenue_over_time"][self.model.step_count] = \
+            self.model.agents[agent_id].wallet.payment_history[self.model.step_count]
+
+
     def plots(self):
+        traded_volume_over_time(self.num_steps, self.agent_measurements)
         soc_over_time(self.num_steps, self.soc_list_over_time)
         households_deficit_overflow(self.num_steps, self.deficit_over_time, self.overflow_over_time)
         clearing_over_utility_price(self.num_steps, self.utility_price, self.clearing_price, self.clearing_quantity)

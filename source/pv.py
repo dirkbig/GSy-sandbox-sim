@@ -69,8 +69,6 @@ class Pv(Agent):
                 self.model.auction.offer_list.append(offer)
 
     def post_auction_round(self):
-        # No post auction step required.
-        # TODO: settle money made by selling energy
         pass
 
     def track_data(self):

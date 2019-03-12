@@ -296,17 +296,12 @@ class Auctioneer(Agent):
             # Is this if statement necessary?
             assert _id_seller != _id_buyer
 
-            if id_seller is 'Utility':
-                """ seller was utility """
-                self.who_gets_what_dict[_id_seller].append(-_trade_quantity)
-                self.model.agents['Utility'].wallet.settle_revenue(_turnover)
-            else:
-                self.who_gets_what_dict[_id_seller].append(-_trade_quantity)
-                self.model.agents[_id_seller].wallet.settle_revenue(_turnover)
+            self.who_gets_what_dict[_id_seller].append(-_trade_quantity)
+            self.model.agents[_id_seller].wallet.settle_revenue(_turnover, self.model.step_count)
 
             # Settlement of buyer payments
             self.who_gets_what_dict[_id_buyer].append(_trade_quantity)
-            self.model.agents[_id_buyer].wallet.settle_payment(_turnover)
+            self.model.agents[_id_buyer].wallet.settle_payment(_turnover, self.model.step_count)
 
         def who_gets_what_not_bb(_id_seller, _id_buyer, _trade_quantity, _trade_payment):
             """ execute trade buy calling household agent's wallet settlement """
@@ -314,16 +309,16 @@ class Auctioneer(Agent):
             trade_revenue_seller, trade_payment_buyer = _trade_payment
             assert trade_payment_buyer >= trade_revenue_seller
             assert _id_seller != _id_buyer
-            clearing_inbalance = trade_payment_buyer - trade_revenue_seller
+            clearing_imbalance = trade_payment_buyer - trade_revenue_seller
 
             self.who_gets_what_dict[_id_seller].append(-_trade_quantity)
             self.who_gets_what_dict[_id_buyer].append(_trade_quantity)
 
-            self.model.agents[_id_seller].wallet.settle_revenue(trade_revenue_seller)
-            self.model.agents[_id_buyer].wallet.settle_payment(trade_payment_buyer)
+            self.model.agents[_id_seller].wallet.settle_revenue(trade_revenue_seller, self.model.step_count)
+            self.model.agents[_id_buyer].wallet.settle_payment(trade_payment_buyer, self.model.step_count)
 
             # tokens to be burned according to McAfee budget imbalance
-            self.model.auction.wallet.settle_revenue(clearing_inbalance)
+            self.model.auction.wallet.settle_revenue(clearing_imbalance, self.model.step_count)
 
         """ listing of all offers/bids selected for trade """
         if self.trade_pairs is not None and self.pricing_rule in ['pac', 'pab']:
