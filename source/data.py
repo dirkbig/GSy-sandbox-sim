@@ -100,7 +100,7 @@ class Data(ConfigurationMixin, object):
     def fill_measurement_dict(self, agent_id):
 
         # self.model.data.agent_measurements[agent_id]["energy_surplus_over_time"][self.model.step_count] = \
-        #
+
         # self.model.data.agent_measurements[agent_id]["bid_energy_over_time"][self.model.step_count] =
         self.model.data.agent_measurements[agent_id]["traded_volume_over_time"][self.model.step_count] = \
             sum(self.model.auction.who_gets_what_dict[agent_id])

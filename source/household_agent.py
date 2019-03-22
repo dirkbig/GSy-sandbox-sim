@@ -110,7 +110,10 @@ class HouseholdAgent(Agent):
             if self.devices[device].type is "Load":
                 assert energy <= 0
                 self.load_on_step += energy
-                self.demand_tot += abs(self.load_on_step) # this is counted as a positive value again..
+                self.demand_tot += abs(self.load_on_step)  # this is counted as a positive value again..
+
+    def energy_surplus_over_time(self):
+        return self.generation_on_step - self.load_on_step
 
     def pre_auction_round(self):
         """ each agent makes a step here, before auction step"""
