@@ -124,6 +124,8 @@ class HouseholdAgent(Agent):
             STRATEGIES 
             how to come up with price-quantity points on the auction platform (aka the market)
         """
+
+
         if self.has_ess is True and self.selected_strategy == 'smart_ess_strategy':
             smart_ess_strategy(self)
 
