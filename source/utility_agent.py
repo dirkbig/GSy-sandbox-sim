@@ -51,10 +51,9 @@ class UtilityAgent(Agent):
         """ two ways for utility to shoot its energy offer into the market:
             announcing a market maker rate, auctioneer assuming infinite supply capacity
              or announcing a price_quantity bid (quantity being rather high/large of course) """
-        # self.model.auction.offer_list.append(self.utility_offer)
-        self.model.auction.utility_market_maker_rate = self.price_sell
-        self.sell_rate_utility = self.price_sell
-        self.buy_rate_utility = self.price_buy
+        # self.model.auction.utility_market_maker_rate = self.price_sell
+        # self.sell_rate_utility = self.price_sell
+        # self.buy_rate_utility = self.price_buy
 
         # The bids and offers of the utility grid are set in "microgrid_environment.py" according to the total demand
         # and offer for each time step.
@@ -70,12 +69,6 @@ class UtilityAgent(Agent):
             with an 'infinite (i.e. saturated)' supply of energy up to the necessary amount to cover all demand,
             bought or not """
 
-        # try:
-        #     bid_total = sum(np.asarray(bid_list, dtype=object)[:, 1])
-        # except IndexError:
-        #     utility_log.info("no consumers in the grid demanding energy")
-        #     return
-
         bid_total = 0
         for bid in bid_list:
             if bid:
@@ -88,7 +81,6 @@ class UtilityAgent(Agent):
             utility_log.info("no prosumers in the grid supplying energy")
 
         """ Append utility"""
-
         def empty(seq):
             try:
                 return all(map(empty, seq))
@@ -138,7 +130,6 @@ class UtilityAgent(Agent):
         return
 
     def alternative_pricing(self):
-
         assert self.model.data.fit_pricing is True
         # maximum feed in volume based on yearly number
         max_feed_in = 10000000

@@ -22,11 +22,11 @@ def smart_ess_strategy(self):
     if self.data.utility_presence is True:
         """ instead of making the utility set the upper limit, some other method is needed. 
         For now, it suffices to set an arbitrary value... e.g. 30 ct/kWh """
-        utility_price = self.model.agents['Utility'].sell_price
+        utility_price = self.model.agents['Utility'].price_sell
     else:
         utility_price = 30
 
-    max_entries_to_market = 20
+    max_entries_to_market = 10
 
     if self.ess.surplus > 0:
         self.trading_state = 'supplying'
@@ -63,7 +63,7 @@ def smart_ess_strategy(self):
         soc_leftover_space = self.ess.max_capacity - essential_demand - self.ess.soc_actual
         margin = 0.00001
         assert self.ess.max_capacity - margin < self.ess.soc_actual + essential_demand + soc_leftover_space < \
-               self.ess.max_capacity + margin
+            self.ess.max_capacity + margin
 
         if essential_demand > 0 and self.data.utility_presence is True:
             self.bids.append([utility_price, essential_demand, self.id])
@@ -90,18 +90,14 @@ def smart_ess_strategy(self):
             """ bid approach, using discrete offer curve: multiple bids
                 constrained by lower and higher bounds"""
             base = 0
-            # a bid for every kWh seems, fair, with a certain maximum amount to bids)
-            number_of_bids = max(max_entries_to_market, bidding_volume)
+            # a bid for every kWh seems, fair, with a certain maximum amount to bids) - this rule is quite arbitrary
+            number_of_bids = round(min(max_entries_to_market, bidding_volume))
             try:
                 assert soc_leftover_space >= 0
             except AssertionError:
                 exit("AssertionError: soc_leftover_space >= 0")
 
             discrete_bid_list = battery_price_curve(self, utility_price, base, bidding_volume, number_of_bids)
-
-        # first bid is the essential demand, bought in at utility price
-        if essential_demand > 0:
-            self.bids.append([utility_price, essential_demand, self.id])
 
         for bid in discrete_bid_list:
             if bid[0] is not 0:
@@ -165,7 +161,7 @@ def price_point_optimization(self):
 
 
 def battery_price_curve(self, mmr, base, trade_volume, number_of_bids):
-
+    # TODO: check whether number_of_bids is integer!
     try:
         assert trade_volume > 0 and number_of_bids > 0
     except AssertionError:
@@ -174,7 +170,7 @@ def battery_price_curve(self, mmr, base, trade_volume, number_of_bids):
         exit("Operation with zero")
 
     increment = trade_volume/number_of_bids
-    bid_range = np.arange(0, trade_volume, increment)
+    bid_range = np.arange(increment, trade_volume, increment)
 
     # risk parameter in case of selling:
     #   high: risk averse, battery really wants to sell and not be a price pusher
@@ -192,10 +188,12 @@ def battery_price_curve(self, mmr, base, trade_volume, number_of_bids):
         if self.trading_state is 'supplying':
             price = (mmr - base)/trade_volume**risk_parameter * volume**risk_parameter + base
         elif self.trading_state is 'buying':
-            price = mmr - (mmr - base)/trade_volume**risk_parameter * volume**risk_parameter + 0.01
+            price = mmr - (mmr - base)/trade_volume**risk_parameter * volume**risk_parameter  # + 0.01
 
         # assert price <= mmr
-        discrete_bid_curve.append([price, volume - volume_prev])
+        if volume > 0:
+            assert price < mmr
+            discrete_bid_curve.append([price, volume - volume_prev])
         volume_prev = volume
 
     return discrete_bid_curve

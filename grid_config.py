@@ -12,7 +12,7 @@ class ConfigurationMixin:
         """ Configuration of the grid Mixin Class"""
         self.sim_start = 0
         self.market_interval = 15  # minutes
-        num_days = 1
+        num_days = 4
         self.num_steps = int(24 * 60 * num_days / self.market_interval)
 
         """ 
@@ -37,7 +37,7 @@ class ConfigurationMixin:
         """
             Commercial PV 
         """
-        self.pv_presence = False
+        self.pv_presence = True
         self.pv_commercial_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
 
         """ 
@@ -111,7 +111,7 @@ class ConfigurationMixin:
             config_log.warning("Physical battery constraints are not active")
 
         self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
-        max_capacity_list = np.full(self.num_households_with_ess, 5)
+        max_capacity_list = np.full(self.num_households_with_ess, 7)
         initial_capacity_list = np.full(self.num_households_with_ess, 0)
         self.ess_characteristics_list = []
 
