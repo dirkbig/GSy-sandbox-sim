@@ -79,7 +79,7 @@ class Data(ConfigurationMixin, object):
         self.deficit_over_time = np.zeros([self.num_households, self.num_steps])
         self.overflow_over_time = np.zeros([self.num_households, self.num_steps])
         # data array to capture: num_steps
-        self.clearing_price = np.zeros([self.num_steps, 1])
+        self.clearing_price_min_avg_max = np.zeros([self.num_steps, 3])
         self.clearing_quantity = np.zeros([self.num_steps, 1])
         self.utility_price = np.zeros([self.num_steps, 1])
         self.household_demand = np.zeros([self.num_steps, 1])
@@ -112,7 +112,7 @@ class Data(ConfigurationMixin, object):
         traded_volume_over_time(self.num_steps, self.agent_measurements)
         soc_over_time(self.num_steps, self.soc_list_over_time)
         households_deficit_overflow(self.num_steps, self.deficit_over_time, self.overflow_over_time)
-        clearing_over_utility_price(self.num_steps, self.utility_price, self.clearing_price, self.clearing_quantity)
+        clearing_over_utility_price(self.num_steps, self.utility_price, self.clearing_price_min_avg_max, self.clearing_quantity)
         clearing_quantity(self.num_steps, self.clearing_quantity)
         clearing_quantity_over_demand(self.num_steps, self.clearing_quantity, self.household_demand)
         show()

@@ -5,7 +5,6 @@ sns.set()
 
 
 def clearing_snapshot(clearing_quantity, clearing_price, sorted_x_y_y_pairs_list):
-    # TODO: export/save these demand/supply curves?
     x_quantities = [0]
     y_bid_prices = [0]
     y_offer_prices = [0]
@@ -119,19 +118,20 @@ def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time
            title='ESS overflow, forced curtailment of generation')
 
 
-def clearing_over_utility_price(num_steps, utility_price, clearing_price, clearing_quantity):
+def clearing_over_utility_price(num_steps, utility_price, clearing_price_min_avg_max, clearing_quantity):
+    clearing_price_avg = [price[1] for price in clearing_price_min_avg_max]
 
     steps = range(num_steps)
     fig, ax = plt.subplots()
 
-    ax.step(steps, utility_price[:num_steps], label='Utility price')
-    ax.step(steps, clearing_price, label='Clearing price')
+    # ax.step(steps, utility_price[:num_steps], label='Utility price')
+    # ax.step(steps, clearing_price_avg, label='Clearing price')
 
     ax.legend(loc='upper center', shadow=True, fontsize='x-large')
 
-    line1 = ax.plot(steps, clearing_price, label='Price: Clearing', drawstyle='steps')
+    line1 = ax.plot(steps, clearing_price_avg, label='Price: Clearing', drawstyle='steps')
     line2 = ax.plot(steps, utility_price[:num_steps], label='Price: Utility', linestyle='--', drawstyle='steps')
-    ax.set(xlabel='sim steps', ylabel='Eletricity costs [EUR/kWh]', title='Comparison utility - clearing price')
+    ax.set(xlabel='sim steps', ylabel='Electricity costs [EUR/kWh]', title='Comparison Utility rate - Clearing rate')
 
     ax2 = ax.twinx()
     ax2.step(steps, clearing_quantity, color='r')
@@ -176,6 +176,10 @@ def traded_volume_over_time(num_steps, agent_measurements):
     # ax.title('Traded volume per agent')
 
     # ax.legend((p1[0], p2[0]), ('Men', 'Women'))
+
+
+def trade_prices_min_avg_max():
+    pass
 
 
 def show():

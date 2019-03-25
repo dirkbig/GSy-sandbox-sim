@@ -72,11 +72,19 @@ class Auctioneer(Agent):
             """
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
             self.execute_auction(sorted_x_y_y_pairs_list)
-            self.clearing_of_market()
+
+            if len(self.trade_pairs) > 0:
+                self.clearing_of_market()
+            else:
+                auction_log.error("no trade at this step")
+                """ clear lists for later use in next step """
+                self.bid_list = []
+                self.offer_list = []
+                return
+
             """ clear lists for later use in next step """
             self.bid_list = []
             self.offer_list = []
-
             return
 
         else:
@@ -86,7 +94,8 @@ class Auctioneer(Agent):
             auction_log.error("no trade at this step")
             return
 
-    def market_rules(self, sorted_x_y_y_pairs_list):
+    @staticmethod
+    def market_rules(sorted_x_y_y_pairs_list):
         # No zero volume trade pairs and no self-trades
         # TODO: find the source of zero volume bids and self-trades and fix it there!
         sorted_x_y_y_pairs_list[:] = [segment for segment in sorted_x_y_y_pairs_list
@@ -112,7 +121,7 @@ class Auctioneer(Agent):
         self.clearing_quantity = None
         self.clearing_price = None
 
-        # filer sorted_x_y_y_pairs_list for market anomalies
+        # filter sorted_x_y_y_pairs_list for market anomalies (to be added in the future)
         sorted_x_y_y_pairs_list = self.market_rules(sorted_x_y_y_pairs_list)
 
         """ picks pricing rule and generates trade_pairs"""
@@ -144,9 +153,28 @@ class Auctioneer(Agent):
         if self.snapshot_plot is True and self.model.step_count % self.snapshot_plot_interval == 0:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
 
+        if len(self.trade_pairs) > 0:
+            list_of_buying_prices = [trade[-1] for trade in self.trade_pairs]
+
+            try:
+                average_clearing_price = sum(list_of_buying_prices) / len(list_of_buying_prices)
+                clearing_price_min_avg_max = [min(list_of_buying_prices), average_clearing_price,
+                                              max(list_of_buying_prices)]
+            except TypeError:
+                list_combined_price_pairs = [sum(price_pair) / len(price_pair) for price_pair in list_of_buying_prices]
+                average_clearing_price = sum(list_combined_price_pairs) / len(list_combined_price_pairs)
+                clearing_price_min_avg_max = [min(list_combined_price_pairs), average_clearing_price,
+                                              max(list_combined_price_pairs)]
+        else:
+            # clearing_price_min_avg_max = [None, None, None]
+            auction_log.warning("no trade pairs found by market mechanism at this step")
+            print("no trade pairs found by market mechanism at this step")
+
+            return
+
         # Save "clearing_quantity, clearing_price, sorted_x_y_y_pairs_list" in an export file, to plots afterwards
         # Update track values for later plots and evaluation.
-        self.model.data.clearing_price[self.model.step_count] = self.clearing_price
+        self.model.data.clearing_price_min_avg_max[self.model.step_count] = clearing_price_min_avg_max
         self.model.data.clearing_quantity[self.model.step_count] = self.clearing_quantity
 
         # Track the demand of all households
@@ -160,8 +188,6 @@ class Auctioneer(Agent):
         print(f"offers [price, quantity, id]: {self.sorted_offer_list}")
         print(f"trade_pairs [id_seller, id_buyer, quantity, price*quantity]: {self.trade_pairs}")
 
-        if self.model.data.pricing_rule is 'pab':
-            self.clearing_price = None
 
     def sorting(self):
         """sorts bids and offers into an aggregated demand/supply curve"""
@@ -322,9 +348,9 @@ class Auctioneer(Agent):
 
         """ listing of all offers/bids selected for trade """
         if self.trade_pairs is not None and self.pricing_rule in ['pac', 'pab']:
-            assert np.shape(self.trade_pairs)[1] is 4
+            assert np.shape(self.trade_pairs)[1] is 5
             for trade in range(len(self.trade_pairs)):
-                # data structure: [seller_id, buyer_id, trade_quantity, turnover]
+                # data structure: [seller_id, buyer_id, trade_quantity, turnover, rate]
                 id_seller = self.trade_pairs[trade][0]
                 id_buyer = self.trade_pairs[trade][1]
                 trade_quantity = self.trade_pairs[trade][2]
@@ -332,12 +358,12 @@ class Auctioneer(Agent):
                 who_gets_what_bb(id_seller, id_buyer, trade_quantity, turnover)
 
         elif self.trade_pairs is not None and self.pricing_rule in ['mcafee']:
-            # McAfee pricing settlement
-            print(self.trade_pairs)
+            # Mcafee pricing settlement
             try:
                 # check whether trade_pairs elements contain 5 components
                 # this will check in case the mcafee clearing is budget balanced
-                assert np.shape(self.trade_pairs)[1] is 5
+                assert len(self.trade_pairs) > 0
+                assert np.shape(self.trade_pairs)[1] is 6
             except ValueError:
                 # and this checks whether the 5th element is a list of two values
                 # in case budget imbalanced; 5th element list are payments of both seller or buyer

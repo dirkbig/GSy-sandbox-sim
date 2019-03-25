@@ -91,7 +91,7 @@ def smart_ess_strategy(self):
                 constrained by lower and higher bounds"""
             base = 0
             # a bid for every kWh seems, fair, with a certain maximum amount to bids) - this rule is quite arbitrary
-            number_of_bids = round(min(max_entries_to_market, bidding_volume))
+            number_of_bids = int(round(min(max_entries_to_market, bidding_volume)))
             try:
                 assert soc_leftover_space >= 0
             except AssertionError:
@@ -162,6 +162,8 @@ def price_point_optimization(self):
 
 def battery_price_curve(self, mmr, base, trade_volume, number_of_bids):
     # TODO: check whether number_of_bids is integer!
+    assert type(number_of_bids) is int
+
     try:
         assert trade_volume > 0 and number_of_bids > 0
     except AssertionError:

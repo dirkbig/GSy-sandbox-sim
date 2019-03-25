@@ -57,9 +57,10 @@ def pac_pricing(sorted_x_y_y_pairs_list_):
         seller_id = segment[4]
 
         """ Open to market design matching algorithm """
-        trade_payment = trade_quantity * clearing_price
+        rate = clearing_price
+        trade_payment = trade_quantity * rate
         # set up trade pairs
-        trade_pair = [seller_id, buyer_id, trade_quantity, trade_payment]
+        trade_pair = [seller_id, buyer_id, trade_quantity, trade_payment, rate]
         if trade_pair[1] is None or trade_pair[2] == 0:
             continue
 
@@ -109,9 +110,11 @@ def pab_pricing(sorted_x_y_y_pairs_list):
         seller_id = segment[4]
 
         """ Open to market design matching algorithm """
-        trade_payment = trade_quantity * buyer_price
+        rate = buyer_price
+        trade_payment = trade_quantity * rate
+
         # set up trade pairs
-        trade_pair = [seller_id, buyer_id, trade_quantity, trade_payment]
+        trade_pair = [seller_id, buyer_id, trade_quantity, trade_payment, rate]
         trade_pairs_pab_.append(trade_pair)
         # finalise
         total_turnover_ += trade_payment
@@ -174,9 +177,8 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
 
     if offer_k <= p_0 <= bid_k:
         """ all first k trades will be executed for clearing price p_0"""
-        clearing_index = k
         clearing_price = p_0
-        buget_balanced = True
+        budget_balanced = True
 
         total_turnover_ = 0
 
@@ -193,9 +195,10 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
             seller_id = segment[4]
 
             """ Open to market design matching algorithm """
-            trade_payment = trade_quantity * clearing_price
+            rate = clearing_price
+            trade_payment = trade_quantity * rate
             # set up trade pairs
-            trade_pair = [seller_id, buyer_id, trade_quantity, buget_balanced, trade_payment]
+            trade_pair = [seller_id, buyer_id, trade_quantity, budget_balanced, trade_payment, rate]
             trade_pairs_mcafee_.append(trade_pair)
             # finalise
             total_turnover_ += trade_payment
@@ -204,7 +207,7 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
         """ all first k-1 trades will be executed for selling price :offer_k: and buying price :bid_k: """
         clearing_sell_price = offer_k
         clearing_buy_price = bid_k
-        buget_balanced = False
+        budget_balanced = False
         """ all first k-1 trades will be executed for sell price of offer_k and buy price of bid_k """
         total_turnover_ = 0
         total_imbalance = 0
@@ -226,14 +229,18 @@ def mcafee_pricing(sorted_x_y_y_pairs_list):
             trade_revenue_seller = trade_quantity * clearing_sell_price
             trade_payment_buyer = trade_quantity * clearing_buy_price
             # set up trade pairs
-            trade_pair = [seller_id, buyer_id, trade_quantity, buget_balanced, [trade_revenue_seller, trade_payment_buyer]]
+            trade_pair = [seller_id, buyer_id, trade_quantity, budget_balanced,
+                          [trade_revenue_seller, trade_payment_buyer],
+                          [clearing_sell_price, clearing_buy_price]]
+
             trade_pairs_mcafee_.append(trade_pair)
             # finalise
             total_turnover_ += trade_payment_buyer
             total_imbalance += trade_payment_buyer - trade_revenue_seller
             total_paid_to_sellers += trade_revenue_seller
             try:
-                assert total_turnover_ == total_imbalance + total_paid_to_sellers
+                margin = 0.0001
+                assert margin > total_turnover_ - (total_imbalance + total_paid_to_sellers)
             except AssertionError:
                 raise AssertionError
             prev_segment_quantity = trade_quantity
