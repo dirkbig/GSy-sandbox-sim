@@ -72,6 +72,9 @@ class Battery(Agent):
         self.update_bid()
 
     def post_auction_round(self):
+        traded_energy = self.model.auction.who_gets_what[self.id]
+        self.model.data.agent_measurements[self.id]["traded_volume_over_time"][self.model.step_count] = traded_energy
+
         pass
 
     def update_bid(self):

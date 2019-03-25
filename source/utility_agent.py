@@ -132,6 +132,9 @@ class UtilityAgent(Agent):
             self.energy_sold_tot += abs(this_energy_trade)
         elif this_energy_trade > 0:
             self.energy_bought_tot += this_energy_trade
+
+        traded_energy = sum(self.model.auction.who_gets_what_dict[self.id])
+        self.model.data.agent_measurements[self.id]["traded_volume_over_time"][self.model.step_count] = traded_energy
         return
 
     def alternative_pricing(self):

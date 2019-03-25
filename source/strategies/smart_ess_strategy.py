@@ -22,11 +22,11 @@ def smart_ess_strategy(self):
     if self.data.utility_presence is True:
         """ instead of making the utility set the upper limit, some other method is needed. 
         For now, it suffices to set an arbitrary value... e.g. 30 ct/kWh """
-        utility_price = self.model.agents['Utility'].sell_rate_utility
+        utility_price = self.model.agents['Utility'].sell_price
     else:
         utility_price = 30
 
-    max_entries_to_market = 4
+    max_entries_to_market = 20
 
     if self.ess.surplus > 0:
         self.trading_state = 'supplying'

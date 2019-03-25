@@ -1,4 +1,4 @@
-from source import const
+import numpy as np
 import logging
 wallet_log = logging.getLogger('run_microgrid.wallet')
 
@@ -8,18 +8,28 @@ class Wallet(object):
     def __init__(self, _unique_id):
         self.id = _unique_id
         self.coin_balance = 100000
+        self.payment_history = {}
 
-    def settle_payment(self, payment):
+    def settle_payment(self, payment, step_count):
         if payment <= self.coin_balance:
             self.coin_balance -= payment
-            payment_success = True
+            # self.payment_history.append([-payment, step_count])
+            try:
+                self.payment_history[step_count] -= payment
+            except KeyError:
+                self.payment_history[step_count] = -payment
+
             wallet_log.info("payment tx was successful, agent %d", self.id)
         else:
-            payment_success = False
             wallet_log.warning("payment tx failed, agent %d", self.id)
+            exit("add handler for this")
 
-    def settle_revenue(self, payment):
+    def settle_revenue(self, payment, step_count):
         self.coin_balance += payment
-        payment_success = True
         wallet_log.info("revenue tx was successful, agent %d", self.id)
+        # self.payment_history.append([payment, step_count])
+        try:
+            self.payment_history[step_count] += payment
+        except KeyError:
+            self.payment_history[step_count] = payment
 

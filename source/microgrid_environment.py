@@ -18,7 +18,7 @@ class MicroGrid(Model):
     """ Agents are created in this environment that runs the simulation"""
     def __init__(self,  run_configuration=None):
 
-        self.data = Data(run_configuration)
+        self.data = Data(run_configuration, self)
 
         """ initiation """
         self.step_count = 0
@@ -50,6 +50,7 @@ class MicroGrid(Model):
             pv_id = 'CommercialPv'
             self.agents[pv_id] = Pv(pv_id, self)
 
+        self.data.initiate_measurement_dict()
         self.data_collector = DataCollector()
 
     def sim_step(self):
@@ -137,9 +138,9 @@ class MicroGrid(Model):
 
         """ Track data """
         for agent_id in self.agents:
-            self.agents[agent_id].track_data()
+            # self.agents[agent_id].track_data()
+            self.data.fill_measurement_dict(agent_id)
         self.auction.track_data()
-
 
         """ Update Time """
         self.update_time()

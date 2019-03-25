@@ -101,7 +101,7 @@ def soc_over_time(num_steps, soc_per_agent_over_time_array):
 def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time):
 
     steps = range(num_steps)
-    fig, ax = plt.subplots()
+    f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
     """ overflows / curtailment """
     # for ess in range(len(soc_deficit_overflow_over_time)):
     #     soc_deficit_overflow_over_time[]
@@ -109,12 +109,14 @@ def households_deficit_overflow(num_steps, deficit_over_time, overflow_over_time
 
     """ deficits """
     for ess in range(len(deficit_over_time)):
-        ax.step(steps, deficit_over_time[ess])
+        ax1.step(steps, deficit_over_time[ess])
     for ess in range(len(overflow_over_time)):
-        ax.step(steps, overflow_over_time[ess])
+        ax2.step(steps, overflow_over_time[ess])
 
-    ax.set(xlabel='sim steps', ylabel='kWh / step-interval',
-           title='ESS deficits')
+    ax1.set(xlabel='sim steps', ylabel='kWh / step-interval',
+           title='ESS deficits, unmatched loads')
+    ax2.set(xlabel='sim steps', ylabel='kWh / step-interval',
+           title='ESS overflow, forced curtailment of generation')
 
 
 def clearing_over_utility_price(num_steps, utility_price, clearing_price, clearing_quantity):
@@ -122,18 +124,20 @@ def clearing_over_utility_price(num_steps, utility_price, clearing_price, cleari
     steps = range(num_steps)
     fig, ax = plt.subplots()
 
+    ax.step(steps, utility_price[:num_steps], label='Utility price')
+    ax.step(steps, clearing_price, label='Clearing price')
+
     ax.legend(loc='upper center', shadow=True, fontsize='x-large')
 
-    # TODO: make into bar plots
     line1 = ax.plot(steps, clearing_price, label='Price: Clearing', drawstyle='steps')
     line2 = ax.plot(steps, utility_price[:num_steps], label='Price: Utility', linestyle='--', drawstyle='steps')
     ax.set(xlabel='sim steps', ylabel='Eletricity costs [EUR/kWh]', title='Comparison utility - clearing price')
 
     ax2 = ax.twinx()
-    ax2.grid(False)
+    ax2.step(steps, clearing_quantity, color='r')
 
-    # TODO: make into bar plot
-    line3 = ax2.plot(steps, clearing_quantity, label='Trading quantity', color='r')
+    ax2.grid(False)
+    line3 = ax2.step(steps, clearing_quantity, label='Trading quantity', color='r')
     ax2.set_ylabel("Trade quantity [kWh]", color='r')
 
     all_line = line1 + line2 + line3
@@ -160,6 +164,18 @@ def clearing_quantity(num_steps, clearing_quantity):
     ax.step(steps, clearing_quantity)
 
     ax.set(xlabel='sim steps', ylabel='Clearing quantity [kWh]', title='Clearing quantity')
+
+
+def traded_volume_over_time(num_steps, agent_measurements):
+
+    f, ax1 = plt.subplots()
+
+    for agent in agent_measurements:
+        ax1.bar(np.arange(num_steps), agent_measurements[agent]["traded_volume_over_time"])
+        label = agent
+    # ax.title('Traded volume per agent')
+
+    # ax.legend((p1[0], p2[0]), ('Men', 'Women'))
 
 
 def show():

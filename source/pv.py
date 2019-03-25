@@ -59,6 +59,9 @@ class Pv(Agent):
 
         self.announce_offer()
 
+    def energy_surplus_over_time(self):
+        return self.power_production
+
     def announce_offer(self):
         # If the electrolyzer is bidding on electricity, the bid is added to the bidding list.
         pv_log.info('PV bidding state is {}'.format(self.trading_state))
@@ -69,8 +72,6 @@ class Pv(Agent):
                 self.model.auction.offer_list.append(offer)
 
     def post_auction_round(self):
-        # No post auction step required.
-        # TODO: settle money made by selling energy
         pass
 
     def track_data(self):

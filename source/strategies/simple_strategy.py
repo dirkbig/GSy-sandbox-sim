@@ -20,14 +20,14 @@ def simple_strategy(self):
     """ Determine Price """
     if self.net_energy_in_simple_strategy > 0:
         self.trading_state = 'supplying'
-        price = 0  # marginal cost of zero
+        price = 0  # marginal cost of zero for a PV?
         quantity = self.net_energy_in_simple_strategy
         self.offers = [[price, quantity, self.id]]
         self.bids = None
 
     elif self.net_energy_in_simple_strategy < 0:
         self.trading_state = 'buying'
-        price = self.model.auction.utility_market_maker_rate + 0.1
+        price = self.model.agents["Utility"].price_sell
         quantity = abs(self.net_energy_in_simple_strategy)
         self.bids = [[price, quantity, self.id]]
         self.offers = None
