@@ -45,16 +45,6 @@ class Auctioneer(Agent):
         """check whether all agents have submitted their bids"""
         self.user_participation()
 
-        # While an empty bid list may arrive as an empty list or as a list containing an empty list, the outer list is
-        # removed here for the later check, if there are bids at all (which is done taking the length of the bid list).
-        if len(self.bid_list) == 0:
-            bid_list_check = self.bid_list
-        elif len(self.bid_list) > 1:
-            bid_list_check = self.bid_list[1]
-            # While the first list entry can be an empty list, if there are multiple bids don't use the first one.
-        else:
-            bid_list_check = self.bid_list[0]
-
         """ resets the acquired energy for all households """
         self.who_gets_what_dict = {}
         for agent_id in self.model.agents:
@@ -73,10 +63,10 @@ class Auctioneer(Agent):
             self.sorted_bid_list, self.sorted_offer_list, sorted_x_y_y_pairs_list = self.sorting()
             self.execute_auction(sorted_x_y_y_pairs_list)
 
-            if len(self.trade_pairs) > 0:
+            if self.trade_pairs:
                 self.clearing_of_market()
             else:
-                auction_log.error("no trade at this step")
+                auction_log.warning("no trade at this step")
                 """ clear lists for later use in next step """
                 self.bid_list = []
                 self.offer_list = []
@@ -91,7 +81,7 @@ class Auctioneer(Agent):
             """ clear lists for later use in next step """
             self.bid_list = []
             self.offer_list = []
-            auction_log.error("no trade at this step")
+            auction_log.warning("no trade at this step")
             return
 
     @staticmethod
@@ -153,7 +143,7 @@ class Auctioneer(Agent):
         if self.snapshot_plot is True and self.model.step_count % self.snapshot_plot_interval == 0:
             clearing_snapshot(self.clearing_quantity, self.clearing_price, sorted_x_y_y_pairs_list)
 
-        if len(self.trade_pairs) > 0:
+        if self.trade_pairs:
             list_of_buying_prices = [trade[-1] for trade in self.trade_pairs]
 
             try:

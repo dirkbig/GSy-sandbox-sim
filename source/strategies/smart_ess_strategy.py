@@ -92,6 +92,10 @@ def smart_ess_strategy(self):
             base = 0
             # a bid for every kWh seems, fair, with a certain maximum amount to bids) - this rule is quite arbitrary
             number_of_bids = int(round(min(max_entries_to_market, bidding_volume)))
+            # In case there is a very low bidding volume, this might be rounded to zero. This is corrected here.
+            if bidding_volume > 0 and number_of_bids == 0:
+                number_of_bids = 1
+
             try:
                 assert soc_leftover_space >= 0
             except AssertionError:
@@ -194,7 +198,10 @@ def battery_price_curve(self, mmr, base, trade_volume, number_of_bids):
 
         # assert price <= mmr
         if volume > 0:
-            assert price < mmr
+            # Check if the clearing price is not above the grid price. Due to rounding errors a correction might be
+            # done.
+            assert price < mmr * 1.0000001
+            price = mmr if price > mmr else price
             discrete_bid_curve.append([price, volume - volume_prev])
         volume_prev = volume
 

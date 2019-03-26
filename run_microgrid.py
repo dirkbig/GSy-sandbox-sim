@@ -49,7 +49,7 @@ for step in range(microgrid.data.num_steps):
 
 assert microgrid.step_count == microgrid.data.num_steps
 
-write_output_to_csv = True
+write_output_to_csv = False
 if write_output_to_csv:
     import csv
     with open("test_result.csv", "w", newline='') as file:

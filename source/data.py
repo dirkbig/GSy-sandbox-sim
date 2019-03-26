@@ -109,7 +109,7 @@ class Data(ConfigurationMixin, object):
         #     self.model.agents[agent_id].wallet.payment_history[self.model.step_count]
 
     def plots(self):
-        traded_volume_over_time(self.num_steps, self.agent_measurements)
+        # traded_volume_over_time(self.num_steps, self.agent_measurements)
         soc_over_time(self.num_steps, self.soc_list_over_time)
         households_deficit_overflow(self.num_steps, self.deficit_over_time, self.overflow_over_time)
         clearing_over_utility_price(self.num_steps, self.utility_price, self.clearing_price_min_avg_max, self.clearing_quantity)
