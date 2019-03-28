@@ -1,7 +1,7 @@
 '''
 This function evaluates multiple values of interest and prints them out in a human readable fashion.
 '''
-
+import collections
 
 def eval_print(microgrid, trade_deals_list_per_step):
     print("\n--------------------------------------------------------------------------------------------")
@@ -39,6 +39,39 @@ def eval_print(microgrid, trade_deals_list_per_step):
     else:
         los_tot = pv_production_all / demand_all * 100
     print('\nAll households could be {:.4} % self sufficient.'.format(los_tot))
+
+    overflow = sum(sum(microgrid.data.overflow_over_time))
+    if pv_production_all == 0:
+        share_overflow = '-'
+    else:
+        # Calculate the share of the produced PV power that is wasted [%].
+        share_overflow = overflow / pv_production_all * 100
+
+    print('\nAmount of PV energy produced is {:.4} kWh.'.format(pv_production_all))
+    print('Amount of PV energy wasted is {:.4} kWh.'.format(overflow))
+    print('Share of PV energy wasted is {:.4} %.'.format(share_overflow))
+
+    # Print out information about the clearing price.
+    clearing_price = [price[1] for price in microgrid.data.clearing_price_min_avg_max]
+    # Loop through every time step and only consider times where the clearing quantity was greater 0.
+    track_clearing_price = {}
+    for i_step in range(len(clearing_price)):
+        if microgrid.data.clearing_quantity[i_step] > 0:
+            this_price = round(clearing_price[i_step], 4)
+            if this_price in track_clearing_price:
+                # Case: This clearing price was added to the dict before.
+                track_clearing_price[this_price] += 1
+            else:
+                # Case: This price wasn't tracked before, thus a new dict entry must be made.
+                track_clearing_price[this_price] = 1
+
+    # Order the track_clearing_price dictionary by key (which is the price).
+    track_clearing_price_ordered = collections.OrderedDict(sorted(track_clearing_price.items()))
+
+    print('\nThe following clearing prices were created: ')
+    for key in track_clearing_price_ordered:
+        print('The price {} was achieved {} times.'.format(key, track_clearing_price_ordered[key]))
+
 
     # Calculate what ratio of the demand of the household was supplied by the grid.
     if microgrid.data.utility_presence is True:

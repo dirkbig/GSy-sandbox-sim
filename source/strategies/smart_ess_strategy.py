@@ -14,7 +14,9 @@ def smart_ess_strategy(self):
     """
 
     """ Determine Volume """
+    # Get the physical boundaries of charging and discharging energy [kWh].
     self.ess.max_in, self.ess.max_out = self.ess.get_charging_limit()
+
     self.ess.ess_demand_calc(self.model.step_count)
     discrete_offer_list = []
     discrete_bid_list = []
@@ -22,9 +24,12 @@ def smart_ess_strategy(self):
     if self.data.utility_presence is True:
         """ instead of making the utility set the upper limit, some other method is needed. 
         For now, it suffices to set an arbitrary value... e.g. 30 ct/kWh """
-        utility_price = self.model.agents['Utility'].price_sell
+        utility_price_sell = self.model.agents['Utility'].price_sell
+        utility_price_buy = self.model.agents['Utility'].price_buy
+
     else:
-        utility_price = 30
+        utility_price_sell = 30
+        utility_price_buy = 0
 
     max_entries_to_market = 10
 
@@ -32,8 +37,34 @@ def smart_ess_strategy(self):
         self.trading_state = 'supplying'
         self.offers = []
 
-        # respects discharging limit constraints
-        offer_volume = min(self.ess.surplus, self.ess.max_out)
+        # Set the min. price for what electricity out of the storage should be sold [EUR/kWh].
+        if self.min_storage_selling_price == 'utility':
+            base = utility_price_buy
+        else:
+            base = self.min_storage_selling_price
+
+        # If essential offers are chosen, they are calculated here:
+        if self.make_essential_offer:
+            # Get the free storage capacity [kWh].
+            free_storage = self.ess.max_capacity - self.ess.soc_actual
+            # Calculate the amount of electricty that cannot be stored by the battery and thus should be sold [kWh].
+            essential_offer_volume = max(0, self.ess.this_step_energy_balance - free_storage)
+            assert(essential_offer_volume >= 0)
+            # Define the price essential offers should be made for [EUR/kWh]
+            essential_offer_price = self.essential_offer_price
+            # If there is an essential offers, place an offer for it.
+            if essential_offer_volume > 0:
+                # Case: The storage couldn't store all the produced energy.
+
+                # Offers are in the format [price, volume, ID].
+                self.offers.append([essential_offer_price, essential_offer_volume, self.id])
+                # Get offer volume by respecting discharging limit constraints [kWh].
+                offer_volume = min(self.ess.surplus - essential_offer_volume, self.ess.max_out)
+            else:
+                # Case: There is no surplus of PV energy that the storage couldn't store.
+                offer_volume = min(self.ess.surplus, self.ess.max_out)
+        else:
+            offer_volume = min(self.ess.surplus, self.ess.max_out)
 
         if self.bidding_method is "utility_function" and offer_volume > 0:
             """ Determine Price """
@@ -41,10 +72,9 @@ def smart_ess_strategy(self):
 
         elif self.bidding_method is "price_curve" and offer_volume > 0:
             """ Discrete offer curve: multiple bids """
-            base = 0
             number_of_offers = max(max_entries_to_market, int(self.ess.surplus))
             assert self.ess.surplus > 0
-            discrete_offer_list = battery_price_curve(self, utility_price, base, offer_volume,  number_of_offers)
+            discrete_offer_list = battery_price_curve(self, utility_price_sell, base, offer_volume,  number_of_offers)
 
         for offer in discrete_offer_list:
             if offer[0] is not 0:
@@ -66,7 +96,7 @@ def smart_ess_strategy(self):
             self.ess.max_capacity + margin
 
         if essential_demand > 0 and self.data.utility_presence is True:
-            self.bids.append([utility_price, essential_demand, self.id])
+            self.bids.append([utility_price_sell, essential_demand, self.id])
             bidding_volume -= essential_demand
 
         elif essential_demand > 0 and self.data.utility_presence is False:
@@ -89,7 +119,7 @@ def smart_ess_strategy(self):
         elif self.bidding_method is "price_curve" and bidding_volume > 0:
             """ bid approach, using discrete offer curve: multiple bids
                 constrained by lower and higher bounds"""
-            base = 0
+
             # a bid for every kWh seems, fair, with a certain maximum amount to bids) - this rule is quite arbitrary
             number_of_bids = int(round(min(max_entries_to_market, bidding_volume)))
             # In case there is a very low bidding volume, this might be rounded to zero. This is corrected here.
@@ -100,8 +130,8 @@ def smart_ess_strategy(self):
                 assert soc_leftover_space >= 0
             except AssertionError:
                 exit("AssertionError: soc_leftover_space >= 0")
-
-            discrete_bid_list = battery_price_curve(self, utility_price, base, bidding_volume, number_of_bids)
+            base = 0
+            discrete_bid_list = battery_price_curve(self, utility_price_sell, base, bidding_volume, number_of_bids)
 
         for bid in discrete_bid_list:
             if bid[0] is not 0:

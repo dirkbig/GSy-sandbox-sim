@@ -22,7 +22,7 @@ class ConfigurationUtilityEly:
         self.market_interval = 15  # minutes
 
         # time
-        self.start = 0
+        self.sim_start = 0
 
         self.num_steps = self.num_steps = int(96*1)
 
@@ -127,7 +127,7 @@ class ConfigurationUtilityElyPv:
         self.market_interval = 15  # minutes
 
         # time
-        self.start = 0
+        self.sim_start = 0
 
         self.num_steps = self.num_steps = int(96*1)
 
@@ -233,7 +233,7 @@ class ConfigurationUtility10prosumer:
         self.market_interval = 15  # minutes
 
         # time
-        self.start = 0
+        self.sim_start = 0
 
         self.num_steps = int(96*340)
 
@@ -272,7 +272,7 @@ class ConfigurationUtility10prosumer:
         self.negative_pricing = False
         self.utility_dynamical_pricing = False
         self.utility_selling_price_fix = 0.25
-        self.utility_buying_price_fix = 0.0
+        self.utility_buying_price_fix = 0.05
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
 
         """ 
@@ -339,7 +339,7 @@ class ConfigurationUtility10household:
         self.market_interval = 15  # minutes
 
         # time
-        self.start = 0
+        self.sim_start = 0
 
         self.num_steps = int(96 * 1)
 
