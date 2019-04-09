@@ -177,6 +177,15 @@ def traded_volume_over_time(num_steps, agent_measurements):
 
     # ax.legend((p1[0], p2[0]), ('Men', 'Women'))
 
+def electrolyzer(num_steps, electrolyzer):
+    steps = range(num_steps)
+    fig, (ax1, ax2) = plt.subplots(2, 1)
+    ax1.step(steps, electrolyzer.track_stored_hydrogen)
+    ax1.set(xlabel='sim steps', ylabel='Stored hydrogen [kg]', title='Electrolyzer')
+
+    ax2.step(steps, electrolyzer.track_bought_energy)
+    ax2.set(xlabel='sim steps', ylabel='Bought electricity [kWh]')
+
 
 def trade_prices_min_avg_max():
     pass

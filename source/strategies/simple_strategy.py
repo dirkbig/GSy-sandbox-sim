@@ -6,7 +6,7 @@ strategy_log = logging.getLogger('run_microgrid.house')
 def simple_strategy(self):
     """ household makes simple bid or offer depending on the net energy going in our out of the house """
 
-    self.state_update_from_devices()
+    # self.state_update_from_devices()
 
     """ Determine Volume """
     if self.has_ess is True:

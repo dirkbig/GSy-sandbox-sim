@@ -1,8 +1,11 @@
 from source import microgrid_environment
 from eval_result.eval_verbose import eval_print
-from source.const import *
+from source.custom_print import cprint
 # from grid_config_profile import ConfigurationUtility10household as Config
-from grid_config_profile import ConfigurationUtility10prosumer as Config
+# from grid_config_profile import ConfigurationUtility10householdBattery as Config
+# from grid_config_profile import ConfigurationUtility10householdPv as Config
+# from grid_config_profile import ConfigurationUtility10prosumer as Config
+from grid_config_profile import ConfigurationUtility10prosumerEly as Config
 # from grid_config_profile import ConfigurationUtilityElyPv as Config
 # from grid_config import ConfigurationMixin as Config
 
@@ -42,9 +45,9 @@ def step_microgrid():
 microgrid = create_microgrid()
 
 for step in range(microgrid.data.num_steps):
-    print("\n*******************************************************")
-    print("                     step", microgrid.step_count)
-    print("*******************************************************")
+    cprint("\n*******************************************************")
+    cprint("                     step", microgrid.step_count)
+    cprint("*******************************************************")
     step_microgrid()
 
 assert microgrid.step_count == microgrid.data.num_steps
