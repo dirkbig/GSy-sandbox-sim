@@ -28,6 +28,8 @@ class ConfigurationMixin:
         # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
         # strategies of the electrolyzer.
         self.forecast_horizon = 0
+        # Define the price distribution for stepwise bidding [EUR/kWh].
+        self.ely_stepwise_bid_price = [0.2, 0.16, 0.12, 0.08]
 
         """
             Commercial battery

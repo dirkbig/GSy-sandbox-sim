@@ -33,6 +33,9 @@ class Electrolyzer(Agent):
         # 'quadprog'. Quadprog by now seems to be the superior method in regard to result and computation time.
         # 'stepwise' uses a stepwise bid
         self.bidding_solver = 'stepwise'
+        # If stepwise bidding is chosen, prices are distributed equally over 4 bedding prices [EUR/kWh].
+        self.stepwise_bid_price = [0.2, 0.16, 0.12, 0.08]
+
         # In case a forecast based bidding strategy is chosen, define how many time steps the method is supposed to look
         # in the future [steps].
         self.forecast_horizon = self.model.data.forecast_horizon
@@ -367,10 +370,10 @@ class Electrolyzer(Agent):
 
             if max_bid > 0:
                 # Split max bid to 4 equal sections, one for 20 ct/kWh, one for 15, 10, and 5.
-                bids.append([0.10, max_bid / 4, self.id])
-                bids.append([0.12, max_bid / 4, self.id])
-                bids.append([0.15, max_bid / 4, self.id])
-                bids.append([0.18, max_bid / 4, self.id])
+                bids.append([self.stepwise_bid_price[0], max_bid / 4, self.id])
+                bids.append([self.stepwise_bid_price[1], max_bid / 4, self.id])
+                bids.append([self.stepwise_bid_price[2], max_bid / 4, self.id])
+                bids.append([self.stepwise_bid_price[3], max_bid / 4, self.id])
 
             # Place the bids
             for bid in bids:

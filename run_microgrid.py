@@ -1,15 +1,11 @@
 from source import microgrid_environment
 from eval_result.eval_verbose import eval_print
-from source.custom_print import cprint
-# from grid_config_profile import ConfigurationUtility10household as Config
-# from grid_config_profile import ConfigurationUtility10householdBattery as Config
-# from grid_config_profile import ConfigurationUtility10householdPv as Config
-# from grid_config_profile import ConfigurationUtility10prosumer as Config
-from grid_config_profile import ConfigurationUtility10prosumerEly as Config
-# from grid_config_profile import ConfigurationUtilityElyPv as Config
+from grid_config_profile import ConfigurationUtility50prosumerEly as Config
 # from grid_config import ConfigurationMixin as Config
 
 import logging
+import dill
+
 logging.basicConfig(level=logging.WARNING)
 grid_log = logging.getLogger('run_microgrid')
 
@@ -45,9 +41,9 @@ def step_microgrid():
 microgrid = create_microgrid()
 
 for step in range(microgrid.data.num_steps):
-    cprint("\n*******************************************************")
-    cprint("                     step", microgrid.step_count)
-    cprint("*******************************************************")
+    print("\n*******************************************************")
+    print("                     step", microgrid.step_count)
+    print("*******************************************************")
     step_microgrid()
 
 assert microgrid.step_count == microgrid.data.num_steps
@@ -70,6 +66,16 @@ if write_output_to_csv:
                 this_row = ['No trade was made']
 
             writer.writerow(this_row)
+
+# Save the session result to, for example, create other plots later on.
+save_session = False
+session_name = 'eval_result/stored_session/test.pkl'
+
+if save_session:
+    import dill
+    dill.dump_session(session_name)
+    print('Session saved at', session_name)
+
 
 eval_print(microgrid, trade_deals_list_per_step)
 microgrid.data.plots()

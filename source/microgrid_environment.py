@@ -40,6 +40,8 @@ class MicroGrid(Model):
         if self.data.electrolyzer_presence is True:
             electrolyzer_id = 'Electrolyzer'
             self.agents[electrolyzer_id] = Electrolyzer(electrolyzer_id, self)
+            # If a stepwise bid price is given, overwrite the default one.
+            self.agents[electrolyzer_id].stepwise_bid_price = self.data.ely_stepwise_bid_price
 
         if self.data.battery_presence is True:
             battery_id = 'CommercialBattery'

@@ -40,6 +40,8 @@ class ConfigurationUtilityEly:
         # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
         # strategies of the electrolyzer.
         self.forecast_horizon = 96 * 7
+        # Define the price distribution for stepwise bidding [EUR/kWh].
+        self.ely_stepwise_bid_price = [0.2, 0.16, 0.12, 0.08]
 
         """
             Battery
@@ -145,6 +147,8 @@ class ConfigurationUtilityElyPv:
         # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
         # strategies of the electrolyzer.
         self.forecast_horizon = 96 * 7
+        # Define the price distribution for stepwise bidding [EUR/kWh].
+        self.ely_stepwise_bid_price = [0.2, 0.16, 0.12, 0.08]
 
         """
             Battery
@@ -223,7 +227,7 @@ class ConfigurationUtilityElyPv:
         self.total_ess_capacity = sum(max_capacity_list)
 
 
-class ConfigurationUtility10prosumerEly:
+class ConfigurationUtility50prosumerEly:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
 
@@ -235,7 +239,7 @@ class ConfigurationUtility10prosumerEly:
         # time
         self.sim_start = 0
         self.forecast_horizon = 96 * 7
-        self.num_steps = int(96*(365-7))
+        self.num_steps = int(96 * (365 - 7))
 
         """ 
             Market structure 
@@ -248,8 +252,8 @@ class ConfigurationUtility10prosumerEly:
         """
         self.electrolyzer_presence = True
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
-        # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
-        # strategies of the electrolyzer.
+        # Define the price distribution for stepwise bidding [EUR/kWh].
+        self.ely_stepwise_bid_price = [0.2, 0.16, 0.12, 0.08]
 
 
         """
@@ -281,7 +285,7 @@ class ConfigurationUtility10prosumerEly:
         self.consumers = 0
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 10
+        self.prosumers_with_pv_and_ess = 50
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []
@@ -300,6 +304,7 @@ class ConfigurationUtility10prosumerEly:
 
         """ prosumers with both PV and ESS"""
         for agent in range(self.prosumers_with_pv_and_ess):
+            # The number in [True, 5, True] defines the installed PV power.
             self.classification_array.append([True, 5, True])
 
         """ 
@@ -328,7 +333,8 @@ class ConfigurationUtility10prosumerEly:
             self.ess_characteristics_list.append([initial_soc, max_capacity])
         self.total_ess_capacity = sum(max_capacity_list)
 
-class ConfigurationUtility10prosumer:
+
+class ConfigurationUtility50prosumer:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
 
@@ -386,7 +392,7 @@ class ConfigurationUtility10prosumer:
         self.consumers = 0
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 10
+        self.prosumers_with_pv_and_ess = 50
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []
@@ -434,7 +440,7 @@ class ConfigurationUtility10prosumer:
         self.total_ess_capacity = sum(max_capacity_list)
 
 
-class ConfigurationUtility10householdPv:
+class ConfigurationUtility50householdPv:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
 
@@ -490,7 +496,7 @@ class ConfigurationUtility10householdPv:
             Households basic configuration 
         """
         self.consumers = 0
-        self.prosumers_with_only_pv = 10
+        self.prosumers_with_only_pv = 50
         self.prosumers_with_ess = 0
         self.prosumers_with_pv_and_ess = 0
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
@@ -540,7 +546,7 @@ class ConfigurationUtility10householdPv:
         self.total_ess_capacity = sum(max_capacity_list)
 
 
-class ConfigurationUtility10householdBattery:
+class ConfigurationUtility50householdBattery:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
 
@@ -597,7 +603,7 @@ class ConfigurationUtility10householdBattery:
         """
         self.consumers = 0
         self.prosumers_with_only_pv = 0
-        self.prosumers_with_ess = 10
+        self.prosumers_with_ess = 50
         self.prosumers_with_pv_and_ess = 0
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
@@ -645,7 +651,8 @@ class ConfigurationUtility10householdBattery:
             self.ess_characteristics_list.append([initial_soc, max_capacity])
         self.total_ess_capacity = sum(max_capacity_list)
 
-class ConfigurationUtility10household:
+
+class ConfigurationUtility50household:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
 
@@ -700,7 +707,7 @@ class ConfigurationUtility10household:
         """ 
             Households basic configuration 
         """
-        self.consumers = 10
+        self.consumers = 50
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
         self.prosumers_with_pv_and_ess = 0
