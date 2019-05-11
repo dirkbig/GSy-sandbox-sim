@@ -31,8 +31,8 @@ def pac_pricing(sorted_x_y_y_pairs_list_):
         method_logger.warning("No clearing quantity or price was found")
         return clearing_quantity, clearing_price, None, None
 
-    print('~~~\nclearing calculated. Clearing price: {} EUR/kWh; clearing quantity: {} kWh.\n~~~'.format(
-        clearing_price, clearing_quantity))
+    # print('~~~\nclearing calculated. Clearing price: {} EUR/kWh; clearing quantity: {} kWh.\n~~~'.format(
+    #     clearing_price, clearing_quantity))
 
     trade_pairs_pac_ = []
     total_turnover_internally = 0

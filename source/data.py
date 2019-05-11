@@ -266,10 +266,10 @@ class Data(ConfigurationMixin, object):
 if __name__ == "__main__":
     path = os.chdir("..")
     data = Data()
-    print('fuel station load: ', data.fuel_station_load)
-    print('utility prices data: ', data.utility_profile)
-    print('household load data set: ', data.household_loads_folder)
-    print('total ess storage capacity: %d kWh' % data.total_ess_capacity)
+    # print('fuel station load: ', data.fuel_station_load)
+    # print('utility prices data: ', data.utility_profile)
+    # print('household load data set: ', data.household_loads_folder)
+    # print('total ess storage capacity: %d kWh' % data.total_ess_capacity)
 
     plot_avg_load_profile(data.num_steps, data.load_array)
     plot_avg_pv_profile(data.num_steps, data.pv_gen_array)

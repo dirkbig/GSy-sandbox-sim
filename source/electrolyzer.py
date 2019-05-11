@@ -264,7 +264,7 @@ class Electrolyzer(Agent):
             else:
                 # Case: Linprog couldn't derive optimal result, thus produce as much H2 as possible.
                 opt_production = [self.max_production_per_step]
-            print("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
+            # print("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
             electrolyzer_log.info("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
 
         elif self.bidding_solver == "quadprog":
@@ -342,7 +342,7 @@ class Electrolyzer(Agent):
                 opt_production = [self.max_production_per_step]
 
             # Return the optimal value for this time slot [kg]
-            print("Electrolyzer bidding - Optimization status is '{}'".format(opt_res['status']))
+            # print("Electrolyzer bidding - Optimization status is '{}'".format(opt_res['status']))
             electrolyzer_log.info("Optimization status is '{}'".format(opt_res['status']))
 
         elif self.bidding_solver == "dummy":

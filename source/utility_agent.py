@@ -97,7 +97,7 @@ class UtilityAgent(Agent):
         if empty(offer_list) is True:
             utility_quantity = bid_total
             self.model.auction.offer_list.insert(0, [self.price_sell, utility_quantity, utility_id])
-            print('Energy offered by {} is {}'.format(self.id, utility_quantity))
+            # print('Energy offered by {} is {}'.format(self.id, utility_quantity))
 
         else:
             offer_index = 0
@@ -115,7 +115,7 @@ class UtilityAgent(Agent):
                     if bid_total > total_offer_below_mmr:
                         utility_quantity = bid_total - total_offer_below_mmr
                         self.model.auction.offer_list.insert(offer_index + 1, [self.price_sell, utility_quantity, utility_id])
-                        print('Energy offered by {} is {}'.format(self.id, self.offers))
+                        # print('Energy offered by {} is {}'.format(self.id, self.offers))
 
                     else:
                         utility_log.info("no utility import into community needed at this step")

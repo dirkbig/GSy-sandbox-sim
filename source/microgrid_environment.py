@@ -59,7 +59,7 @@ class MicroGrid(Model):
         """advances the model by one step"""
 
         """ pre-auction round """
-        print("Phase [1] Pre-Auction Round")
+        # print("Phase [1] Pre-Auction Round")
         pre_agent_id = []
         for agent_id in self.agents:
             self.agents[agent_id].pre_auction_round()
@@ -114,26 +114,26 @@ class MicroGrid(Model):
         #         str(self.agents['Utility'].bids), str(self.agents['Utility'].offers)))
 
         info_string = 'Pre-auction round done for agent IDs:' + ' | {}' * len(pre_agent_id) + ' |'
-        print(info_string.format(*pre_agent_id))
-        print("")
+        # print(info_string.format(*pre_agent_id))
+        # print("")
 
         """ auction round """
-        print("Phase [2] Start Auction Round")
+        # print("Phase [2] Start Auction Round")
         self.auction.auction_round()
         info_string = 'Auction round done for agent IDs:' + ' | {}' * len(pre_agent_id) + ' |'
-        print(info_string.format(*pre_agent_id))
-        print("")
+        # print(info_string.format(*pre_agent_id))
+        # print("")
 
         """ post-auction round """
-        print("Phase [3] Start Post-Auction Round")
+        # print("Phase [3] Start Post-Auction Round")
         updated_agent_id = []
         for agent_id in self.agents:
             self.agents[agent_id].post_auction_round()
             updated_agent_id.append(agent_id)
 
         info_string = 'Agents updated with following IDs:' + ' | {}' * len(updated_agent_id) + ' |'
-        print(info_string.format(*updated_agent_id))
-        print("")
+        # print(info_string.format(*updated_agent_id))
+        # print("")
 
         """ Alternative pricing scheme comes here """
         # TODO: alt pricing

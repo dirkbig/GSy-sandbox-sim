@@ -68,16 +68,19 @@ if write_output_to_csv:
             writer.writerow(this_row)
 
 # Save the session result to, for example, create other plots later on.
-save_session = False
-session_name = 'eval_result/stored_session/test.pkl'
+save_session = True
 
 if save_session:
-    import dill
-    dill.dump_session(session_name)
-    print('Session saved at', session_name)
+    import pickle
+    result_loc = 'eval_result/stored_session/test_pkl.pkl'
+    filehandler = open(result_loc, 'wb')
+    pickle.dump(microgrid, filehandler)
+    filehandler.close()
+    # dill.dump_session(session_name)
+    print('Session saved at', result_loc)
 
 
-eval_print(microgrid, trade_deals_list_per_step)
+eval_print(microgrid)
 microgrid.data.plots()
 
 print("\n*******************************************************")

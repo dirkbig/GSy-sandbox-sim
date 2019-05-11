@@ -118,24 +118,24 @@ class Auctioneer(Agent):
         if self.pricing_rule == 'pab':
             self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
                 pab_pricing(sorted_x_y_y_pairs_list)
-            print(f"Clearing rate was (on average): {self.clearing_price} [EUR/kWh]")
-            print(f"Clearing volume was: {self.clearing_quantity} [kWh]")
+            # print(f"Clearing rate was (on average): {self.clearing_price} [EUR/kWh]")
+            # print(f"Clearing volume was: {self.clearing_quantity} [kWh]")
             auction_log.info("Clearing quantity %f, avg price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price,  total_turnover)
 
         elif self.pricing_rule == 'pac':
             self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
                 pac_pricing(sorted_x_y_y_pairs_list)
-            print(f"Clearing rate was: {self.clearing_price} [EUR/kWh]")
-            print(f"Clearing volume was: {self.clearing_quantity} [kWh]")
+            # print(f"Clearing rate was: {self.clearing_price} [EUR/kWh]")
+            # print(f"Clearing volume was: {self.clearing_quantity} [kWh]")
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
         elif self.pricing_rule == 'mcafee':
             self.clearing_quantity, self.clearing_price, total_turnover, self.trade_pairs = \
                 mcafee_pricing(sorted_x_y_y_pairs_list)
-            print(f"Clearing rate was (on average): {self.clearing_price} [EUR/kWh]")
-            print(f"Clearing volume was: {self.clearing_quantity} [kWh]")
+            # print(f"Clearing rate was (on average): {self.clearing_price} [EUR/kWh]")
+            # print(f"Clearing volume was: {self.clearing_quantity} [kWh]")
             auction_log.info("Clearing quantity %f, price %f, total turnover is %f",
                              self.clearing_quantity, self.clearing_price, total_turnover)
 
@@ -158,7 +158,7 @@ class Auctioneer(Agent):
         else:
             # clearing_price_min_avg_max = [None, None, None]
             auction_log.warning("no trade pairs found by market mechanism at this step")
-            print("no trade pairs found by market mechanism at this step")
+            # print("no trade pairs found by market mechanism at this step")
 
             return
 
@@ -174,9 +174,9 @@ class Auctioneer(Agent):
                 household_demand += self.model.agents[agent].load_data[self.model.step_count]
         self.model.data.household_demand[self.model.step_count] = household_demand
 
-        print(f"bids [price, quantity, id]: {self.sorted_bid_list}")
-        print(f"offers [price, quantity, id]: {self.sorted_offer_list}")
-        print(f"trade_pairs [id_seller, id_buyer, quantity, price*quantity]: {self.trade_pairs}")
+        # print(f"bids [price, quantity, id]: {self.sorted_bid_list}")
+        # print(f"offers [price, quantity, id]: {self.sorted_offer_list}")
+        # print(f"trade_pairs [id_seller, id_buyer, quantity, price*quantity]: {self.trade_pairs}")
 
 
     def sorting(self):

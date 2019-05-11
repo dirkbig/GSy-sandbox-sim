@@ -240,6 +240,7 @@ class ConfigurationUtility50prosumerEly:
         self.sim_start = 0
         self.forecast_horizon = 96 * 7
         self.num_steps = int(96 * (365 - 7))
+        #self.num_steps = 96*7
 
         """ 
             Market structure 
