@@ -1,7 +1,6 @@
 from source.data_methods import *
-from plots import *
+import plots
 from grid_config import ConfigurationMixin
-from source.const import *
 import numpy as np
 from copy import deepcopy
 
@@ -109,13 +108,18 @@ class Data(ConfigurationMixin, object):
         #     self.model.agents[agent_id].wallet.payment_history[self.model.step_count]
 
     def plots(self):
-        traded_volume_over_time(self.num_steps, self.agent_measurements)
-        soc_over_time(self.num_steps, self.soc_list_over_time)
-        households_deficit_overflow(self.num_steps, self.deficit_over_time, self.overflow_over_time)
-        clearing_over_utility_price(self.num_steps, self.utility_price, self.clearing_price_min_avg_max, self.clearing_quantity)
-        clearing_quantity(self.num_steps, self.clearing_quantity)
-        clearing_quantity_over_demand(self.num_steps, self.clearing_quantity, self.household_demand)
-        show()
+        # traded_volume_over_time(self.num_steps, self.agent_measurements)
+        plots.soc_over_time(self.num_steps, self.soc_list_over_time)
+        plots.households_deficit_overflow(self.num_steps, self.deficit_over_time, self.overflow_over_time)
+        plots.clearing_over_utility_price(
+            self.num_steps, self.utility_price, self.clearing_price_min_avg_max, self.clearing_quantity)
+        plots.clearing_quantity(self.num_steps, self.clearing_quantity)
+        plots.clearing_quantity_over_demand(self.num_steps, self.clearing_quantity, self.household_demand)
+        # If an electrolyzer is present, plot its behaviour.
+        if 'Electrolyzer' in self.model.agents:
+            plots.electrolyzer(self.num_steps, self.model.agents['Electrolyzer'])
+
+        plots.show()
 
     def get_load_profiles(self):
         """ loading in household load profiles """
@@ -262,10 +266,10 @@ class Data(ConfigurationMixin, object):
 if __name__ == "__main__":
     path = os.chdir("..")
     data = Data()
-    print('fuel station load: ', data.fuel_station_load)
-    print('utility prices data: ', data.utility_profile)
-    print('household load data set: ', data.household_loads_folder)
-    print('total ess storage capacity: %d kWh' % data.total_ess_capacity)
+    # print('fuel station load: ', data.fuel_station_load)
+    # print('utility prices data: ', data.utility_profile)
+    # print('household load data set: ', data.household_loads_folder)
+    # print('total ess storage capacity: %d kWh' % data.total_ess_capacity)
 
     plot_avg_load_profile(data.num_steps, data.load_array)
     plot_avg_pv_profile(data.num_steps, data.pv_gen_array)

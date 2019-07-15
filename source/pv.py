@@ -67,7 +67,7 @@ class Pv(Agent):
         pv_log.info('PV bidding state is {}'.format(self.trading_state))
 
         if self.trading_state == 'supplying':
-            print('Energy offered by {} is {}'.format(self.id, self.power_production[self.current_step]))
+            # print('Energy offered by {} is {}'.format(self.id, self.power_production[self.current_step]))
             for offer in self.offers:
                 self.model.auction.offer_list.append(offer)
 

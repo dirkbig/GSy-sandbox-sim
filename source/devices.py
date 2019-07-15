@@ -31,6 +31,7 @@ class ESS(object):
         self.soc_preferred = None
         self.soc_essential = None
         self.surplus = None
+        self.this_step_energy_balance = None
 
         """ SOC forecasting """
         self.horizon = self.agent.data.horizon
@@ -97,7 +98,7 @@ class ESS(object):
             max_charge_stored = (self.max_capacity - self.soc_actual) / self.charge_eff
             max_charge_c_rate = self.max_capacity * self.c_rate * self.agent.data.market_interval / 60 / self.charge_eff
             max_bought = min(max_charge_stored, max_charge_c_rate)
-            print("Max. bought: {}; max. sold: {}".format(max_bought, max_sold))
+            # print("Max. bought: {}; max. sold: {}".format(max_bought, max_sold))
         else:
             # relaxing of constraints gimmick
             max_bought = 10000
@@ -232,7 +233,9 @@ class ESS(object):
     """ needed for storage strategy """
     def ess_demand_calc(self, current_step):
         """calculates the demand expresses by a household's ESS"""
+        # Get the energy balance for this step [kWh].
         total_supply_from_devices = self.update_from_household_devices()
+        self.this_step_energy_balance = total_supply_from_devices
         self.soc_preferred_calc()
 
         """ surplus of ESS = actual SOC + aggregated supply from all devices (could be negative) - the preferred SOC """

@@ -22,7 +22,7 @@ class ConfigurationUtilityEly:
         self.market_interval = 15  # minutes
 
         # time
-        self.start = 0
+        self.sim_start = 0
 
         self.num_steps = self.num_steps = int(96*1)
 
@@ -40,6 +40,8 @@ class ConfigurationUtilityEly:
         # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
         # strategies of the electrolyzer.
         self.forecast_horizon = 96 * 7
+        # Define the price distribution for stepwise bidding [EUR/kWh].
+        self.ely_stepwise_bid_price = [0.2, 0.16, 0.12, 0.08]
 
         """
             Battery
@@ -127,7 +129,7 @@ class ConfigurationUtilityElyPv:
         self.market_interval = 15  # minutes
 
         # time
-        self.start = 0
+        self.sim_start = 0
 
         self.num_steps = self.num_steps = int(96*1)
 
@@ -145,6 +147,8 @@ class ConfigurationUtilityElyPv:
         # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
         # strategies of the electrolyzer.
         self.forecast_horizon = 96 * 7
+        # Define the price distribution for stepwise bidding [EUR/kWh].
+        self.ely_stepwise_bid_price = [0.2, 0.16, 0.12, 0.08]
 
         """
             Battery
@@ -223,7 +227,7 @@ class ConfigurationUtilityElyPv:
         self.total_ess_capacity = sum(max_capacity_list)
 
 
-class ConfigurationUtility10prosumer:
+class ConfigurationUtility50prosumerEly:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
 
@@ -233,9 +237,10 @@ class ConfigurationUtility10prosumer:
         self.market_interval = 15  # minutes
 
         # time
-        self.start = 0
-
-        self.num_steps = int(96*1)
+        self.sim_start = 0
+        self.forecast_horizon = 96 * 7
+        self.num_steps = int(96 * (365 - 7))
+        #self.num_steps = 96*7
 
         """ 
             Market structure 
@@ -246,11 +251,11 @@ class ConfigurationUtility10prosumer:
         """ 
             Electrolyzer
         """
-        self.electrolyzer_presence = False
+        self.electrolyzer_presence = True
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
-        # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
-        # strategies of the electrolyzer.
-        self.forecast_horizon = 96 * 7
+        # Define the price distribution for stepwise bidding [EUR/kWh].
+        self.ely_stepwise_bid_price = [0.2, 0.16, 0.12, 0.08]
+
 
         """
             Battery
@@ -272,7 +277,7 @@ class ConfigurationUtility10prosumer:
         self.negative_pricing = False
         self.utility_dynamical_pricing = False
         self.utility_selling_price_fix = 0.25
-        self.utility_buying_price_fix = 0.0
+        self.utility_buying_price_fix = 0.05
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
 
         """ 
@@ -281,7 +286,114 @@ class ConfigurationUtility10prosumer:
         self.consumers = 0
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
-        self.prosumers_with_pv_and_ess = 10
+        self.prosumers_with_pv_and_ess = 50
+        self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
+            self.prosumers_with_pv_and_ess
+        self.classification_array = []
+
+        """ consumers"""
+        for agent in range(self.consumers):
+            self.classification_array.append([True, False, False])
+
+        """ prosumers with only PV """
+        for agent in range(self.prosumers_with_only_pv):
+            self.classification_array.append([True, True, False])
+
+        """ prosumers with only ESS"""
+        for agent in range(self.prosumers_with_ess):
+            self.classification_array.append([True, False, True])
+
+        """ prosumers with both PV and ESS"""
+        for agent in range(self.prosumers_with_pv_and_ess):
+            # The number in [True, 5, True] defines the installed PV power.
+            self.classification_array.append([True, 5, True])
+
+        """ 
+            Load data
+        """
+        self.household_loads_folder = 'household_load_profiles_htw'
+        self.num_households_with_consumption = self.num_households
+
+        """ 
+            PV data
+        """
+        self.num_pv_panels = self.prosumers_with_only_pv + self.prosumers_with_pv_and_ess
+        self.pv_output_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
+
+        """    
+            ESS data
+        """
+        self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
+        max_capacity_list = np.full(self.num_households_with_ess, 10)
+        initial_capacity_list = np.full(self.num_households_with_ess, 9)
+        self.ess_characteristics_list = []
+
+        for battery in range(self.num_households_with_ess):
+            max_capacity = max_capacity_list[battery]
+            initial_soc = initial_capacity_list[battery]
+            self.ess_characteristics_list.append([initial_soc, max_capacity])
+        self.total_ess_capacity = sum(max_capacity_list)
+
+
+class ConfigurationUtility50prosumer:
+    def __init__(self):
+        """ Configuration of the grid Mixin Class"""
+
+        """ 
+            Simulation environment
+        """
+        self.market_interval = 15  # minutes
+
+        # time
+        self.sim_start = 0
+        self.forecast_horizon = 96 * 7
+        self.num_steps = int(96*(365-7))
+
+        """ 
+            Market structure 
+        """
+        # TODO: this is already defined in const.py
+        self.pricing_rule = 'pac'  # or 'pab'
+
+        """ 
+            Electrolyzer
+        """
+        self.electrolyzer_presence = False
+        self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
+        # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
+        # strategies of the electrolyzer.
+
+
+        """
+            Battery
+        """
+        self.battery_presence = False
+
+        """
+            PV commercial
+        """
+        self.pv_presence = False
+        self.pv_commercial_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
+
+
+        """ 
+            Utility 
+        """
+        self.utility_presence = True
+
+        self.negative_pricing = False
+        self.utility_dynamical_pricing = False
+        self.utility_selling_price_fix = 0.25
+        self.utility_buying_price_fix = 0.05
+        self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
+
+        """ 
+            Households basic configuration 
+        """
+        self.consumers = 0
+        self.prosumers_with_only_pv = 0
+        self.prosumers_with_ess = 0
+        self.prosumers_with_pv_and_ess = 50
         self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
             self.prosumers_with_pv_and_ess
         self.classification_array = []
@@ -329,7 +441,7 @@ class ConfigurationUtility10prosumer:
         self.total_ess_capacity = sum(max_capacity_list)
 
 
-class ConfigurationUtility10household:
+class ConfigurationUtility50householdPv:
     def __init__(self):
         """ Configuration of the grid Mixin Class"""
 
@@ -339,9 +451,9 @@ class ConfigurationUtility10household:
         self.market_interval = 15  # minutes
 
         # time
-        self.start = 0
-
-        self.num_steps = int(96 * 1)
+        self.sim_start = 0
+        self.forecast_horizon = 96 * 7
+        self.num_steps = int(96*(365-7))
 
         """ 
             Market structure 
@@ -356,7 +468,7 @@ class ConfigurationUtility10household:
         self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
         # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
         # strategies of the electrolyzer.
-        self.forecast_horizon = 96 * 7
+
 
         """
             Battery
@@ -378,13 +490,225 @@ class ConfigurationUtility10household:
         self.negative_pricing = False
         self.utility_dynamical_pricing = False
         self.utility_selling_price_fix = 0.25
-        self.utility_buying_price_fix = 0.0
+        self.utility_buying_price_fix = 0.05
         self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
 
         """ 
             Households basic configuration 
         """
-        self.consumers = 10
+        self.consumers = 0
+        self.prosumers_with_only_pv = 50
+        self.prosumers_with_ess = 0
+        self.prosumers_with_pv_and_ess = 0
+        self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
+            self.prosumers_with_pv_and_ess
+        self.classification_array = []
+
+        """ consumers"""
+        for agent in range(self.consumers):
+            self.classification_array.append([True, False, False])
+
+        """ prosumers with only PV """
+        for agent in range(self.prosumers_with_only_pv):
+            self.classification_array.append([True, 5, False])
+
+        """ prosumers with only ESS"""
+        for agent in range(self.prosumers_with_ess):
+            self.classification_array.append([True, False, True])
+
+        """ prosumers with both PV and ESS"""
+        for agent in range(self.prosumers_with_pv_and_ess):
+            self.classification_array.append([True, 5, True])
+
+        """ 
+            Load data
+        """
+        self.household_loads_folder = 'household_load_profiles_htw'
+        self.num_households_with_consumption = self.num_households
+
+        """ 
+            PV data
+        """
+        self.num_pv_panels = self.prosumers_with_only_pv + self.prosumers_with_pv_and_ess
+        self.pv_output_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
+
+        """    
+            ESS data
+        """
+        self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
+        max_capacity_list = np.full(self.num_households_with_ess, 10)
+        initial_capacity_list = np.full(self.num_households_with_ess, 9)
+        self.ess_characteristics_list = []
+
+        for battery in range(self.num_households_with_ess):
+            max_capacity = max_capacity_list[battery]
+            initial_soc = initial_capacity_list[battery]
+            self.ess_characteristics_list.append([initial_soc, max_capacity])
+        self.total_ess_capacity = sum(max_capacity_list)
+
+
+class ConfigurationUtility50householdBattery:
+    def __init__(self):
+        """ Configuration of the grid Mixin Class"""
+
+        """ 
+            Simulation environment
+        """
+        self.market_interval = 15  # minutes
+
+        # time
+        self.sim_start = 0
+        self.forecast_horizon = 96 * 7
+        self.num_steps = int(96*(365-7))
+
+        """ 
+            Market structure 
+        """
+        # TODO: this is already defined in const.py
+        self.pricing_rule = 'pac'  # or 'pab'
+
+        """ 
+            Electrolyzer
+        """
+        self.electrolyzer_presence = False
+        self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
+        # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
+        # strategies of the electrolyzer.
+
+
+        """
+            Battery
+        """
+        self.battery_presence = False
+
+        """
+            PV commercial
+        """
+        self.pv_presence = False
+        self.pv_commercial_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
+
+
+        """ 
+            Utility 
+        """
+        self.utility_presence = True
+
+        self.negative_pricing = False
+        self.utility_dynamical_pricing = False
+        self.utility_selling_price_fix = 0.25
+        self.utility_buying_price_fix = 0.05
+        self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
+
+        """ 
+            Households basic configuration 
+        """
+        self.consumers = 0
+        self.prosumers_with_only_pv = 0
+        self.prosumers_with_ess = 50
+        self.prosumers_with_pv_and_ess = 0
+        self.num_households = self.consumers + self.prosumers_with_only_pv + self.prosumers_with_ess + \
+            self.prosumers_with_pv_and_ess
+        self.classification_array = []
+
+        """ consumers"""
+        for agent in range(self.consumers):
+            self.classification_array.append([True, False, False])
+
+        """ prosumers with only PV """
+        for agent in range(self.prosumers_with_only_pv):
+            self.classification_array.append([True, True, False])
+
+        """ prosumers with only ESS"""
+        for agent in range(self.prosumers_with_ess):
+            self.classification_array.append([True, False, True])
+
+        """ prosumers with both PV and ESS"""
+        for agent in range(self.prosumers_with_pv_and_ess):
+            self.classification_array.append([True, 5, True])
+
+        """ 
+            Load data
+        """
+        self.household_loads_folder = 'household_load_profiles_htw'
+        self.num_households_with_consumption = self.num_households
+
+        """ 
+            PV data
+        """
+        self.num_pv_panels = self.prosumers_with_only_pv + self.prosumers_with_pv_and_ess
+        self.pv_output_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
+
+        """    
+            ESS data
+        """
+        self.num_households_with_ess = self.prosumers_with_ess + self.prosumers_with_pv_and_ess
+        max_capacity_list = np.full(self.num_households_with_ess, 10)
+        initial_capacity_list = np.full(self.num_households_with_ess, 9)
+        self.ess_characteristics_list = []
+
+        for battery in range(self.num_households_with_ess):
+            max_capacity = max_capacity_list[battery]
+            initial_soc = initial_capacity_list[battery]
+            self.ess_characteristics_list.append([initial_soc, max_capacity])
+        self.total_ess_capacity = sum(max_capacity_list)
+
+
+class ConfigurationUtility50household:
+    def __init__(self):
+        """ Configuration of the grid Mixin Class"""
+
+        """ 
+            Simulation environment
+        """
+        self.market_interval = 15  # minutes
+
+        # time
+        self.sim_start = 0
+        self.forecast_horizon = 96 * 7
+        self.num_steps = int(96*(365-7))
+
+        """ 
+            Market structure 
+        """
+        # TODO: this is already defined in const.py
+        self.pricing_rule = 'pac'  # or 'pab'
+
+        """ 
+            Electrolyzer
+        """
+        self.electrolyzer_presence = False
+        self.fuel_station_load = 'ts_h2load_kg_15min_classverysmall_2015.csv'
+        # Define for how many time steps in the future a forecast is supposed to be used for optimizing bidding
+        # strategies of the electrolyzer.
+
+
+        """
+            Battery
+        """
+        self.battery_presence = False
+
+        """
+            PV commercial
+        """
+        self.pv_presence = False
+        self.pv_commercial_profile = 'ts_pv_kWperkWinstalled_15min_2015.csv'
+
+
+        """ 
+            Utility 
+        """
+        self.utility_presence = True
+
+        self.negative_pricing = False
+        self.utility_dynamical_pricing = False
+        self.utility_selling_price_fix = 0.25
+        self.utility_buying_price_fix = 0.05
+        self.utility_profile = 'ts_electricityintraday_EURperkWh_15min_2015.csv'
+
+        """ 
+            Households basic configuration 
+        """
+        self.consumers = 50
         self.prosumers_with_only_pv = 0
         self.prosumers_with_ess = 0
         self.prosumers_with_pv_and_ess = 0
@@ -406,7 +730,7 @@ class ConfigurationUtility10household:
 
         """ prosumers with both PV and ESS"""
         for agent in range(self.prosumers_with_pv_and_ess):
-            self.classification_array.append([True, True, True])
+            self.classification_array.append([True, 5, True])
 
         """ 
             Load data

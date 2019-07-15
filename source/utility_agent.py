@@ -69,15 +69,21 @@ class UtilityAgent(Agent):
             with an 'infinite (i.e. saturated)' supply of energy up to the necessary amount to cover all demand,
             bought or not """
 
+        utility_id = self.model.agents['Utility'].id
         bid_total = 0
         for bid in bid_list:
             if bid:
                 bid_total += bid[1]
 
-        try:
+        if offer_list:
             prosumer_offer_total = sum(np.asarray(offer_list, dtype=object)[:, 1])
-        except IndexError:
-            prosumer_offer_total = 0
+
+            if prosumer_offer_total > 0:
+                self.model.auction.bid_list.append([self.price_buy, prosumer_offer_total, utility_id])
+            else:
+                raise ValueError('Empty/negative offer detected')
+
+        else:
             utility_log.info("no prosumers in the grid supplying energy")
 
         """ Append utility"""
@@ -88,11 +94,10 @@ class UtilityAgent(Agent):
                 return False
 
         total_offer_below_mmr = 0
-        utility_id = self.model.agents['Utility'].id
         if empty(offer_list) is True:
             utility_quantity = bid_total
             self.model.auction.offer_list.insert(0, [self.price_sell, utility_quantity, utility_id])
-            print('Energy offered by {} is {}'.format(self.id, utility_quantity))
+            # print('Energy offered by {} is {}'.format(self.id, utility_quantity))
 
         else:
             offer_index = 0
@@ -110,13 +115,13 @@ class UtilityAgent(Agent):
                     if bid_total > total_offer_below_mmr:
                         utility_quantity = bid_total - total_offer_below_mmr
                         self.model.auction.offer_list.insert(offer_index + 1, [self.price_sell, utility_quantity, utility_id])
-                        print('Energy offered by {} is {}'.format(self.id, self.offers))
+                        # print('Energy offered by {} is {}'.format(self.id, self.offers))
 
                     else:
                         utility_log.info("no utility import into community needed at this step")
                 offer_index += 1
 
-        return bid_list, offer_list
+        # return bid_list, offer_list
 
     def post_auction_round(self):
         this_energy_trade = sum(self.model.auction.who_gets_what_dict[self.id])
@@ -144,3 +149,5 @@ class UtilityAgent(Agent):
 
     def track_data(self):
         pass
+
+

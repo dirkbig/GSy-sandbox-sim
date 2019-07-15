@@ -192,7 +192,7 @@ class Battery(Agent):
             for i in range(n_step):
                 res.append(sol['x'][i] + sol['x'][i + n_step])
 
-            print(res)
+            # print(res)
             # Return the power value needed for the optimized production and the price [kW, EUR/kWh]
 
         elif self.bidding_solver == 'dummy':
@@ -224,11 +224,11 @@ class Battery(Agent):
 
         if self.trading_state == 'buying':
             self.model.auction.bid_list.append(self.bid)
-            print('Energy bid by {} is {}'.format(self.id, self.bid[1]))
+            # print('Energy bid by {} is {}'.format(self.id, self.bid[1]))
 
         elif self.trading_state == "supplying":
             self.model.auction.offer_list.append(self.offer)
-            print('Energy offered by {} is {}'.format(self.id, self.offer[1]))
+            # print('Energy offered by {} is {}'.format(self.id, self.offer[1]))
 
     def update_state(self, charging_energy, temperature=273.15+10):
         """

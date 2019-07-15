@@ -1,12 +1,11 @@
 from source import microgrid_environment
 from eval_result.eval_verbose import eval_print
-from source.const import *
-# from grid_config_profile import ConfigurationUtility10household as Config
-# from grid_config_profile import ConfigurationUtility10prosumer as Config
-# from grid_config_profile import ConfigurationUtilityElyPv as Config
-from grid_config import ConfigurationMixin as Config
+from grid_config_profile import ConfigurationUtility50prosumerEly as Config
+# from grid_config import ConfigurationMixin as Config
 
 import logging
+import dill
+
 logging.basicConfig(level=logging.WARNING)
 grid_log = logging.getLogger('run_microgrid')
 
@@ -49,7 +48,7 @@ for step in range(microgrid.data.num_steps):
 
 assert microgrid.step_count == microgrid.data.num_steps
 
-write_output_to_csv = True
+write_output_to_csv = False
 if write_output_to_csv:
     import csv
     with open("test_result.csv", "w", newline='') as file:
@@ -68,7 +67,20 @@ if write_output_to_csv:
 
             writer.writerow(this_row)
 
-eval_print(microgrid, trade_deals_list_per_step)
+# Save the session result to, for example, create other plots later on.
+save_session = True
+
+if save_session:
+    import pickle
+    result_loc = 'eval_result/stored_session/test_pkl.pkl'
+    filehandler = open(result_loc, 'wb')
+    pickle.dump(microgrid, filehandler)
+    filehandler.close()
+    # dill.dump_session(session_name)
+    print('Session saved at', result_loc)
+
+
+eval_print(microgrid)
 microgrid.data.plots()
 
 print("\n*******************************************************")

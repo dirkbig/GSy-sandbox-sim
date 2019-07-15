@@ -16,3 +16,9 @@ profiles/.DS_Store
 test_result.csv
 example.pgf
 example.pdf
+
+# Ignore stored session (in pickle format)
+*.pkl
+
+# Ignore PDF files, while result plots are given out as PDF
+*.pdf

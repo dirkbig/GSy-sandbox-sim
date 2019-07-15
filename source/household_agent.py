@@ -19,6 +19,15 @@ class HouseholdAgent(Agent):
         self.model = model
         self.data = self.model.data
 
+        """ Selling electricity parameters (only applies for prosumers)"""
+        # Set a min. price electricity is sold for from the storage [EUR/kW or 'utility', which will use the price the
+        # utility grid is buying electricity for]
+        self.min_storage_selling_price = 'utility'
+        # Define if PV energy, that can not be saved at a time step, should be offered to a specified low price [bool].
+        self.make_essential_offer = True
+        # Define the electricity selling price for the essential offer (for essential offers ONLY) [EUR/kWh].
+        self.essential_offer_price = 0
+
         """ Loading in data """
         self.load_data = self.model.data.agent_data_array[self.id][0]
         self.pv_data = self.model.data.agent_data_array[self.id][1]

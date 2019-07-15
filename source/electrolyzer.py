@@ -2,7 +2,6 @@ import math
 import warnings
 from mesa import Agent
 from source.wallet import Wallet
-import source.const as const
 import logging
 import numpy as np
 from scipy.optimize import linprog as lp
@@ -18,18 +17,25 @@ class Electrolyzer(Agent):
         self.id = _unique_id
         self.model = model
         # Simulation time [min].
-        self.interval_time = const.market_interval
+        self.interval_time = model.data.market_interval
         self.current_step = 0
 
         """ H2 demand list. """
         self.h2_demand = self.model.data.electrolyzer_list
-        # Track the used demand [kg].
+        # Track the used demand [kg], the energy bought [kWh], the hydrogen produced [kg] and the stored mass [kg].
         self.track_demand = []
+        self.track_bought_energy = []
+        self.track_produced_hydrogen = []
+        self.track_stored_hydrogen = []
 
         """ Trading. """
         # Different methods can be chosen for deriving the bidding of the electrolyzer. Options are 'linprog' and
         # 'quadprog'. Quadprog by now seems to be the superior method in regard to result and computation time.
-        self.bidding_solver = "quadprog"
+        # 'stepwise' uses a stepwise bid
+        self.bidding_solver = 'stepwise'
+        # If stepwise bidding is chosen, prices are distributed equally over 4 bedding prices [EUR/kWh].
+        self.stepwise_bid_price = [0.2, 0.16, 0.12, 0.08]
+
         # In case a forecast based bidding strategy is chosen, define how many time steps the method is supposed to look
         # in the future [steps].
         self.forecast_horizon = self.model.data.forecast_horizon
@@ -63,9 +69,11 @@ class Electrolyzer(Agent):
         # Amount of (usable) hydrogen stored [kg].
         self.stored_hydrogen = self.storage_buffer * 2
         # Max. amount of (usable) hydrogen stored [kg].
-        self.storage_size = const.hrs_storage_size
+        self.storage_size = 200
         # Tracker for the hydrogen demand that couldn't be fulfilled [kg].
         self.demand_not_fulfilled = 0
+        # Tracker for the hydrogen overproduced (that couldn't be stored) [kg].
+        self.hydrogen_not_storable = 0
 
         # Parameter for the electrolyzer
         # size of cell surface [cm²].
@@ -124,8 +132,11 @@ class Electrolyzer(Agent):
         self.announce_bid()
 
     def post_auction_round(self):
+        # This energy bought [kWh].
+        energy_bought = sum(self.model.auction.who_gets_what_dict[self.id])
+        self.track_bought_energy.append(energy_bought)
         # Before the auction the physical states are renewed.
-        self.update_power(self.bought_energy)
+        self.update_power(energy_bought)
         # Track the total costs [EUR].
         # self.track_cost += self.power * self.interval_time / 60 * \
         #     self.model.data.utility_pricing_profile[self.current_step]
@@ -139,17 +150,23 @@ class Electrolyzer(Agent):
         mass_produced = self.current * self.interval_time * 60 * self.z_cell / (2 * self.faraday) * self.molarity / 1000
         # Get the demand of this time step.
         mass_demanded = float(self.h2_demand[self.current_step])
-        self.track_demand.append(mass_demanded)
         # Update the mass in the storage
         self.stored_hydrogen = mass_old + mass_produced - mass_demanded
         # Check if hydrogen demand could't be fulfilled. If so, track it and set the storage to empty.
         if self.stored_hydrogen < 0:
             self.demand_not_fulfilled += abs(self.stored_hydrogen)
             self.stored_hydrogen = 0
-        #elif self.stored_hydrogen > const.hrs_storage_size:
+        elif self.stored_hydrogen > self.storage_size:
             # Case: the storage is more than full, thus iteratively the power has to be reduced
-            #mass_overload = self.stored_hydrogen - const.hrs_storage_size
+            mass_overload = self.stored_hydrogen - self.storage_size
+            self.hydrogen_not_storable += mass_overload
+            # Set the storage to the max. storage capacity [kg].
+            self.stored_hydrogen = self.storage_size
 
+        # Track values.
+        self.track_stored_hydrogen.append(self.stored_hydrogen)
+        self.track_produced_hydrogen.append(mass_produced)
+        self.track_demand.append(mass_demanded)
 
     # Determine new measurement data for next step.
     def update_power(self, bought_energy):
@@ -247,7 +264,7 @@ class Electrolyzer(Agent):
             else:
                 # Case: Linprog couldn't derive optimal result, thus produce as much H2 as possible.
                 opt_production = [self.max_production_per_step]
-            print("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
+            # print("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
             electrolyzer_log.info("Electrolyzer bidding - Optimization success is {}".format(opt_res.success))
 
         elif self.bidding_solver == "quadprog":
@@ -325,13 +342,44 @@ class Electrolyzer(Agent):
                 opt_production = [self.max_production_per_step]
 
             # Return the optimal value for this time slot [kg]
-            print("Electrolyzer bidding - Optimization status is '{}'".format(opt_res['status']))
+            # print("Electrolyzer bidding - Optimization status is '{}'".format(opt_res['status']))
             electrolyzer_log.info("Optimization status is '{}'".format(opt_res['status']))
 
         elif self.bidding_solver == "dummy":
             """ Return a dummy bid """
             opt_production = [0.1]
             c = [30]
+
+        elif self.bidding_solver == "stepwise":
+            # Get the amount of hydrogen missing from the storage buffer [kg].
+            min_amount_needed = min(self.max_production_per_step, max(0, self.storage_buffer - self.stored_hydrogen))
+            # Approximate the electricity needed to produce the missing buffer mass (assume efficiency of 65 %) [kWh].
+            min_bid = min_amount_needed * 33.3 / 0.65
+            # Amount of H2 that can be stored [kg]
+            max_mass_storable = min(self.max_production_per_step, self.storage_size - self.stored_hydrogen)
+            # Approximate the electricity buyable to fill storage (assume efficiency of 65 %) [kWh].
+            max_bid = max_mass_storable * 33.3 / 0.65
+            # Generate the bids.
+            # Bids are in the format [price [EUR/kWh], volume[kWh], ID]
+            bids = []
+            if min_bid > 0:
+                # Case: There is an amount that should definitely be bought.
+                bids.append([0.25, min_bid, self.id])
+                # Subtract the amount needed from the amount that could be bought on top of that.
+                max_bid -= min_bid
+
+            if max_bid > 0:
+                # Split max bid to 4 equal sections, one for 20 ct/kWh, one for 15, 10, and 5.
+                bids.append([self.stepwise_bid_price[0], max_bid / 4, self.id])
+                bids.append([self.stepwise_bid_price[1], max_bid / 4, self.id])
+                bids.append([self.stepwise_bid_price[2], max_bid / 4, self.id])
+                bids.append([self.stepwise_bid_price[3], max_bid / 4, self.id])
+
+            # Place the bids
+            for bid in bids:
+                self.model.auction.bid_list.append(bid)
+
+            return
 
         else:
             """ No valid solver """
