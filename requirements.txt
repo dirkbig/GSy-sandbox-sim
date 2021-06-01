@@ -30,7 +30,7 @@ stevedore==1.29.0
 tornado==4.5.3
 tqdm==4.24.0
 traitlets==4.3.2
-urllib3==1.23
+urllib3==1.26.5
 virtualenv==16.0.0
 virtualenv-clone==0.3.0
 virtualenvwrapper==4.8.2
